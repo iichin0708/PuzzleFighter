@@ -114,15 +114,33 @@ protected:
     
     static int preTouchTag;
     static int postTouchTag;
+    static std::list<int> removeBlockTagLists;
+    static kBlock removeBlockType;
     
+    // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
+    
+    // 2つのスプライトを入れ替える.
     void swapSprite();
+    
+    // ブロックを消すアニメーション
+    void removeBlocksAniamtion(std::list<int> blockTags, kBlock blockType, float during);
+    
+    // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
+    void removeAndDrop();
+    
+    // ディスプレイ上の空いている場所にブロックを追加する (スプライトは画面外に配置)
+    void addBlock();
+    
+    // 追加したブロックを落とす
+    void dropNewBlocks();
     
     // 指定したブロックを含む３つ以上のブロック連結があるかどうか
     bool isChainedBlock(int blockTag);
     
     // 連結していて消滅できるブロックの、タグ配列を取得
     std::list<int> getRemoveChainBlocks();
+    
     
 public:
     

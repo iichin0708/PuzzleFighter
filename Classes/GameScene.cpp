@@ -7,8 +7,11 @@ using namespace cocos2d;
 using namespace CocosDenshion;
 using namespace std;
 
+//初期化
 int GameScene::preTouchTag = -1;
 int GameScene::postTouchTag = -1;
+kBlock GameScene::removeBlockType = kBlockRed;
+list<int> GameScene::removeBlockTagLists;
 
 CCScene* GameScene::scene()
 {
@@ -130,6 +133,19 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
 {
     // アニメーション中はタップ処理を受け付けない
     if(!m_animating) {
+        int spriteCount = 0;
+        for (int x = 0; x < MAX_BLOCK_X; x++) {
+            for (int y = 0; y < MAX_BLOCK_Y; y++) {
+                int tag = getTag(x, y);
+                BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+                //消えたスプライトの数を取得
+                if (bSprite != NULL) {
+                    spriteCount++;
+                }
+            }
+        }
+        CCLog("Began-spriteCount = %d", spriteCount);
+        
         preTouchTag = -1;
         CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
         int tag = 0;
@@ -179,20 +195,130 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
         
         if (sameColorBlockTags.size() > 1)
         {
+            removeBlockTagLists = sameColorBlockTags;
+            removeBlockType = blockType;
+
             // 得点加算 (消したコマ数 - 2) の2 乗
             m_score += pow(sameColorBlockTags.size() - 2, 2);
             
             // アニメーション開始
             m_animating = true;
             
-            // 隣接するコマを削除する
-            removeBlock(sameColorBlockTags, blockType);
-            
-            // コマ削除後のアニメーション
-            movingBlocksAnimation1(sameColorBlockTags);
-            
+            removeBlocksAniamtion(sameColorBlockTags, blockType, REMOVING_TIME);
+
+            scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
 
         }
+    }
+
+}
+
+void GameScene::removeAndDrop() {
+    // 隣接するコマを削除する
+    removeBlock(removeBlockTagLists, removeBlockType);
+    
+    // コマ削除後のアニメーション
+    movingBlocksAnimation1(removeBlockTagLists);
+    
+    removeBlockTagLists.clear();
+}
+
+
+// 配列のコマの消えるアニメーションを実行
+void GameScene::removeBlocksAniamtion(list<int> blockTags, kBlock blockType, float during) {
+    bool first = true;
+    
+    list<int>::iterator it = blockTags.begin();
+    while (it != blockTags.end())
+    {
+        // 対象となるコマを取得
+        CCNode* block = m_background->getChildByTag(*it);
+        if (block)
+        {
+            // コマが消えるアニメーションを生成
+            CCScaleTo* scale = CCScaleTo::create(during, 0);
+            
+            CCFiniteTimeAction* action;
+            if (first)
+            {
+                // コマが消えるサウンドアクションを生成
+                CCPlaySE* playSe = CCPlaySE::create(MP3_REMOVE_BLOCK);
+                
+                // アクションをつなげる
+                action = CCSpawn::create(scale, playSe, NULL);
+                
+                first = false;
+            }
+            else
+            {
+                action = scale;
+            }
+            
+            // アクションをセットする
+            block->runAction(action);
+        }
+        
+        it++;
+    }
+    
+    SimpleAudioEngine::sharedEngine()->playEffect(MP3_REMOVE_BLOCK);
+}
+
+// 配列のコマを削除
+void GameScene::removeBlock(list<int> blockTags, kBlock blockType)
+{
+    list<int>::iterator it = blockTags.begin();
+    while (it != blockTags.end())
+    {
+        CCLog("removeList = %d", *it);
+        
+        // 既存配列から該当コマを削除
+        m_blockTags[blockType].remove(*it);
+        
+        // 対象となるコマを取得
+        CCNode* block = m_background->getChildByTag(*it);
+        
+        if (block)
+        {
+            removingBlock(block);
+        }
+        
+        it++;
+    }
+}
+
+
+void GameScene::dropNewBlocks() {
+
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        int removedCount = 0;
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
+            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+            //消えたスプライトの数を取得
+            if (bSprite == NULL) {
+                CCLog("dropTag = %d", tag);
+                removedCount++;
+            }
+        }
+        //追加
+        for (int i = 0; 0 < removedCount; removedCount--, i++) {
+            kBlock blockType = (kBlock)(rand() % kBlockCount);
+            
+            //列の空きの中でも上から順番にタグをセットする.
+            int tag = getTag(x, MAX_BLOCK_Y - removedCount);
+            m_blockTags[blockType].push_back(tag);
+            
+            BlockSprite *pBlock = BlockSprite::createWithBlockType(blockType);
+            
+            //画面外に配置
+            pBlock->setPosition(getPosition(x, MAX_BLOCK_Y + i));
+            //落ちる目的地はタグの場所
+            pBlock->setNextPos(x, MAX_BLOCK_Y - removedCount);
+            m_background->addChild(pBlock, kZOrderBlock, tag);
+            
+        }
+        removedCount = 0;
     }
 
 }
@@ -213,7 +339,6 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag) {
     }
 
     return false;
-    
 }
 
 void GameScene::swapSprite() {
@@ -496,58 +621,6 @@ bool GameScene::isChainedBlock(int blockTag)
     return false;  // 3マッチがない
 }
 
-// 配列のコマを削除
-void GameScene::removeBlock(list<int> blockTags, kBlock blockType)
-{
-    bool first = true;
-    
-    list<int>::iterator it = blockTags.begin();
-    while (it != blockTags.end())
-    {
-        // 既存配列から該当コマを削除
-        m_blockTags[blockType].remove(*it);
-        
-        // 対象となるコマを取得
-        CCNode* block = m_background->getChildByTag(*it);
-        if (block)
-        {
-            // コマが消えるアニメーションを生成
-            CCScaleTo* scale = CCScaleTo::create(REMOVING_TIME, 0);
-            
-            // コマを削除するアクションを生成
-            CCCallFuncN* func = CCCallFuncN::create(this, callfuncN_selector(GameScene::removingBlock));
-            
-            // アクションをつなげる
-            CCFiniteTimeAction* sequence = CCSequence::create(scale, func, NULL);
-            
-            CCFiniteTimeAction* action;
-            if (first)
-            {
-                // コマが消えるサウンドアクションを生成
-                CCPlaySE* playSe = CCPlaySE::create(MP3_REMOVE_BLOCK);
-                
-                // アクションをつなげる
-                action = CCSpawn::create(sequence, playSe, NULL);
-                
-                first = false;
-            }
-            else
-            {
-                action = sequence;
-            }
-            
-            // アクションをセットする
-            block->runAction(action);
-        }
-        
-        
-        
-        it++;
-    }
-    
-    SimpleAudioEngine::sharedEngine()->playEffect(MP3_REMOVE_BLOCK);
-}
-
 // コマの削除
 void GameScene::removingBlock(CCNode* block)
 {
@@ -568,6 +641,9 @@ void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
 {
     
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
+    if (blockSprite == NULL) {
+        CCLog("unko");
+    }
     int nextPosY = blockSprite->getNextPosY();
     if (nextPosY == -1)
     {
@@ -625,6 +701,9 @@ void GameScene::moveBlock()
         while (it2 != m_blockTags[*it1].end())
         {
             BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(*it2);
+            if(blockSprite == NULL) {
+                CCLog("aaa %d", *it2);
+            }
             int nextPosX = blockSprite->getNextPosX();
             int nextPosY = blockSprite->getNextPosY();
             
@@ -634,7 +713,7 @@ void GameScene::moveBlock()
                 int newTag = getTag(nextPosX, nextPosY);
                 blockSprite->initNextPos();
                 blockSprite->setTag(newTag);
-                
+             
                 // タグ一覧の値も新しいタグに変更する
                 *it2 = newTag;
                 
@@ -648,6 +727,7 @@ void GameScene::moveBlock()
         
         it1++;
     }
+
 }
 
 // コマ削除後のアニメーション
@@ -655,6 +735,9 @@ void GameScene::movingBlocksAnimation1(list<int> blocks)
 {
     // コマの新しい位置をセットする
     searchNewPosition1(blocks);
+    
+    // 新しいブロックを追加
+    dropNewBlocks();
     
     // 新しい位置がセットされたコマのアニメーション
     moveBlock();
