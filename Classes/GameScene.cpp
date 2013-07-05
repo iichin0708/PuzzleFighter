@@ -642,7 +642,7 @@ void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
     
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
     if (blockSprite == NULL) {
-        CCLog("unko");
+        CCLog("tag = %d", tag);
     }
     int nextPosY = blockSprite->getNextPosY();
     if (nextPosY == -1)
