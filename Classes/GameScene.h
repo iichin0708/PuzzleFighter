@@ -75,7 +75,7 @@ protected:
     //2-2-5
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
     std::list<int> getSameColorBlockTags(int baseTag, kBlock blockType);
-    void removeBlock(std::list<int> blockTags, kBlock blockType);
+    void removeBlock(std::list<int> blockTags);
     bool hasSameColorBlock(std::list<int> blockTagList, int searchBlockTag);
     
     //2-3-1
@@ -124,7 +124,7 @@ protected:
     void swapSprite();
     
     // ブロックを消すアニメーション
-    void removeBlocksAniamtion(std::list<int> blockTags, kBlock blockType, float during);
+    void removeBlocksAniamtion(std::list<int> blockTags, float during);
     
     // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
     void removeAndDrop();

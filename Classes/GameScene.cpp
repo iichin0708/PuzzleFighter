@@ -176,13 +176,15 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 
             // 消えることのできるブロックがある
             if(removeBlockTags.size() >= 3) {
+                removeBlockTagLists = removeBlockTags;
+
                 // 得点加算 (消したコマ数 - 2) の2 乗
                 m_score += pow(removeBlockTags.size() - 2, 2);
                 
                 // アニメーション開始
                 m_animating = true;
                 
-                removeBlocksAniamtion(removeBlockTags, blockType, REMOVING_TIME);
+                removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
                 
                 scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
             }
@@ -230,7 +232,7 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 
 void GameScene::removeAndDrop() {
     // 隣接するコマを削除する
-   removeBlock(removeBlockTagLists, removeBlockType);
+   removeBlock(removeBlockTagLists);
    
     std::cout << "removed" << endl;
     for (int x = 0; x < MAX_BLOCK_X; x++) {
@@ -265,7 +267,7 @@ void GameScene::removeAndDrop() {
 
 
 // 配列のコマの消えるアニメーションを実行
-void GameScene::removeBlocksAniamtion(list<int> blockTags, kBlock blockType, float during) {
+void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
     bool first = true;
     
     list<int>::iterator it = blockTags.begin();
@@ -305,12 +307,13 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, kBlock blockType, flo
 }
 
 // 配列のコマを削除
-void GameScene::removeBlock(list<int> blockTags, kBlock blockType)
+void GameScene::removeBlock(list<int> blockTags)
 {
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
-        //CCLog("removeList = %d", *it);
+        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        kBlock blockType = bSprite->getBlockType();
         
         // 既存配列から該当コマを削除
         m_blockTags[blockType].remove(*it);
