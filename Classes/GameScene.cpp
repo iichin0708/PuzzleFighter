@@ -157,9 +157,22 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     if (tag != 0) {
         postTouchTag = tag;
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
-            swapSprite();            
-            preTouchTag = -1;
-            postTouchTag = -1;
+            swapSprite();
+            
+            list<int> removeBlockTags = getRemoveChainBlocks();
+
+            // 消えることのできるブロックがある
+            if(removeBlockTags.size() >= 3) {
+                // 得点加算 (消したコマ数 - 2) の2 乗
+                m_score += pow(removeBlockTags.size() - 2, 2);
+                
+                // アニメーション開始
+                m_animating = true;
+                
+                removeBlocksAniamtion(removeBlockTags, blockType, REMOVING_TIME);
+                
+                scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
+            }
         }
     }
        
@@ -168,6 +181,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 // タッチ終了イベント
 void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 {
+    /*
     // タップポイント取得
     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
     
@@ -198,7 +212,7 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 
         }
     }
-
+    */
 }
 
 void GameScene::removeAndDrop() {
@@ -434,6 +448,7 @@ list<int> GameScene::getRemoveChainBlocks()
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
+    /*
     // 移動させたブロックが連結になったか
     if (! isChainedBlock(preTouchTag) &&
         ! isChainedBlock(postTouchTag))
@@ -441,6 +456,7 @@ list<int> GameScene::getRemoveChainBlocks()
         // 連結がなければ消えるブロックなし
         return removeChainBlocks;
     }
+    */
 
     // タッチしたブロックのタグを初期化
     preTouchTag = -1;
