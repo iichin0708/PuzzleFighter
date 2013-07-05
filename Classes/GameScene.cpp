@@ -159,23 +159,9 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             swapSprite();
             
-            list<int> removeBlockTags = getRemoveChainBlocks();
-
-            // 消えることのできるブロックがある
-            if(removeBlockTags.size() >= 3) {
-                // 得点加算 (消したコマ数 - 2) の2 乗
-                m_score += pow(removeBlockTags.size() - 2, 2);
-                
-                // アニメーション開始
-                m_animating = true;
-                
-                removeBlocksAniamtion(removeBlockTags, blockType, REMOVING_TIME);
-                
-                scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
-            }
+            scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
         }
     }
-       
 }
 
 // タッチ終了イベント
@@ -223,6 +209,25 @@ void GameScene::removeAndDrop() {
     movingBlocksAnimation1(removeBlockTagLists);
     
     removeBlockTagLists.clear();
+}
+
+void GameScene::checkAndRemoveAndDrop()
+{
+    kBlock blockType;
+    list<int> removeBlockTags = getRemoveChainBlocks();
+    
+    // 消えることのできるブロックがある
+    if(removeBlockTags.size() >= 3) {
+        // 得点加算 (消したコマ数 - 2) の2 乗
+        m_score += pow(removeBlockTags.size() - 2, 2);
+        
+        // アニメーション開始
+        m_animating = true;
+        
+        removeBlocksAniamtion(removeBlockTags, blockType, REMOVING_TIME);
+        
+        scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
+    }
 }
 
 
