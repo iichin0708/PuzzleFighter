@@ -316,6 +316,186 @@ list<int> GameScene::getSameColorBlockTags(int baseTag, kBlock blockType)
     return sameColorBlockTags;
 }
 
+// 連結していて消滅できるブロックの、タグ配列を取得
+list<int> GameScene::getRemoveChainBlocks()
+{
+    // 消滅できるブロックリスト
+    list<int> removeChainBlocks;
+    
+    // 移動させたブロックが連結になったか
+    if (! isChainedBlock(preTouchTag) &&
+        ! isChainedBlock(postTouchTag))
+    {
+        // 連結がなければ消えるブロックなし
+        return removeChainBlocks;
+    }
+
+    // タッチしたブロックのタグを初期化
+    preTouchTag = -1;
+    postTouchTag = -1;
+    
+    
+    // 消滅候補ブロックリスト
+    list<int> removeReserveBlocks;
+
+    
+    // 1行ずつ横の連なりを走査
+    for (int y = 0; y <= 5; y++) {
+        // 比較対象のブロックの種類
+        kBlock currentType;
+        
+        for (int x = 0; x <= 5; x++) {
+            // ターゲットのブロックを取得
+            int targetTag = kTagBaseBlock + x * 100 + y;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            kBlock targetType = target->getBlockType();
+            
+            // カレントとターゲットが同じ種類のブロックかどうか
+            if (targetType == currentType) {
+                // 同じなら消滅候補に追加
+                removeReserveBlocks.push_back(targetTag);
+                
+            } else {
+                // 違うならカレントをターゲットに変更
+                currentType = targetType;
+                
+                // その時点で消滅候補が３つ以上（繋がりが３つ以上）なら
+                if (removeReserveBlocks.size() >= 3) {
+                    list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
+                    while( it != removeReserveBlocks.end() ) {
+                        removeChainBlocks.push_back(*it);
+                        ++it;  // イテレータを１つ進める
+                    }
+                }
+                
+                // 消滅候補を空にして、ターゲットを追加
+                removeReserveBlocks.clear();
+                removeReserveBlocks.push_back(targetTag);
+            }
+        }
+        
+        // 対象の行の走査終了時も消滅候補をチェックして空にする
+        if (removeReserveBlocks.size() >= 3) {
+            list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
+            while( it != removeReserveBlocks.end() ) {
+                removeChainBlocks.push_back(*it);
+                ++it;  // イテレータを１つ進める
+            }
+        }
+        
+        removeReserveBlocks.clear();
+    }
+    
+    
+    // 1列ずつ縦の連なりを走査
+    for (int x = 0; x <= 5; x++) {
+        // 比較対象のブロックの種類
+        kBlock currentType;
+        
+        for (int y = 0; y <= 5; y++) {
+            // ターゲットのブロックを取得
+            int targetTag = kTagBaseBlock + x * 100 + y;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            kBlock targetType = target->getBlockType();
+            
+            // カレントとターゲットが同じ種類のブロックかどうか
+            if (targetType == currentType) {
+                // 同じなら消滅候補に追加
+                removeReserveBlocks.push_back(targetTag);
+                
+            } else {
+                // 違うならカレントをターゲットに変更
+                currentType = targetType;
+                
+                // その時点で消滅候補が３つ以上（繋がりが３つ以上）なら
+                if (removeReserveBlocks.size() >= 3) {
+                    list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
+                    while( it != removeReserveBlocks.end() ) {
+                        removeChainBlocks.push_back(*it);
+                        ++it;  // イテレータを１つ進める
+                    }
+                }
+                
+                // 消滅候補を空にして、ターゲットを追加
+                removeReserveBlocks.clear();
+                removeReserveBlocks.push_back(targetTag);
+            }
+        }
+        
+        // 対象の行の走査終了時も消滅候補をチェックして空にする
+        if (removeReserveBlocks.size() >= 3) {
+            list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
+            while( it != removeReserveBlocks.end() ) {
+                removeChainBlocks.push_back(*it);
+                ++it;  // イテレータを１つ進める
+            }
+        }
+        
+        removeReserveBlocks.clear();
+    }
+    
+    return removeChainBlocks;
+}
+
+// 指定したブロックを含む３つ以上のブロック連結があるかどうか
+bool GameScene::isChainedBlock(int blockTag)
+{
+    BlockSprite *block = (BlockSprite *)m_background->getChildByTag(blockTag);
+    
+    // ブロックの種類
+    kBlock blockType = block->getBlockType();
+    // ブロックの盤面上の座標
+    PositionIndex blockIndex = getPositionIndex(blockTag);
+    
+    
+    /***** 横方向の繋がり *****/
+    int count = 1; // 横につながっている個数
+    // 左方向に走査
+    for (int x = blockIndex.x - 100; x >= kTagBaseBlock + blockIndex.y; x -= 100) {
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + x);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    
+    // 右方向に走査
+    for (int x = blockIndex.x + 100; x <= kTagBaseBlock + 500 + blockIndex.y; x += 100) {
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + x);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    // 3つ繋がっているか
+    if (count >= 3) { return true; }
+    
+    
+    /***** 縦方向の繋がり *****/
+    count = 1; // 縦につながっている個数
+    // 下方向に走査
+    for (int y = blockIndex.y - 1; y >= kTagBaseBlock + blockIndex.x * 100; y--) {
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + y);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    
+    // 上方向に走査
+    for (int y = blockIndex.y + 1; y <= kTagBaseBlock + blockIndex.x * 100 + 5; y++) {
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + y);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    // 3つ繋がっているか
+    if (count >= 3) { return true; }
+    
+    return false;  // 3マッチがない
+}
+
 // 配列のコマを削除
 void GameScene::removeBlock(list<int> blockTags, kBlock blockType)
 {

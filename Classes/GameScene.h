@@ -118,6 +118,12 @@ protected:
     bool checkCorrectSwap(int preTag, int postTag);
     void swapSprite();
     
+    // 指定したブロックを含む３つ以上のブロック連結があるかどうか
+    bool isChainedBlock(int blockTag);
+    
+    // 連結していて消滅できるブロックの、タグ配列を取得
+    std::list<int> getRemoveChainBlocks();
+    
 public:
     
     virtual bool init();
