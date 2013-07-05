@@ -134,6 +134,19 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
  
     // アニメーション中はタップ処理を受け付けない
     if(!m_animating) {
+            std::cout << "began" << endl;
+        for (int x = 0; x < MAX_BLOCK_X; x++) {
+            for (int y = 0; y < MAX_BLOCK_Y; y++) {
+                int tag = getTag(x, y);
+                BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+                //消えたスプライトの数を取得
+                if (bSprite != NULL) {
+                    std::cout << bSprite->getBlockType() << " ";
+                }
+            }
+            std::cout << endl;
+        }
+        
         preTouchTag = -1;
         CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
         int tag = 0;
@@ -203,11 +216,36 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 
 void GameScene::removeAndDrop() {
     // 隣接するコマを削除する
-    removeBlock(removeBlockTagLists, removeBlockType);
+   removeBlock(removeBlockTagLists, removeBlockType);
+   
+    std::cout << "removed" << endl;
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
+            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+            //消えたスプライトの数を取得
+            if (bSprite != NULL) {
+                std::cout << bSprite->getBlockType() << " ";
+            }
+        }
+        std::cout << endl;
+    }
     
     // コマ削除後のアニメーション
     movingBlocksAnimation1(removeBlockTagLists);
-    
+    std::cout << "moved" << endl;
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
+            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+            //消えたスプライトの数を取得
+            if (bSprite != NULL) {
+                std::cout << bSprite->getBlockType() << " ";
+            }
+        }
+        std::cout << endl;
+    }
+
     removeBlockTagLists.clear();
 }
 
@@ -649,9 +687,7 @@ void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
 {
     
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
-    if (blockSprite == NULL) {
-        CCLog("tag = %d", tag);
-    }
+
     int nextPosY = blockSprite->getNextPosY();
     if (nextPosY == -1)
     {
@@ -739,17 +775,19 @@ void GameScene::moveBlock()
 // コマ削除後のアニメーション
 void GameScene::movingBlocksAnimation1(list<int> blocks)
 {
-    // コマの新しい位置をセットする
+    // 削除された場所に既存のピースをずらす
     searchNewPosition1(blocks);
     int spriteCount = 0;
     spriteCount = 0;
-    
-    // 新しい位置がセットされたコマのアニメーション
+    // 新しい位置がセットされたピースのアニメーション
     moveBlock();
 
-    // 新しいブロックを追加
+    
+    // 新しいブロックを場外に追加
     dropNewBlocks();
+    // 場外から落とす
     moveBlock();
+    
     
     scheduleOnce(schedule_selector(GameScene::movedBlocks), MOVING_TIME);
 }
