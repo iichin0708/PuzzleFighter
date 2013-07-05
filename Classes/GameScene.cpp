@@ -131,24 +131,9 @@ void GameScene::showBlock()
 // タッチ開始イベント
 bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
 {
-    std::cout << "began" << endl;;
+ 
     // アニメーション中はタップ処理を受け付けない
     if(!m_animating) {
-        int spriteCount = 0;
-        for (int x = 0; x < MAX_BLOCK_X; x++) {
-            for (int y = 0; y < MAX_BLOCK_Y; y++) {
-                int tag = getTag(x, y);
-                BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-                //消えたスプライトの数を取得
-                if (bSprite != NULL) {
-                    std::cout << bSprite->getBlockType() << " ";
-                    spriteCount++;
-                }
-            }
-            std::cout << endl;
-        }
-        //CCLog("Began-spriteCount = %d", spriteCount);
-        
         preTouchTag = -1;
         CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
         int tag = 0;
@@ -157,11 +142,9 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
         //触った場所にブロックがあった場合
         if (tag != 0) {
             preTouchTag = tag;
-            std::cout << endl;
             return true;
         }
     }
-    std::cout << endl;
     return false;
 }
 
@@ -705,9 +688,7 @@ void GameScene::moveBlock()
         while (it2 != m_blockTags[*it1].end())
         {
             BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(*it2);
-            if(blockSprite == NULL) {
-                CCLog("aaa %d", *it2);
-            }
+           
             int nextPosX = blockSprite->getNextPosX();
             int nextPosY = blockSprite->getNextPosY();
             
@@ -739,39 +720,8 @@ void GameScene::movingBlocksAnimation1(list<int> blocks)
 {
     // コマの新しい位置をセットする
     searchNewPosition1(blocks);
-
-    std::cout << "removed" << endl;;
     int spriteCount = 0;
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            int tag = getTag(x, y);
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            //消えたスプライトの数を取得
-            if (bSprite != NULL) {
-                std::cout << bSprite->getBlockType() << " ";
-                spriteCount++;
-            }
-        }
-        std::cout << endl;
-    }
-
-    
-    
-    std::cout << "droped" << endl;;
     spriteCount = 0;
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            int tag = getTag(x, y);
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            //消えたスプライトの数を取得
-            if (bSprite != NULL) {
-                std::cout << bSprite->getBlockType() << " ";
-                spriteCount++;
-            }
-        }
-        std::cout << endl;
-    }
-
     
     // 新しい位置がセットされたコマのアニメーション
     moveBlock();
