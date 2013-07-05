@@ -169,8 +169,11 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     getTouchBlockTag(touchPoint, tag, blockType);
     if (tag != 0) {
         postTouchTag = tag;
+        
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             swapSprite();
+            
+            list<int> removeBlockTags = getRemoveChainBlocks();
             
             scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
         }
@@ -214,7 +217,9 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
     */
 }
 
-void GameScene::removeAndDrop() {
+
+void GameScene::removeAndDrop()
+{
     // 隣接するコマを削除する
    removeBlock(removeBlockTagLists, removeBlockType);
    
@@ -249,6 +254,7 @@ void GameScene::removeAndDrop() {
     removeBlockTagLists.clear();
 }
 
+
 void GameScene::checkAndRemoveAndDrop()
 {
     kBlock blockType;
@@ -268,9 +274,9 @@ void GameScene::checkAndRemoveAndDrop()
     }
 }
 
-
 // 配列のコマの消えるアニメーションを実行
-void GameScene::removeBlocksAniamtion(list<int> blockTags, kBlock blockType, float during) {
+void GameScene::removeBlocksAniamtion(list<int> blockTags, kBlock blockType, float during)
+{
     bool first = true;
     
     list<int>::iterator it = blockTags.begin();
@@ -333,7 +339,8 @@ void GameScene::removeBlock(list<int> blockTags, kBlock blockType)
 }
 
 
-void GameScene::dropNewBlocks() {
+void GameScene::dropNewBlocks()
+{
 
     for (int x = 0; x < MAX_BLOCK_X; x++) {
         int removedCount = 0;
@@ -368,7 +375,8 @@ void GameScene::dropNewBlocks() {
 }
 
 //上下左右に動いたかどうか
-bool GameScene::checkCorrectSwap(int preTag, int postTag) {
+bool GameScene::checkCorrectSwap(int preTag, int postTag)
+{
     int tags[] = {
         preTouchTag + 100,
         preTouchTag - 100,
@@ -385,7 +393,9 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag) {
     return false;
 }
 
-void GameScene::swapSprite() {
+
+void GameScene::swapSprite()
+{
     //入れ替わるアニメーションを挿入
     BlockSprite *preTouchSprite = (BlockSprite *)m_background->getChildByTag(preTouchTag);
     BlockSprite *postTouchSprite = (BlockSprite *)m_background->getChildByTag(postTouchTag);
@@ -412,7 +422,6 @@ void GameScene::swapSprite() {
     m_blockTags[postTouchSprite->getBlockType()].push_back(preTouchTag);
     
 }
-
 
 // タップされたコマのタグを取得
 void GameScene::getTouchBlockTag(CCPoint touchPoint, int &tag, kBlock &blockType)
@@ -491,7 +500,7 @@ list<int> GameScene::getRemoveChainBlocks()
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
-    /*
+    /* // バグがあったため見直し（川辺）なくても動きますが、あると走査の効率が良い
     // 移動させたブロックが連結になったか
     if (! isChainedBlock(preTouchTag) &&
         ! isChainedBlock(postTouchTag))
@@ -817,7 +826,6 @@ void GameScene::movedBlocks()
         setTouchEnabled(false);
     }
 }
-
 
 // 存在する列を取得する
 map<int, bool> GameScene::getExistsBlockColumn()
