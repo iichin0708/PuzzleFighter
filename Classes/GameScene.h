@@ -59,63 +59,36 @@ protected:
         int x;
         int y;
     };
+ 
+    // タッチしたタグ(CCTouchBegan用)
+    static int preTouchTag;
     
-    // 2-2-3
-    cocos2d::CCSprite* m_background;
-    void showBackground();
-
-    //2-2-4
-    float m_blockSize;
-    std::map<kBlock, std::list<int> > m_blockTags;
-    void initForVariables();
-    void showBlock();
-    cocos2d::CCPoint getPosition(int posIndexX, int posIndexY);
-    int getTag(int posIndexX, int posIndexY);
+    // タッチしたタグ(CCTouchMove用)
+    static int postTouchTag;
     
-    //2-2-5
-    void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
-    std::list<int> getSameColorBlockTags(int baseTag, kBlock blockType);
-    void removeBlock(std::list<int> blockTags);
-    bool hasSameColorBlock(std::list<int> blockTagList, int searchBlockTag);
-    
-    //2-3-1
-    void removingBlock(cocos2d::CCNode* block);
-    
-    //2-3-2
-    //blockタイプのタグを格納
-    std::vector<kBlock> blockTypes;
-    PositionIndex getPositionIndex(int tag);
-    void setNewPosition1(int tag, PositionIndex posIndex);
-    void searchNewPosition1(std::list<int> blocks);
-    void moveBlock();
-    void movingBlocksAnimation1(std::list<int> blocks);
-    
-    //2-3-3
+    // 消すブロックのリスト
+    static std::list<int> removeBlockTagLists;
+        
+    // アニメーション中のフラグ
     bool m_animating;
-    void movedBlocks();
-    std::map<int, bool> getExistsBlockColumn();
     
-    //2-4-1
-    void showLabel();
+    // 画像の大きさ
+    float m_blockSize;
     
-    //2-4-2
+    // スコアを保持
     int m_score;
     
-    //2-4-3
-    bool existsSameBlock();
+    // 背景画像
+    cocos2d::CCSprite* m_background;
+
+    /***** 以下メソッド群 ******/
     
-    //2-4-4
-    void saveHighScore();
-    void showHighScoreLabel();
-    
-    //2-4-5
-    void menuResetCallback(cocos2d::CCObject* pSender);
-    void showResetButton();
-    
-    static int preTouchTag;
-    static int postTouchTag;
-    static std::list<int> removeBlockTagLists;
-    static kBlock removeBlockType;
+    // 変数を初期化する
+    void initForVariables();
+    // 背景を表示する
+    void showBackground();
+    // 初期ブロックを表示する
+    void showBlock();
     
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
@@ -123,30 +96,91 @@ protected:
     // 2つのスプライトを入れ替える.
     void swapSprite();
     
+    // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
+    void checkAndRemoveAndDrop();
+    
+    // 入れ替えアニメーションの終了メソッド
+    void exchangeAnimationFinished();
+
+    // 連結していて消滅できるブロックの、タグ配列を取得
+    std::list<int> getRemoveChainBlocks();
+    
+    // 指定したブロックを含む３つ以上のブロック連結があるかどうか
+    bool isChainedBlock(int blockTag);
+    
     // ブロックを消すアニメーション
     void removeBlocksAniamtion(std::list<int> blockTags, float during);
     
     // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
     void removeAndDrop();
     
-    // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
-    void checkAndRemoveAndDrop();
+    // 与えられたタグの引数リストよりコマを削除する
+    void removeBlock(std::list<int> blockTags);
+    
+    // 親から実際に参照を削除する
+    void removingBlock(cocos2d::CCNode* block);
 
-    // ディスプレイ上の空いている場所にブロックを追加する (スプライトは画面外に配置)
-    void addBlock();
+    // コマを下に落とすアニメーション
+    void movingBlocksAnimation1(std::list<int> blocks);
+    
+    // 下にずらすべきコマを探索する
+    void searchNewPosition1(std::list<int> blocks);
+    
+    // 消されたコマの上にあるコマに新しいポジションを設定する(下にずらす)
+    void setNewPosition1(int tag, PositionIndex posIndex);
+    
+    // コマを実際に動かす(nextPosが設定してあるコマのみ)
+    void moveBlock();
     
     // 追加したブロックを落とす
     void dropNewBlocks();
     
-    // 指定したブロックを含む３つ以上のブロック連結があるかどうか
-    bool isChainedBlock(int blockTag);
+    // コマを下に落とし終わったあとのメソッド
+    void movedBlocks();
+
     
-    // 連結していて消滅できるブロックの、タグ配列を取得
-    std::list<int> getRemoveChainBlocks();
+    // ラベルを表示する
+    void showLabel();
+
+    // リセットする(初めから始める)
+    void menuResetCallback(cocos2d::CCObject* pSender);
     
-    // 入れ替えアニメーションの終了メソッド
-    void exchangeAnimationFinished();
+    // リセットボタンを画面に表示させる
+    void showResetButton();
     
+    
+    /***** 以下ユーティリティ系メソッド *****/
+    
+    // 与えられたインデックスから画面上のポイントを返す
+    cocos2d::CCPoint getPosition(int posIndexX, int posIndexY);
+
+    // 与えられたインデックスからタグを取得する
+    int getTag(int posIndexX, int posIndexY);
+    // タッチされたコマのタグを取得
+    void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
+
+    // タグからインデックスを取得する
+    PositionIndex getPositionIndex(int tag);
+
+    /*********************************/
+
+
+
+    
+    // 使ってない
+    std::map<int, bool> getExistsBlockColumn();
+    // 使ってない
+    std::list<int> getSameColorBlockTags(int baseTag, kBlock blockType);
+    // 使ってない
+    bool hasSameColorBlock(std::list<int> blockTagList, int searchBlockTag);
+    // 使ってない
+    bool existsSameBlock();
+
+    // 使ってない(将来使うかも)
+    void saveHighScore();
+    // 使ってない(将来使うかも)
+    void showHighScoreLabel();
+
 public:
     
     virtual bool init();
