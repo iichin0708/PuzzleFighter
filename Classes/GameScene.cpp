@@ -242,8 +242,13 @@ void GameScene::checkAndRemoveAndDrop()
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
     } else {
-        swapSprite();
-        scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
+        // ブロック入れ替え直後であれば、元に戻したあと入力受付状態にする
+        if(preTouchTag != -1 && postTouchTag != -1) {
+            swapSprite();
+            scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
+        } else {
+            m_animating = false;
+        }
     }
 }
 
