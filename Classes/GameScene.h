@@ -161,6 +161,12 @@ protected:
 
     // タグからインデックスを取得する
     PositionIndex getPositionIndex(int tag);
+    
+    // 指定したブロックにある潜在的な連結の数
+    int getSwapChainBlockCount(int blockTag);
+    
+    // 盤面全体の潜在的な連結の数を取得する
+    int getSwapChainCount();
 
     /*********************************/
 
