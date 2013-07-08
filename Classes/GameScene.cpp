@@ -212,38 +212,6 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 // タッチ終了イベント
 void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 {
-    /*
-     // タップポイント取得
-     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
-     
-     // タップしたコマのTag とコマの種類を取得
-     int tag = 0;
-     kBlock blockType;
-     getTouchBlockTag(touchPoint, tag, blockType);
-     
-     if (tag != 0)
-     {
-     // 隣接するコマを検索する
-     list<int> sameColorBlockTags = getSameColorBlockTags(tag, blockType);
-     
-     if (sameColorBlockTags.size() > 1)
-     {
-     removeBlockTagLists = sameColorBlockTags;
-     removeBlockType = blockType;
-     
-     // 得点加算 (消したコマ数 - 2) の2 乗
-     m_score += pow(sameColorBlockTags.size() - 2, 2);
-     
-     // アニメーション開始
-     m_animating = true;
-     
-     removeBlocksAniamtion(sameColorBlockTags, blockType, REMOVING_TIME);
-     
-     scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
-     
-     }
-     }
-     */
 }
 
 // 消滅リスト内のブロックを消して、上のブロックを落とすアニメーションセット
@@ -274,8 +242,13 @@ void GameScene::checkAndRemoveAndDrop()
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
     } else {
-        m_animating = false;
+        swapSprite();
+        scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
     }
+}
+
+void GameScene::exchangeAnimationFinished() {
+    m_animating = false;
 }
 
 // 配列のコマの消えるアニメーションを実行

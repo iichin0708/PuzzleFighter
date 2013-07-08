@@ -144,6 +144,8 @@ protected:
     // 連結していて消滅できるブロックの、タグ配列を取得
     std::list<int> getRemoveChainBlocks();
     
+    // 入れ替えアニメーションの終了メソッド
+    void exchangeAnimationFinished();
     
 public:
     
