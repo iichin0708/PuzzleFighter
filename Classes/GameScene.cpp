@@ -400,20 +400,18 @@ void GameScene::removeBlock(list<int> blockTags)
     while (it != blockTags.end())
     {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-
-        if(bSprite != NULL) {
-            kBlock blockType = bSprite->getBlockType();
-            
-            // 既存配列から該当コマを削除
-            m_blockTags[blockType].remove(*it);
-            
-            // 対象となるコマを取得
-            CCNode* block = m_background->getChildByTag(*it);
-            
-            if (block)
-            {
-                removingBlock(block);
-            }
+        
+        kBlock blockType = bSprite->getBlockType();
+        
+        // 既存配列から該当コマを削除
+        m_blockTags[blockType].remove(*it);
+        
+        // 対象となるコマを取得
+        CCNode* block = m_background->getChildByTag(*it);
+        
+        if (block)
+        {
+            removingBlock(block);
         }
         it++;
     }
@@ -695,6 +693,11 @@ list<int> GameScene::getRemoveChainBlocks()
         
         removeReserveBlocks.clear();
     }
+    
+
+    // 重複する値を削除
+    removeChainBlocks.sort();
+    removeChainBlocks.unique();
     
     return removeChainBlocks;
 }
