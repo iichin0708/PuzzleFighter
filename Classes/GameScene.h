@@ -129,6 +129,9 @@ protected:
     // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
     void removeAndDrop();
     
+    // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
+    void checkAndRemoveAndDrop();
+
     // ディスプレイ上の空いている場所にブロックを追加する (スプライトは画面外に配置)
     void addBlock();
     
