@@ -78,14 +78,14 @@ void GameScene::initForVariables()
     // コマの一辺の長さを取得
     BlockSprite* pBlock = BlockSprite::createWithBlockType(kBlockRed);
     m_blockSize = pBlock->getContentSize().height;
-
+    
     // コマ種類の配列生成
     blockTypes.push_back(kBlockRed);
     blockTypes.push_back(kBlockBlue);
     blockTypes.push_back(kBlockYellow);
     blockTypes.push_back(kBlockGreen);
     blockTypes.push_back(kBlockGray);
-
+    
     // 変数初期化
     m_animating = false;
     m_score = 0;
@@ -118,7 +118,6 @@ void GameScene::showBlock()
             
             // 対応するコマ配列にタグを追加
             int tag = getTag(x, y);
-            m_blockTags[blockType].push_back(tag);
             
             // コマを作成
             BlockSprite* pBlock = BlockSprite::createWithBlockType(blockType);
@@ -131,22 +130,9 @@ void GameScene::showBlock()
 // タッチ開始イベント
 bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
 {
- 
+    
     // アニメーション中はタップ処理を受け付けない
     if(!m_animating) {
-        std::cout << "began" << endl;
-        for (int x = 0; x < MAX_BLOCK_X; x++) {
-            for (int y = 0; y < MAX_BLOCK_Y; y++) {
-                int tag = getTag(x, y);
-                BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-                //消えたスプライトの数を取得
-                if (bSprite != NULL) {
-                    std::cout << bSprite->getBlockType() << " ";
-                }
-            }
-            std::cout << endl;
-        }
-        
         preTouchTag = -1;
         CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
         int tag = 0;
@@ -168,44 +154,11 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
     if (tag != 0 && !m_animating) {
-       postTouchTag = tag;
+        postTouchTag = tag;
         
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             swapSprite();
-            
             scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
-
-            /*
-            // 消えることのできるブロックがある
-            if(removeBlockTags.size() >= 3) {
-               
-                list<int>::iterator it = removeBlockTags.begin();
-                while( it != removeBlockTags.end()) {
-                    std::cout << *it << endl;
-                    it++;
-                }
-                
-                
-                removeBlockTagLists = removeBlockTags;
-
-                // 得点加算 (消したコマ数 - 2) の2 乗
-                m_score += pow(removeBlockTags.size() - 2, 2);
-                
-                // アニメーション開始
-                m_animating = true;
-                
-                removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
-                
-                
-                list<int>::iterator it1 = removeBlockTags.begin();
-                while( it1 != removeBlockTags.end() ) {
-                    std::cout << *it1 << endl;
-                    it1++;
-                }
-                
-                scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
-            }
-            */
         }
     }
 }
@@ -214,73 +167,48 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 {
     /*
-    // タップポイント取得
-    CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
-    
-    // タップしたコマのTag とコマの種類を取得
-    int tag = 0;
-    kBlock blockType;
-    getTouchBlockTag(touchPoint, tag, blockType);
- 
-    if (tag != 0)
-    {
-        // 隣接するコマを検索する
-        list<int> sameColorBlockTags = getSameColorBlockTags(tag, blockType);
-        
-        if (sameColorBlockTags.size() > 1)
-        {
-            removeBlockTagLists = sameColorBlockTags;
-            removeBlockType = blockType;
-
-            // 得点加算 (消したコマ数 - 2) の2 乗
-            m_score += pow(sameColorBlockTags.size() - 2, 2);
-            
-            // アニメーション開始
-            m_animating = true;
-            
-            removeBlocksAniamtion(sameColorBlockTags, blockType, REMOVING_TIME);
-
-            scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
-
-        }
-    }
-    */
+     // タップポイント取得
+     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
+     
+     // タップしたコマのTag とコマの種類を取得
+     int tag = 0;
+     kBlock blockType;
+     getTouchBlockTag(touchPoint, tag, blockType);
+     
+     if (tag != 0)
+     {
+     // 隣接するコマを検索する
+     list<int> sameColorBlockTags = getSameColorBlockTags(tag, blockType);
+     
+     if (sameColorBlockTags.size() > 1)
+     {
+     removeBlockTagLists = sameColorBlockTags;
+     removeBlockType = blockType;
+     
+     // 得点加算 (消したコマ数 - 2) の2 乗
+     m_score += pow(sameColorBlockTags.size() - 2, 2);
+     
+     // アニメーション開始
+     m_animating = true;
+     
+     removeBlocksAniamtion(sameColorBlockTags, blockType, REMOVING_TIME);
+     
+     scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
+     
+     }
+     }
+     */
 }
 
 
 void GameScene::removeAndDrop()
 {
     // 隣接するコマを削除する
-   removeBlock(removeBlockTagLists);
-   
-    std::cout << "removed" << endl;
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            int tag = getTag(x, y);
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            //消えたスプライトの数を取得
-            if (bSprite != NULL) {
-                std::cout << bSprite->getBlockType() << " ";
-            }
-        }
-        std::cout << endl;
-    }
+    removeBlock(removeBlockTagLists);
     
     // コマ削除後のアニメーション
     movingBlocksAnimation1(removeBlockTagLists);
-    std::cout << "moved" << endl;
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            int tag = getTag(x, y);
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            //消えたスプライトの数を取得
-            if (bSprite != NULL) {
-                std::cout << bSprite->getBlockType() << " ";
-            }
-        }
-        std::cout << endl;
-    }
-
+    
     removeBlockTagLists.clear();
 }
 
@@ -288,7 +216,7 @@ void GameScene::removeAndDrop()
 void GameScene::checkAndRemoveAndDrop()
 {
     list<int> removeBlockTags = getRemoveChainBlocks();
-
+    
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
         removeBlockTagLists = removeBlockTags;
@@ -311,8 +239,6 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
-        
-        
         // 対象となるコマを取得
         CCNode* block = m_background->getChildByTag(*it);
         if (block)
@@ -349,18 +275,12 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
 // 配列のコマを削除
 void GameScene::removeBlock(list<int> blockTags)
 {
-    CCLog("削除開始");
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-
+        
         if(bSprite != NULL) {
-            kBlock blockType = bSprite->getBlockType();
-            
-            // 既存配列から該当コマを削除
-            m_blockTags[blockType].remove(*it);
-            
             // 対象となるコマを取得
             CCNode* block = m_background->getChildByTag(*it);
             
@@ -371,42 +291,6 @@ void GameScene::removeBlock(list<int> blockTags)
         }
         it++;
     }
-}
-
-
-void GameScene::dropNewBlocks()
-{
-
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        int removedCount = 0;
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            int tag = getTag(x, y);
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            //消えたスプライトの数を取得
-            if (bSprite == NULL) {
-                //CCLog("dropTag = %d", tag);
-                removedCount++;
-            }
-        }
-        //追加
-        for (int i = 0; 0 < removedCount; removedCount--, i++) {
-            kBlock blockType = (kBlock)(rand() % kBlockCount);
-            
-            //列の空きの中でも上から順番にタグをセットする.
-            int tag = getTag(x, MAX_BLOCK_Y - removedCount);
-            m_blockTags[blockType].push_back(tag);
-            
-            BlockSprite *pBlock = BlockSprite::createWithBlockType(blockType);
-            
-            //画面外に配置
-            pBlock->setPosition(getPosition(x, MAX_BLOCK_Y + i));
-            //落ちる目的地はタグの場所
-            pBlock->setNextPos(x, MAX_BLOCK_Y - removedCount);
-            m_background->addChild(pBlock, kZOrderBlock, tag);
-            
-        }
-    }
-
 }
 
 //上下左右に動いたかどうか
@@ -426,14 +310,13 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
             return true;
         }
     }
-
+    
     return false;
 }
 
 
 void GameScene::swapSprite()
 {
-    CCLog("swapSprite");
     //入れ替わるアニメーションを挿入
     BlockSprite *preTouchSprite = (BlockSprite *)m_background->getChildByTag(preTouchTag);
     BlockSprite *postTouchSprite = (BlockSprite *)m_background->getChildByTag(postTouchTag);
@@ -450,14 +333,6 @@ void GameScene::swapSprite()
     //タグの入れ替え
     preTouchSprite->setTag(postTouchTag);
     postTouchSprite->setTag(preTouchTag);
-    
-    //削除
-    m_blockTags[preTouchSprite->getBlockType()].remove(preTouchTag);
-    m_blockTags[postTouchSprite->getBlockType()].remove(postTouchTag);
-    
-    //挿入
-    m_blockTags[preTouchSprite->getBlockType()].push_back(postTouchTag);
-    m_blockTags[postTouchSprite->getBlockType()].push_back(preTouchTag);
     
 }
 
@@ -518,11 +393,7 @@ list<int> GameScene::getSameColorBlockTags(int baseTag, kBlock blockType)
             // すでにリストにあるか検索
             if (!hasSameColorBlock(sameColorBlockTags, tags[i]))
             {
-                // コマ配列にあるか検索
-                if (hasSameColorBlock(m_blockTags[blockType], tags[i]))
-                {
-                    sameColorBlockTags.push_back(tags[i]);
-                }
+                sameColorBlockTags.push_back(tags[i]);
             }
         }
         
@@ -539,15 +410,15 @@ list<int> GameScene::getRemoveChainBlocks()
     list<int> removeChainBlocks;
     
     /* // バグがあったため見直し（川辺）なくても動きますが、あると走査の効率が良い
-    // 移動させたブロックが連結になったか
-    if (! isChainedBlock(preTouchTag) &&
-        ! isChainedBlock(postTouchTag))
-    {
-        // 連結がなければ消えるブロックなし
-        return removeChainBlocks;
-    }
-    */
-
+     // 移動させたブロックが連結になったか
+     if (! isChainedBlock(preTouchTag) &&
+     ! isChainedBlock(postTouchTag))
+     {
+     // 連結がなければ消えるブロックなし
+     return removeChainBlocks;
+     }
+     */
+    
     // タッチしたブロックのタグを初期化
     preTouchTag = -1;
     postTouchTag = -1;
@@ -555,7 +426,7 @@ list<int> GameScene::getRemoveChainBlocks()
     
     // 消滅候補ブロックリスト
     list<int> removeReserveBlocks;
-
+    
     
     // 1行ずつ横の連なりを走査
     for (int y = 0; y <= 5; y++) {
@@ -649,8 +520,11 @@ list<int> GameScene::getRemoveChainBlocks()
             }
         }
         
-        removeReserveBlocks.clear();
     }
+    
+    removeChainBlocks.sort();
+    //重複は削除する.
+    removeChainBlocks.unique();
     
     return removeChainBlocks;
 }
@@ -729,12 +603,35 @@ GameScene::PositionIndex GameScene::getPositionIndex(int tag)
     return PositionIndex(pos1_x, pos1_y);
 }
 
+
+// コマ削除後のアニメーション
+void GameScene::movingBlocksAnimation1(list<int> blocks)
+{
+    // 削除された場所に既存のピースをずらす
+    searchNewPosition1(blocks);
+    int spriteCount = 0;
+    spriteCount = 0;
+    
+    
+    // 新しい位置がセットされたピースのアニメーション
+    moveBlock();
+    
+    // 新しいブロックを場外に追加
+    dropNewBlocks();
+    
+    // 場外から落とす
+    moveBlock();
+    
+    scheduleOnce(schedule_selector(GameScene::movedBlocks), MOVING_TIME * 2);
+}
+
+
 // 新しい位置をセット
 void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
 {
-    
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
-
+    
+    
     int nextPosY = blockSprite->getNextPosY();
     if (nextPosY == -1)
     {
@@ -754,28 +651,19 @@ void GameScene::searchNewPosition1(list<int> blocks)
     {
         PositionIndex posIndex1 = getPositionIndex(*it1);
         
-        // コマ種類のループ
-        vector<kBlock>::iterator it2 = blockTypes.begin();
-        while (it2 != blockTypes.end())
-        {
-            // 各種類のコマ数分のループ
-            list<int>::iterator it3 = m_blockTags[*it2].begin();
-            while (it3 != m_blockTags[*it2].end())
-            {
-                PositionIndex posIndex2 = getPositionIndex(*it3);
-                
-                if (posIndex1.x == posIndex2.x && posIndex1.y < posIndex2.y)
-                {
-                    // 消えるコマの上に位置するコマに対して、移動先の位置をセットする
-                    setNewPosition1(*it3, posIndex2);
+        //消えるコマより上にあるコマを下にずらす(ポジションのセット)
+        for (int x = 0; x < MAX_BLOCK_X; x++) {
+            for (int y = 0; y < MAX_BLOCK_Y; y++) {
+                if (posIndex1.x == x && posIndex1.y < y) {
+                    int tag = getTag(x, y);
+                    BlockSprite *blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
+                    if(blockSprite != NULL) {
+                        PositionIndex pos = getPositionIndex(tag);
+                        setNewPosition1(tag, pos);
+                    }
                 }
-                
-                it3++;
             }
-            
-            it2++;
         }
-        
         it1++;
     }
 }
@@ -783,60 +671,61 @@ void GameScene::searchNewPosition1(list<int> blocks)
 // コマを移動する
 void GameScene::moveBlock()
 {
-    // コマ種類のループ
-    vector<kBlock>::iterator it1 = blockTypes.begin();
-    while (it1 != blockTypes.end())
-    {
-        // 各種類のコマ数分のループ
-        list<int>::iterator it2 = m_blockTags[*it1].begin();
-        while (it2 != m_blockTags[*it1].end())
-        {
-            BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(*it2);
-           
-            int nextPosX = blockSprite->getNextPosX();
-            int nextPosY = blockSprite->getNextPosY();
-            
-            if (nextPosX != -1 || nextPosY != -1)
-            {
-                // 新しいタグをセットする
-                int newTag = getTag(nextPosX, nextPosY);
-                blockSprite->initNextPos();
-                blockSprite->setTag(newTag);
-             
-                // タグ一覧の値も新しいタグに変更する
-                *it2 = newTag;
+    for(int x = 0; x < MAX_BLOCK_X; x++) {
+        for( int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
+            BlockSprite *blockSprite = (BlockSprite *)m_background->getChildByTag(tag);
+            if(blockSprite != NULL) {
+                int nextPosX = blockSprite->getNextPosX();
+                int nextPosY = blockSprite->getNextPosY();
                 
-                // アニメーションをセットする
-                CCMoveTo* move = CCMoveTo::create(MOVING_TIME, getPosition(nextPosX, nextPosY));
-                blockSprite->runAction(move);
+                if(nextPosX != -1 || nextPosY != -1) {
+                    int newTag = getTag(nextPosX, nextPosY);
+                    blockSprite->initNextPos();
+                    blockSprite->setTag(newTag);
+                    
+                    CCMoveTo* move = CCMoveTo::create(MOVING_TIME, getPosition(nextPosX, nextPosY));
+                    blockSprite->runAction(move);
+                }
             }
-            
-            it2++;
         }
-        
-        it1++;
     }
-
+    
 }
 
-// コマ削除後のアニメーション
-void GameScene::movingBlocksAnimation1(list<int> blocks)
+void GameScene::dropNewBlocks()
 {
-    // 削除された場所に既存のピースをずらす
-    searchNewPosition1(blocks);
-    int spriteCount = 0;
-    spriteCount = 0;
-    // 新しい位置がセットされたピースのアニメーション
-    moveBlock();
-
     
-    // 新しいブロックを場外に追加
-    dropNewBlocks();
-    // 場外から落とす
-    moveBlock();
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        int removedCount = 0;
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
+            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+            //消えたスプライトの数を取得
+            if (bSprite == NULL) {
+                removedCount++;
+            }
+        }
+        
+        //追加
+        for (int i = 0; 0 < removedCount; removedCount--, i++) {
+            kBlock blockType = (kBlock)(rand() % kBlockCount);
+            
+            //列の空きの中でも上から順番にタグをセットする.
+            int tag = getTag(x, MAX_BLOCK_Y - removedCount);
+            
+            BlockSprite *pBlock = BlockSprite::createWithBlockType(blockType);
+            
+            //画面外に配置
+            pBlock->setPosition(getPosition(x, MAX_BLOCK_Y + i));
+            //落ちる目的地はタグの場所
+            pBlock->setNextPos(x, MAX_BLOCK_Y - removedCount);
+            m_background->addChild(pBlock, kZOrderBlock, tag);
+            
+        }
+        
+    }
     
-    
-    scheduleOnce(schedule_selector(GameScene::movedBlocks), MOVING_TIME);
 }
 
 // コマの移動完了
@@ -844,25 +733,25 @@ void GameScene::movedBlocks()
 {
     // ラベル再表示
     showLabel();
-    
     // アニメーション終了
     m_animating = false;
-
-    // ゲーム終了チェック
-    if (!existsSameBlock())
-    {
-        // ハイスコア記録・表示
-        saveHighScore();
-        
-        CCSize bgSize = m_background->getContentSize();
-        
-        // ゲーム終了表示
-        CCSprite* gameOver = CCSprite::create(PNG_GAMEOVER);
-        gameOver->setPosition(ccp(bgSize.width / 2, bgSize.height * 0.8));
-        m_background->addChild(gameOver, kZOrderGameOver, kTagGameOver);
-        
-        setTouchEnabled(false);
-    }
+    /*
+     // ゲーム終了チェック
+     if (!existsSameBlock())
+     {
+     // ハイスコア記録・表示
+     saveHighScore();
+     
+     CCSize bgSize = m_background->getContentSize();
+     
+     // ゲーム終了表示
+     CCSprite* gameOver = CCSprite::create(PNG_GAMEOVER);
+     gameOver->setPosition(ccp(bgSize.width / 2, bgSize.height * 0.8));
+     m_background->addChild(gameOver, kZOrderGameOver, kTagGameOver);
+     
+     setTouchEnabled(false);
+     }
+     */
 }
 
 // 存在する列を取得する
@@ -879,17 +768,19 @@ map<int, bool> GameScene::getExistsBlockColumn()
     vector<kBlock>::iterator it1 = blockTypes.begin();
     while (it1 != blockTypes.end())
     {
-        // 各種類のコマ数分のループ
-        list<int>::iterator it2 = m_blockTags[*it1].begin();
-        while (it2 != m_blockTags[*it1].end())
-        {
-            // 存在するコマのx 位置を記録
-            xBlock[getPositionIndex(*it2).x] = true;
-            
-            it2++;
-        }
-        
-        it1++;
+        /*
+         // 各種類のコマ数分のループ
+         list<int>::iterator it2 = m_blockTags[*it1].begin();
+         while (it2 != m_blockTags[*it1].end())
+         {
+         // 存在するコマのx 位置を記録
+         xBlock[getPositionIndex(*it2).x] = true;
+         
+         it2++;
+         }
+         
+         it1++;
+         */
     }
     
     return xBlock;
@@ -905,43 +796,45 @@ void GameScene::showLabel()
     const char* fontNames[] = {FONT_RED, FONT_BLUE, FONT_YELLOW, FONT_GREEN, FONT_GRAY};
     float heightRate[] = {0.61, 0.51, 0.41, 0.31, 0.21};
     
-    // コマ種類のループ
-    vector<kBlock>::iterator it = blockTypes.begin();
-    while (it != blockTypes.end())
-    {
-        // コマ残数表示
-        int count = m_blockTags[*it].size();
-        const char* countStr = ccsf("%02d", count);
-        CCLabelBMFont* label = (CCLabelBMFont*)m_background->getChildByTag(tagsForLabel[*it]);
-        if (!label)
-        {
-            // コマ残数生成
-            label = CCLabelBMFont::create(countStr, fontNames[*it]);
-            label->setPosition(ccp(bgSize.width * 0.78, bgSize.height * heightRate[*it]));
-            m_background->addChild(label, kZOrderLabel, tagsForLabel[*it]);
-        }
-        else
-        {
-            label->setString(countStr);
-        }
-        
-        it++;
-    }
-
-    // スコア表示
-    const char* scoreStr = ccsf("%d", m_score);
-    CCLabelBMFont* scoreLabel = (CCLabelBMFont*)m_background->getChildByTag(kTagScoreLabel);
-    if (!scoreLabel)
-    {
-        // スコア生成
-        scoreLabel = CCLabelBMFont::create(scoreStr, FONT_WHITE);
-        scoreLabel->setPosition(ccp(bgSize.width * 0.78, bgSize.height * 0.75));
-        m_background->addChild(scoreLabel, kZOrderLabel, kTagScoreLabel);
-    }
-    else
-    {
-        scoreLabel->setString(scoreStr);
-    }
+    /*
+     // コマ種類のループ
+     vector<kBlock>::iterator it = blockTypes.begin();
+     while (it != blockTypes.end())
+     {
+     // コマ残数表示
+     int count = m_blockTags[*it].size();
+     const char* countStr = ccsf("%02d", count);
+     CCLabelBMFont* label = (CCLabelBMFont*)m_background->getChildByTag(tagsForLabel[*it]);
+     if (!label)
+     {
+     // コマ残数生成
+     label = CCLabelBMFont::create(countStr, fontNames[*it]);
+     label->setPosition(ccp(bgSize.width * 0.78, bgSize.height * heightRate[*it]));
+     m_background->addChild(label, kZOrderLabel, tagsForLabel[*it]);
+     }
+     else
+     {
+     label->setString(countStr);
+     }
+     
+     it++;
+     }
+     
+     // スコア表示
+     const char* scoreStr = ccsf("%d", m_score);
+     CCLabelBMFont* scoreLabel = (CCLabelBMFont*)m_background->getChildByTag(kTagScoreLabel);
+     if (!scoreLabel)
+     {
+     // スコア生成
+     scoreLabel = CCLabelBMFont::create(scoreStr, FONT_WHITE);
+     scoreLabel->setPosition(ccp(bgSize.width * 0.78, bgSize.height * 0.75));
+     m_background->addChild(scoreLabel, kZOrderLabel, kTagScoreLabel);
+     }
+     else
+     {
+     scoreLabel->setString(scoreStr);
+     }
+     */
 }
 
 // 全コマに対して、隣り合うコマが存在するかチェック
@@ -951,19 +844,20 @@ bool GameScene::existsSameBlock()
     vector<kBlock>::iterator it1 = blockTypes.begin();
     while (it1 != blockTypes.end())
     {
-        // 各種類のコマ数分のループ
-        list<int>::iterator it2 = m_blockTags[*it1].begin();
-        while (it2 != m_blockTags[*it1].end())
-        {
-            if (getSameColorBlockTags(*it2, *it1).size() > 1)
-            {
-                // 隣り合うコマが存在する場合は、trueを返す
-                return true;
-            }
-            
-            it2++;
-        }
-        
+        /*
+         // 各種類のコマ数分のループ
+         list<int>::iterator it2 = m_blockTags[*it1].begin();
+         while (it2 != m_blockTags[*it1].end())
+         {
+         if (getSameColorBlockTags(*it2, *it1).size() > 1)
+         {
+         // 隣り合うコマが存在する場合は、trueを返す
+         return true;
+         }
+         
+         it2++;
+         }
+         */
         it1++;
     }
     
