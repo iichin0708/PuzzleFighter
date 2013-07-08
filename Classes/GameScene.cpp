@@ -175,8 +175,9 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
             
             list<int> removeBlockTags = getRemoveChainBlocks();
             
-            //scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
+            scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
 
+            /*
             // 消えることのできるブロックがある
             if(removeBlockTags.size() >= 3) {
                 removeBlockTagLists = removeBlockTags;
@@ -191,6 +192,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
                 
                 scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
             }
+            */
         }
     }
 }
@@ -272,18 +274,19 @@ void GameScene::removeAndDrop()
 
 void GameScene::checkAndRemoveAndDrop()
 {
-    kBlock blockType;
     list<int> removeBlockTags = getRemoveChainBlocks();
-    
+
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
+        removeBlockTagLists = removeBlockTags;
+        
         // 得点加算 (消したコマ数 - 2) の2 乗
         m_score += pow(removeBlockTags.size() - 2, 2);
         
         // アニメーション開始
         m_animating = true;
         
-        removeBlocksAniamtion(removeBlockTags, blockType, REMOVING_TIME);
+        removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
     }
@@ -336,17 +339,19 @@ void GameScene::removeBlock(list<int> blockTags)
     while (it != blockTags.end())
     {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-        kBlock blockType = bSprite->getBlockType();
-        
-        // 既存配列から該当コマを削除
-        m_blockTags[blockType].remove(*it);
-        
-        // 対象となるコマを取得
-        CCNode* block = m_background->getChildByTag(*it);
-        
-        if (block)
-        {
-            removingBlock(block);
+        if(bSprite != NULL) {
+            kBlock blockType = bSprite->getBlockType();
+            
+            // 既存配列から該当コマを削除
+            m_blockTags[blockType].remove(*it);
+            
+            // 対象となるコマを取得
+            CCNode* block = m_background->getChildByTag(*it);
+            
+            if (block)
+            {
+                removingBlock(block);
+            }
         }
         
         it++;
