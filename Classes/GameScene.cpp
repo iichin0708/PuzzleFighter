@@ -24,10 +24,7 @@ CCScene* GameScene::scene()
 // 初期化
 bool GameScene::init()
 {
-    if (!CCLayer::init())
-    {
-        return false;
-    }
+    if (!CCLayer::init()) { return false; }
     
     // タップイベントを取得する
     setTouchEnabled(true);
@@ -113,8 +110,56 @@ void GameScene::showBlock()
     {
         for (int y = 0; y < MAX_BLOCK_Y; y++)
         {
-            // ランダムでコマを作成
-            kBlock blockType = (kBlock)(rand() % kBlockCount);
+            // 設置ブロックのタイプの除外リスト
+            list<int> matchTypes;
+            matchTypes.clear();
+            
+            // 横の後ろ2つをチェック
+            int blockTag1 = kTagBaseBlock + (x - 1) * 100 + y;
+            BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            int blockTag2 = kTagBaseBlock + (x - 2) * 100 + y;
+            BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType())
+            {
+                matchTypes.push_back(block1->getBlockType());
+            }
+            
+            // 横の後ろ2つをチェック
+            blockTag1 = kTagBaseBlock + x * 100 + y - 1;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + x * 100 + y - 2;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType())
+            {
+                matchTypes.push_back(block1->getBlockType());
+            }
+
+            bool isMatch = true;
+            
+            kBlock blockType;
+            while (isMatch) {
+                isMatch = false;
+                
+                // ランダムでコマを作成
+                blockType = (kBlock)(rand() % kBlockCount);
+
+                // 除外リストと比較して、一致したら生成し直し
+                list<int>::iterator it = matchTypes.begin();
+                while( it != matchTypes.end() ) {
+                    if(blockType == *it) {
+                        isMatch = true;
+                    }
+                    ++it;
+                }
+            }
             
             // 対応するコマ配列にタグを追加
             int tag = getTag(x, y);
@@ -153,6 +198,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     int tag = 0;
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
+
     if (tag != 0 && !m_animating) {
         postTouchTag = tag;
         
@@ -200,7 +246,7 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
      */
 }
 
-
+// 消滅リスト内のブロックを消して、上のブロックを落とすアニメーションセット
 void GameScene::removeAndDrop()
 {
     // 隣接するコマを削除する
@@ -212,7 +258,7 @@ void GameScene::removeAndDrop()
     removeBlockTagLists.clear();
 }
 
-
+// 削除できるブロックがあれば、removeAndDropを呼び出す
 void GameScene::checkAndRemoveAndDrop()
 {
     list<int> removeBlockTags = getRemoveChainBlocks();
@@ -233,7 +279,8 @@ void GameScene::checkAndRemoveAndDrop()
 }
 
 // 配列のコマの消えるアニメーションを実行
-void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
+void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
+{
     bool first = true;
     
     list<int>::iterator it = blockTags.begin();
@@ -278,16 +325,11 @@ void GameScene::removeBlock(list<int> blockTags)
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
-        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-        
-        if(bSprite != NULL) {
-            // 対象となるコマを取得
-            CCNode* block = m_background->getChildByTag(*it);
-            
-            if (block)
-            {
-                removingBlock(block);
-            }
+        // 対象となるコマを取得
+        CCNode* block = m_background->getChildByTag(*it);
+        if (block)
+        {
+            removingBlock(block);
         }
         it++;
     }
@@ -409,24 +451,22 @@ list<int> GameScene::getRemoveChainBlocks()
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
-    /* // バグがあったため見直し（川辺）なくても動きますが、あると走査の効率が良い
-     // 移動させたブロックが連結になったか
-     if (! isChainedBlock(preTouchTag) &&
-     ! isChainedBlock(postTouchTag))
-     {
-     // 連結がなければ消えるブロックなし
-     return removeChainBlocks;
-     }
-     */
-    
+    if(preTouchTag != -1 && postTouchTag != -1) {
+        // 移動させたブロックが連結になったか
+        if (! isChainedBlock(preTouchTag) &&
+            ! isChainedBlock(postTouchTag))
+        {
+            // 連結がなければ消えるブロックなし
+            return removeChainBlocks;
+        }
+    }
+
     // タッチしたブロックのタグを初期化
     preTouchTag = -1;
     postTouchTag = -1;
     
-    
     // 消滅候補ブロックリスト
     list<int> removeReserveBlocks;
-    
     
     // 1行ずつ横の連なりを走査
     for (int y = 0; y <= 5; y++) {
@@ -522,8 +562,9 @@ list<int> GameScene::getRemoveChainBlocks()
         
     }
     
+
     removeChainBlocks.sort();
-    //重複は削除する.
+    
     removeChainBlocks.unique();
     
     return removeChainBlocks;
@@ -539,21 +580,22 @@ bool GameScene::isChainedBlock(int blockTag)
     // ブロックの盤面上の座標
     PositionIndex blockIndex = getPositionIndex(blockTag);
     
-    
-    /***** 横方向の繋がり *****/
+    // 横方向の繋がり
     int count = 1; // 横につながっている個数
-    // 左方向に走査
-    for (int x = blockIndex.x - 100; x >= kTagBaseBlock + blockIndex.y; x -= 100) {
-        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + x);
-        if (target == NULL || target->getBlockType() != blockType) {
-            break;
-        }
-        count++;
-    }
-    
     // 右方向に走査
-    for (int x = blockIndex.x + 100; x <= kTagBaseBlock + 500 + blockIndex.y; x += 100) {
-        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + x);
+    for (int x = blockIndex.x + 1 ; x < MAX_BLOCK_X; x++) {
+        int targetTag = kTagBaseBlock + x * 100 + blockIndex.y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    
+    // 左方向に走査
+    for (int x = blockIndex.x - 1; x >= 0; x--) {
+        int targetTag = kTagBaseBlock + x * 100 + blockIndex.y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
         if (target == NULL || target->getBlockType() != blockType) {
             break;
         }
@@ -561,22 +603,22 @@ bool GameScene::isChainedBlock(int blockTag)
     }
     // 3つ繋がっているか
     if (count >= 3) { return true; }
+
     
-    
-    /***** 縦方向の繋がり *****/
+    // 縦方向の繋がり
     count = 1; // 縦につながっている個数
-    // 下方向に走査
-    for (int y = blockIndex.y - 1; y >= kTagBaseBlock + blockIndex.x * 100; y--) {
-        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + y);
+    for (int y = blockIndex.y + 1; y < MAX_BLOCK_Y; y++) {
+        int targetTag = kTagBaseBlock + blockIndex.x * 100 + y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
         if (target == NULL || target->getBlockType() != blockType) {
             break;
         }
         count++;
     }
     
-    // 上方向に走査
-    for (int y = blockIndex.y + 1; y <= kTagBaseBlock + blockIndex.x * 100 + 5; y++) {
-        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(blockTag + y);
+    for (int y = blockIndex.y - 1; y >= 0; y--) {
+        int targetTag = kTagBaseBlock + blockIndex.x * 100 + y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
         if (target == NULL || target->getBlockType() != blockType) {
             break;
         }
@@ -584,7 +626,7 @@ bool GameScene::isChainedBlock(int blockTag)
     }
     // 3つ繋がっているか
     if (count >= 3) { return true; }
-    
+
     return false;  // 3マッチがない
 }
 
