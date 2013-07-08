@@ -176,6 +176,14 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 
             // 消えることのできるブロックがある
             if(removeBlockTags.size() >= 3) {
+               
+                list<int>::iterator it = removeBlockTags.begin();
+                while( it != removeBlockTags.end()) {
+                    std::cout << *it << endl;
+                    it++;
+                }
+                
+                
                 removeBlockTagLists = removeBlockTags;
 
                 // 得点加算 (消したコマ数 - 2) の2 乗
@@ -185,6 +193,13 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
                 m_animating = true;
                 
                 removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
+                
+                
+                list<int>::iterator it1 = removeBlockTags.begin();
+                while( it1 != removeBlockTags.end() ) {
+                    std::cout << *it1 << endl;
+                    it1++;
+                }
                 
                 scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
             }
@@ -231,6 +246,7 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 }
 
 void GameScene::removeAndDrop() {
+    CCLog("削除します");
     // 隣接するコマを削除する
    removeBlock(removeBlockTagLists);
    
@@ -273,6 +289,8 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
+        
+        
         // 対象となるコマを取得
         CCNode* block = m_background->getChildByTag(*it);
         if (block)
@@ -309,11 +327,16 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
 // 配列のコマを削除
 void GameScene::removeBlock(list<int> blockTags)
 {
+    CCLog("削除開始");
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-        kBlock blockType = bSprite->getBlockType();
+        if(bSprite == NULL) {
+            CCLog("ぬるぬる = %d", *it);
+//            CCLog("b_sprite.next = %d", bSprite->getNextPosX());
+        } else {
+            kBlock blockType = bSprite->getBlockType();
         
         // 既存配列から該当コマを削除
         m_blockTags[blockType].remove(*it);
@@ -325,7 +348,7 @@ void GameScene::removeBlock(list<int> blockTags)
         {
             removingBlock(block);
         }
-        
+        }
         it++;
     }
 }
