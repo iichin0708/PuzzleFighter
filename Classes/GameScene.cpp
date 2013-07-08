@@ -277,6 +277,7 @@ void GameScene::checkAndRemoveAndDrop()
             scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
         } else {
             m_animating = false;
+            CCLOG("潜在連結数 : %d", getSwapChainCount());
             // 潜在的な連結がないとき
             if (getSwapChainCount() <= 0) {
                 // TODO:盤面を新しく用意する
@@ -801,62 +802,68 @@ int GameScene::getSwapChainBlockCount(int blockTag)
         int nextToBlockTag = blockTag + tags[i];
         PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
 
-        // 横方向の繋がり
-        int count = 1; // 横につながっている個数
-        // 右方向に走査
-        for (int tx = nextToBlockIndex.x + 1; tx <= nextToBlockIndex.x + 2; tx++) {
-            int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            if (target == NULL || target->getBlockType() != blockType) {
-                break;
+        // 縦の走査のとき
+        if (tags[i] == 1 || tags[i] == -1) {
+            // 横方向の繋がり
+            int count = 1; // 横につながっている個数
+            // 右方向に走査
+            for (int tx = nextToBlockIndex.x + 1; tx <= nextToBlockIndex.x + 2; tx++) {
+                int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                if (target == NULL || target->getBlockType() != blockType) {
+                    break;
+                }
+                if (targetTag != blockTag) {
+                    count++;
+                }
             }
-            if (targetTag != blockTag) {
-                count++;
+            
+            // 左方向に走査
+            for (int tx = nextToBlockIndex.x - 1; tx >= nextToBlockIndex.x - 2; tx--) {
+                int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                if (target == NULL || target->getBlockType() != blockType) {
+                    break;
+                }
+                if (targetTag != blockTag) {
+                    count++;
+                }
             }
+            
+            // 3つ繋がっているか
+            if (count >= 3) { chainCount++; }
         }
+
         
-        // 左方向に走査
-        for (int tx = nextToBlockIndex.x - 1; tx >= nextToBlockIndex.x - 2; tx--) {
-            int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            if (target == NULL || target->getBlockType() != blockType) {
-                break;
+        // 横の走査のとき
+        if (tags[i] == 100 || tags[i] == -100) {
+            // 縦方向の繋がり
+            int count = 1; // 縦につながっている個数
+            for (int ty = nextToBlockIndex.y + 1; ty <= nextToBlockIndex.y + 2; ty++) {
+                int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                if (target == NULL || target->getBlockType() != blockType) {
+                    break;
+                }
+                if (targetTag != blockTag) {
+                    count++;
+                }
             }
-            if (targetTag != blockTag) {
-                count++;
+            
+            for (int ty = nextToBlockIndex.y - 1; ty >= nextToBlockIndex.y - 2; ty--) {
+                int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                if (target == NULL || target->getBlockType() != blockType) {
+                    break;
+                }
+                if (targetTag != blockTag) {
+                    count++;
+                }
             }
+            
+            // 3つ繋がっているか
+            if (count >= 3) { chainCount++; }
         }
-        
-        // 3つ繋がっているか
-        if (count >= 3) { chainCount++; }
-        
-        
-        // 縦方向の繋がり
-        count = 1; // 縦につながっている個数
-        for (int ty = nextToBlockIndex.y + 1; ty <= nextToBlockIndex.y + 2; ty++) {
-            int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            if (target == NULL || target->getBlockType() != blockType) {
-                break;
-            }
-            if (targetTag != blockTag) {
-                count++;
-            }
-        }
-        
-        for (int ty = nextToBlockIndex.y - 1; ty >= nextToBlockIndex.y - 2; ty--) {
-            int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            if (target == NULL || target->getBlockType() != blockType) {
-                break;
-            }
-            if (targetTag != blockTag) {
-                count++;
-            }
-        }
-        
-        // 3つ繋がっているか
-        if (count >= 3) { chainCount++; }
     }
 
     
