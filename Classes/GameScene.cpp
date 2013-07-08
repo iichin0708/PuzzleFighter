@@ -157,8 +157,8 @@ void GameScene::showBlock()
 // 位置取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
 CCPoint GameScene::getPosition(int posIndexX, int posIndexY)
 {
-    float offsetX = m_background->getContentSize().width * 0.168;
-    float offsetY = m_background->getContentSize().height * 0.029;
+    float offsetX = m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
+    float offsetY = m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
     return CCPoint((posIndexX + 0.5) * m_blockSize + offsetX, (posIndexY + 0.5) * m_blockSize + offsetY);
 }
 
