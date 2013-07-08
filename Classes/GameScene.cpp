@@ -167,7 +167,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     int tag = 0;
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
-    if (tag != 0) {
+    if (tag != 0 ) {
         postTouchTag = tag;
         
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
@@ -234,7 +234,7 @@ void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
     */
 }
 
-
+// 消滅リスト内のブロックを消して、上のブロックを落とすアニメーションセット
 void GameScene::removeAndDrop()
 {
     // 隣接するコマを削除する
@@ -271,7 +271,7 @@ void GameScene::removeAndDrop()
     removeBlockTagLists.clear();
 }
 
-
+// 削除できるブロックがあれば、removeAndDropを呼び出す
 void GameScene::checkAndRemoveAndDrop()
 {
     list<int> removeBlockTags = getRemoveChainBlocks();
@@ -293,7 +293,8 @@ void GameScene::checkAndRemoveAndDrop()
 }
 
 // 配列のコマの消えるアニメーションを実行
-void GameScene::removeBlocksAniamtion(list<int> blockTags, float during) {
+void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
+{
     bool first = true;
     
     list<int>::iterator it = blockTags.begin();
@@ -520,15 +521,18 @@ list<int> GameScene::getRemoveChainBlocks()
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
-    /* // バグがあったため見直し（川辺）なくても動きますが、あると走査の効率が良い
-    // 移動させたブロックが連結になったか
-    if (! isChainedBlock(preTouchTag) &&
-        ! isChainedBlock(postTouchTag))
-    {
-        // 連結がなければ消えるブロックなし
-        return removeChainBlocks;
+    CCLOG("pre  tag = %d", preTouchTag);
+    CCLOG("post tag = %d", postTouchTag);
+    if(preTouchTag != -1 && postTouchTag != -1) {
+        // 移動させたブロックが連結になったか
+        if (! isChainedBlock(preTouchTag) &&
+            ! isChainedBlock(postTouchTag))
+        {
+            CCLOG("tag = %d", preTouchTag);
+            // 連結がなければ消えるブロックなし
+            return removeChainBlocks;
+        }
     }
-    */
 
     // タッチしたブロックのタグを初期化
     preTouchTag = -1;
@@ -647,8 +651,33 @@ bool GameScene::isChainedBlock(int blockTag)
     // ブロックの盤面上の座標
     PositionIndex blockIndex = getPositionIndex(blockTag);
     
+    // 横方向の繋がり
+    int count = 1; // 横につながっている個数
+    // 右方向に走査
+    for (int x = blockIndex.x ; x < MAX_BLOCK_X; x++) {
+        int targetTag = kTagBaseBlock + x * 100 + blockIndex.y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
     
-    /***** 横方向の繋がり *****/
+    // 左方向に走査
+    for (int x = blockIndex.x; x >= 0; x--) {
+        int targetTag = kTagBaseBlock + x * 100 + blockIndex.y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    // 3つ繋がっているか
+    if (count >= 3) { return true; }
+
+    
+    /*
+    // 横方向の繋がり
     int count = 1; // 横につながっている個数
     // 左方向に走査
     for (int x = blockIndex.x - 100; x >= kTagBaseBlock + blockIndex.y; x -= 100) {
@@ -669,9 +698,34 @@ bool GameScene::isChainedBlock(int blockTag)
     }
     // 3つ繋がっているか
     if (count >= 3) { return true; }
+    */
+
     
+    // 縦方向の繋がり
+    count = 1; // 縦につながっている個数
+    for (int y = blockIndex.y; y < MAX_BLOCK_Y; y++) {
+        int targetTag = kTagBaseBlock + blockIndex.x * 100 + y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
     
-    /***** 縦方向の繋がり *****/
+    for (int y = blockIndex.y; y >= 0; y--) {
+        int targetTag = kTagBaseBlock + blockIndex.x * 100 + y;
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL || target->getBlockType() != blockType) {
+            break;
+        }
+        count++;
+    }
+    // 3つ繋がっているか
+    if (count >= 3) { return true; }
+
+    
+    /*
+    // 縦方向の繋がり
     count = 1; // 縦につながっている個数
     // 下方向に走査
     for (int y = blockIndex.y - 1; y >= kTagBaseBlock + blockIndex.x * 100; y--) {
@@ -692,6 +746,7 @@ bool GameScene::isChainedBlock(int blockTag)
     }
     // 3つ繋がっているか
     if (count >= 3) { return true; }
+    */
     
     return false;  // 3マッチがない
 }
