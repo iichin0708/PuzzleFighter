@@ -134,7 +134,7 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
  
     // アニメーション中はタップ処理を受け付けない
     if(!m_animating) {
-            std::cout << "began" << endl;
+        std::cout << "began" << endl;
         for (int x = 0; x < MAX_BLOCK_X; x++) {
             for (int y = 0; y < MAX_BLOCK_Y; y++) {
                 int tag = getTag(x, y);
@@ -167,13 +167,11 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     int tag = 0;
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
-    if (tag != 0) {
-        postTouchTag = tag;
+    if (tag != 0 && !m_animating) {
+       postTouchTag = tag;
         
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             swapSprite();
-            
-            list<int> removeBlockTags = getRemoveChainBlocks();
             
             scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
 
@@ -298,12 +296,11 @@ void GameScene::checkAndRemoveAndDrop()
         // 得点加算 (消したコマ数 - 2) の2 乗
         m_score += pow(removeBlockTags.size() - 2, 2);
         
-        // アニメーション開始
-        m_animating = true;
-        
         removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
+    } else {
+        m_animating = false;
     }
 }
 
@@ -424,6 +421,8 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
     
     for (int i = 0; i < sizeof(tags) / sizeof(tags[0]); i++) {
         if (tags[i] == postTag) {
+            // アニメーション開始
+            m_animating = true;
             return true;
         }
     }
@@ -434,6 +433,7 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
 
 void GameScene::swapSprite()
 {
+    CCLog("swapSprite");
     //入れ替わるアニメーションを挿入
     BlockSprite *preTouchSprite = (BlockSprite *)m_background->getChildByTag(preTouchTag);
     BlockSprite *postTouchSprite = (BlockSprite *)m_background->getChildByTag(postTouchTag);
