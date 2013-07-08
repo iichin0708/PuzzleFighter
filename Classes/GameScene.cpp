@@ -561,7 +561,6 @@ list<int> GameScene::getRemoveChainBlocks()
         }
         
     }
-    
 
     removeChainBlocks.sort();
     
@@ -775,8 +774,11 @@ void GameScene::movedBlocks()
 {
     // ラベル再表示
     showLabel();
-    // アニメーション終了
-    m_animating = false;
+
+    // 続けて連結があるかチェックして、消す
+    // 消せなければアニメーション終了
+    checkAndRemoveAndDrop();
+    
     /*
      // ゲーム終了チェック
      if (!existsSameBlock())
