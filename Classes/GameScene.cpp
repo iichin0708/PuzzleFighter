@@ -86,71 +86,73 @@ void GameScene::showBackground()
 // コマ表示
 void GameScene::showBlock()
 {
-    // 6 x 6 のコマを作成する
-    for (int x = 0; x < MAX_BLOCK_X; x++)
-    {
-        for (int y = 0; y < MAX_BLOCK_Y; y++)
+    do {
+        // 6 x 6 のコマを作成する
+        for (int x = 0; x < MAX_BLOCK_X; x++)
         {
-            // 設置ブロックのタイプの除外リスト
-            list<int> matchTypes;
-            matchTypes.clear();
-            
-            // 横の後ろ2つをチェック
-            int blockTag1 = kTagBaseBlock + (x - 1) * 100 + y;
-            BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
-            int blockTag2 = kTagBaseBlock + (x - 2) * 100 + y;
-            BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
-            
-            // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
-            if (block1 != NULL &&
-                block2 != NULL &&
-                block1->getBlockType() == block2->getBlockType())
+            for (int y = 0; y < MAX_BLOCK_Y; y++)
             {
-                matchTypes.push_back(block1->getBlockType());
-            }
-            
-            // 横の後ろ2つをチェック
-            blockTag1 = kTagBaseBlock + x * 100 + y - 1;
-            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
-            blockTag2 = kTagBaseBlock + x * 100 + y - 2;
-            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
-            
-            // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
-            if (block1 != NULL &&
-                block2 != NULL &&
-                block1->getBlockType() == block2->getBlockType())
-            {
-                matchTypes.push_back(block1->getBlockType());
-            }
-            
-            bool isMatch = true;
-            
-            kBlock blockType;
-            while (isMatch) {
-                isMatch = false;
+                // 設置ブロックのタイプの除外リスト
+                list<int> matchTypes;
+                matchTypes.clear();
                 
-                // ランダムでコマを作成
-                blockType = (kBlock)(rand() % kBlockCount);
+                // 横の後ろ2つをチェック
+                int blockTag1 = kTagBaseBlock + (x - 1) * 100 + y;
+                BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+                int blockTag2 = kTagBaseBlock + (x - 2) * 100 + y;
+                BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
                 
-                // 除外リストと比較して、一致したら生成し直し
-                list<int>::iterator it = matchTypes.begin();
-                while( it != matchTypes.end() ) {
-                    if(blockType == *it) {
-                        isMatch = true;
-                    }
-                    ++it;
+                // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
+                if (block1 != NULL &&
+                    block2 != NULL &&
+                    block1->getBlockType() == block2->getBlockType())
+                {
+                    matchTypes.push_back(block1->getBlockType());
                 }
+                
+                // 横の後ろ2つをチェック
+                blockTag1 = kTagBaseBlock + x * 100 + y - 1;
+                block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+                blockTag2 = kTagBaseBlock + x * 100 + y - 2;
+                block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+                
+                // 2つ同じブロックが並んでいれば、設置ブロックのタイプの除外リストに追加
+                if (block1 != NULL &&
+                    block2 != NULL &&
+                    block1->getBlockType() == block2->getBlockType())
+                {
+                    matchTypes.push_back(block1->getBlockType());
+                }
+                
+                bool isMatch = true;
+                
+                kBlock blockType;
+                while (isMatch) {
+                    isMatch = false;
+                    
+                    // ランダムでコマを作成
+                    blockType = (kBlock)(rand() % kBlockCount);
+                    
+                    // 除外リストと比較して、一致したら生成し直し
+                    list<int>::iterator it = matchTypes.begin();
+                    while( it != matchTypes.end() ) {
+                        if(blockType == *it) {
+                            isMatch = true;
+                        }
+                        ++it;
+                    }
+                }
+                
+                // 対応するコマ配列にタグを追加
+                int tag = getTag(x, y);
+                
+                // コマを作成
+                BlockSprite* pBlock = BlockSprite::createWithBlockType(blockType);
+                pBlock->setPosition(getPosition(x, y));
+                m_background->addChild(pBlock, kZOrderBlock, tag);
             }
-            
-            // 対応するコマ配列にタグを追加
-            int tag = getTag(x, y);
-            
-            // コマを作成
-            BlockSprite* pBlock = BlockSprite::createWithBlockType(blockType);
-            pBlock->setPosition(getPosition(x, y));
-            m_background->addChild(pBlock, kZOrderBlock, tag);
         }
-    }
+    } while (getSwapChainCount() <= 0);
 }
 
 
@@ -275,6 +277,11 @@ void GameScene::checkAndRemoveAndDrop()
             scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
         } else {
             m_animating = false;
+            // 潜在的な連結がないとき
+            if (getSwapChainCount() <= 0) {
+                // TODO:盤面を新しく用意する
+                CCLOG("No Match!");
+            }
         }
     }
 }
@@ -469,7 +476,6 @@ bool GameScene::isChainedBlock(int blockTag)
     return false;  // 3マッチがない
 }
 
-
 // 配列のコマの消えるアニメーションを実行
 void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
 {
@@ -637,7 +643,6 @@ void GameScene::moveBlock()
 
 void GameScene::dropNewBlocks()
 {
-    
     for (int x = 0; x < MAX_BLOCK_X; x++) {
         int removedCount = 0;
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
@@ -706,6 +711,171 @@ GameScene::PositionIndex GameScene::getPositionIndex(int tag)
     int pos1_y = (tag - kTagBaseBlock) % 100;
     
     return PositionIndex(pos1_x, pos1_y);
+}
+
+// 指定したブロックに潜在的な連結があるかどうか
+int GameScene::getSwapChainBlockCount(int blockTag)
+{
+    int chainCount = 0;
+
+    BlockSprite *block = (BlockSprite *)m_background->getChildByTag(blockTag);
+    
+    // ブロックの種類
+    kBlock blockType = block->getBlockType();
+    // ブロックの盤面上の座標
+    int x = getPositionIndex(blockTag).x;
+    int y = getPositionIndex(blockTag).y;
+    
+    // 間を1つ空けて横の後ろ2つをチェック
+    int blockTag1 = kTagBaseBlock + (x - 2) * 100 + y;
+    BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+    int blockTag2 = kTagBaseBlock + (x - 3) * 100 + y;
+    BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+    
+    // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+    // 潜在的なブロックと見なす
+    if (block1 != NULL &&
+        block2 != NULL &&
+        block1->getBlockType() == block2->getBlockType() &&
+        blockType == block1->getBlockType())
+    {
+        chainCount++;
+    }
+    
+    // 間を1つ空けて前の後ろ2つをチェック
+    blockTag1 = kTagBaseBlock + (x + 2) * 100 + y;
+    block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+    blockTag2 = kTagBaseBlock + (x + 3) * 100 + y;
+    block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+    
+    // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+    // 潜在的なブロックと見なす
+    if (block1 != NULL &&
+        block2 != NULL &&
+        block1->getBlockType() == block2->getBlockType() &&
+        blockType == block1->getBlockType())
+    {
+        chainCount++;
+    }
+    
+    // 間を1つ空けて縦の後ろ2つをチェック
+    blockTag1 = kTagBaseBlock + x * 100 + y - 2;
+    block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+    blockTag2 = kTagBaseBlock + x * 100 + y - 3;
+    block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+    
+    // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+    // 潜在的なブロックと見なす
+    if (block1 != NULL &&
+        block2 != NULL &&
+        block1->getBlockType() == block2->getBlockType() &&
+        blockType == block1->getBlockType())
+    {
+        chainCount++;
+    }
+    
+    // 間を1つ空けて縦の前2つをチェック
+    blockTag1 = kTagBaseBlock + x * 100 + y + 2;
+    block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+    blockTag2 = kTagBaseBlock + x * 100 + y + 3;
+    block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+    
+    // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+    // 潜在的なブロックと見なす
+    if (block1 != NULL &&
+        block2 != NULL &&
+        block1->getBlockType() == block2->getBlockType() &&
+        blockType == block1->getBlockType())
+    {
+        chainCount++;
+    }
+    
+    int tags[] = {
+        1,      // 上
+        -1,     // 下
+        -100,   // 左
+        100     // 右
+    };
+    
+    for (int i = 0; i < sizeof(tags) ; i++) {
+        int nextToBlockTag = blockTag + tags[i];
+        PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
+
+        // 横方向の繋がり
+        int count = 1; // 横につながっている個数
+        // 右方向に走査
+        for (int tx = nextToBlockIndex.x + 1; tx <= nextToBlockIndex.x + 2; tx++) {
+            int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            if (target == NULL || target->getBlockType() != blockType) {
+                break;
+            }
+            if (targetTag != blockTag) {
+                count++;
+            }
+        }
+        
+        // 左方向に走査
+        for (int tx = nextToBlockIndex.x - 1; tx >= nextToBlockIndex.x - 2; tx--) {
+            int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            if (target == NULL || target->getBlockType() != blockType) {
+                break;
+            }
+            if (targetTag != blockTag) {
+                count++;
+            }
+        }
+        
+        // 3つ繋がっているか
+        if (count >= 3) { chainCount++; }
+        
+        
+        // 縦方向の繋がり
+        count = 1; // 縦につながっている個数
+        for (int ty = nextToBlockIndex.y + 1; ty <= nextToBlockIndex.y + 2; ty++) {
+            int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            if (target == NULL || target->getBlockType() != blockType) {
+                break;
+            }
+            if (targetTag != blockTag) {
+                count++;
+            }
+        }
+        
+        for (int ty = nextToBlockIndex.y - 1; ty >= nextToBlockIndex.y - 2; ty--) {
+            int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+            if (target == NULL || target->getBlockType() != blockType) {
+                break;
+            }
+            if (targetTag != blockTag) {
+                count++;
+            }
+        }
+        
+        // 3つ繋がっているか
+        if (count >= 3) { chainCount++; }
+    }
+
+    
+    return chainCount;
+}
+
+// 潜在的な連結の数を取得する
+int GameScene::getSwapChainCount()
+{
+    int chainCount = 0;
+    
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int blockTag = kTagBaseBlock + x * 100 + y;
+            chainCount += getSwapChainBlockCount(blockTag);
+        }
+    }
+    
+    return chainCount;
 }
 
 // タップされたコマのタグを取得
