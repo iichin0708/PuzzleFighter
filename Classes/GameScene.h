@@ -73,6 +73,9 @@ protected:
     
     // 背景画像
     cocos2d::CCSprite* m_background;
+    
+    // コンボ数
+    int m_combo;
 
     /***** 以下メソッド群 ******/
     

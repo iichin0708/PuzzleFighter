@@ -1,4 +1,4 @@
-#include "GameScene.h"
+ #include "GameScene.h"
 #include "SimpleAudioEngine.h"
 #include "BlockSprite.h"
 #include "CCPlaySE.h"
@@ -198,6 +198,8 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
         postTouchTag = tag;
         
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
+            // コンボの初期化
+            m_combo = 0;
             swapSprite();
             scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
         }
@@ -259,6 +261,34 @@ void GameScene::checkAndRemoveAndDrop()
     
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
+        m_combo++;
+        
+        // 2コンボ以上のときはアニメ演出
+        if (m_combo >= 2) {
+            CCLOG("%d combo!", m_combo);
+            char comboText[10];
+            sprintf(comboText, "%d COMBO!", m_combo);
+            CCLabelTTF *comboLabel = CCLabelTTF::create(comboText, "arial", 60);
+            
+            // 表示できる画面サイズ取得
+            CCDirector* pDirector = CCDirector::sharedDirector();
+            CCPoint origin = pDirector->getVisibleOrigin();
+            CCSize visibleSize = pDirector->getVisibleSize();
+            
+            comboLabel->setPosition(ccp(origin.x + visibleSize.width / 2,
+                                        origin.y + visibleSize.height / 2));
+            comboLabel->setColor(ccc3(0, 0, 0));
+            addChild(comboLabel);
+            
+            float during = 0.5f;
+            CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+            CCScaleTo *actionScaleUp = CCScaleTo::create(during, 1.5f);
+            comboLabel->runAction(actionFadeOut);
+            comboLabel->runAction(actionScaleUp);
+            
+            comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
+        }
+        
         removeBlockTagLists = removeBlockTags;
         
         // 得点加算 (消したブロック数 - 2) の2 乗
