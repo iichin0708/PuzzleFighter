@@ -303,7 +303,10 @@ void GameScene::checkAndRemoveAndDrop()
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
         // 連結を作ったらヒントを消す
-        m_background->removeChildByTag(kTagHintCircle);
+        CCNode *circle = m_background->getChildByTag(kTagHintCircle);
+        if (circle != NULL) {
+            circle->removeFromParent();
+        }
 
         m_combo++;
         
@@ -350,7 +353,7 @@ void GameScene::checkAndRemoveAndDrop()
             // CCLOG("潜在連結数 : %d", getSwapChainCount());
             // 潜在的な連結がないとき
             if (getSwapChainCount() <= 0) {
-                // TODO:盤面を新しく用意する
+#pragma marks TODO: 盤面を新しく用意する
                 CCLOG("No Match!");
             }
         }
@@ -480,6 +483,7 @@ list<int> GameScene::getRemoveChainBlocks()
             }
         }
         
+        removeReserveBlocks.clear();
     }
     
     removeChainBlocks.sort();
