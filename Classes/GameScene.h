@@ -16,12 +16,6 @@
 #define PNG_RESET "reset.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
 
-#define FONT_RED "redFont.fnt"
-#define FONT_BLUE "blueFont.fnt"
-#define FONT_YELLOW "yellowFont.fnt"
-#define FONT_GREEN "greenFont.fnt"
-#define FONT_GRAY "grayFont.fnt"
-#define FONT_WHITE "whiteFont.fnt"
 
 class GameScene : public cocos2d::CCLayer
 {
@@ -36,7 +30,6 @@ protected:
         kTagGrayLabel,
         kTagScoreLabel,
         kTagGameOver,
-        kTagHighScoreLabel,
         kTagBaseBlock = 10000,
     };
     
@@ -114,33 +107,29 @@ protected:
     // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
     void removeAndDrop();
     
-    // 与えられたタグの引数リストよりコマを削除する
+    // 与えられたタグの引数リストよりブロックを削除する
     void removeBlock(std::list<int> blockTags);
     
     // 親から実際に参照を削除する
     void removingBlock(cocos2d::CCNode* block);
 
-    // コマを下に落とすアニメーション
+    // ブロックを下に落とすアニメーション
     void movingBlocksAnimation1(std::list<int> blocks);
     
-    // 下にずらすべきコマを探索する
+    // 下にずらすべきブロックを探索する
     void searchNewPosition1(std::list<int> blocks);
     
-    // 消されたコマの上にあるコマに新しいポジションを設定する(下にずらす)
+    // 消されたブロックの上にあるブロックに新しいポジションを設定する(下にずらす)
     void setNewPosition1(int tag, PositionIndex posIndex);
     
-    // コマを実際に動かす(nextPosが設定してあるコマのみ)
+    // ブロックを実際に動かす(nextPosが設定してあるブロックのみ)
     void moveBlock();
     
     // 追加したブロックを落とす
     void dropNewBlocks();
     
-    // コマを下に落とし終わったあとのメソッド
+    // ブロックを下に落とし終わったあとのメソッド
     void movedBlocks();
-
-    
-    // ラベルを表示する
-    void showLabel();
 
     // リセットする(初めから始める)
     void menuResetCallback(cocos2d::CCObject* pSender);
@@ -156,7 +145,7 @@ protected:
 
     // 与えられたインデックスからタグを取得する
     int getTag(int posIndexX, int posIndexY);
-    // タッチされたコマのタグを取得
+    // タッチされたブロックのタグを取得
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
 
     // タグからインデックスを取得する
@@ -170,22 +159,6 @@ protected:
 
     /*********************************/
 
-
-
-    
-    // 使ってない
-    std::map<int, bool> getExistsBlockColumn();
-    // 使ってない
-    std::list<int> getSameColorBlockTags(int baseTag, kBlock blockType);
-    // 使ってない
-    bool hasSameColorBlock(std::list<int> blockTagList, int searchBlockTag);
-    // 使ってない
-    bool existsSameBlock();
-
-    // 使ってない(将来使うかも)
-    void saveHighScore();
-    // 使ってない(将来使うかも)
-    void showHighScoreLabel();
 
 public:
     
