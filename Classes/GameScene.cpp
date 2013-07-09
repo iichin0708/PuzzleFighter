@@ -40,7 +40,7 @@ bool GameScene::init()
     
     // ブロック表示
     showBlock();
-        
+    
     // リセットボタン作成
     showResetButton();
     
@@ -186,6 +186,7 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     return false;
 }
 
+// タッチ移動イベント
 void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 {
     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
@@ -521,8 +522,9 @@ void GameScene::removeAndDrop()
     // 隣接するブロックを削除する
     removeBlock(removeBlockTagLists);
     
+
     // ブロック削除後のアニメーション
-    movingBlocksAnimation1(removeBlockTagLists);
+    movingBlocksAnimation(removeBlockTagLists);
     
     removeBlockTagLists.clear();
 }
@@ -537,23 +539,18 @@ void GameScene::removeBlock(list<int> blockTags)
         CCNode* block = m_background->getChildByTag(*it);
         if (block)
         {
-            removingBlock(block);
+            // コマの削除
+            block->removeFromParentAndCleanup(true);
         }
         it++;
     }
 }
 
-// ブロックの削除
-void GameScene::removingBlock(CCNode* block)
-{
-    block->removeFromParentAndCleanup(true);
-}
-
 // ブロック削除後のアニメーション
-void GameScene::movingBlocksAnimation1(list<int> blocks)
+void GameScene::movingBlocksAnimation(list<int> blocks)
 {
     // 削除された場所に既存のピースをずらす
-    searchNewPosition1(blocks);
+    searchNewPosition(blocks);
     int spriteCount = 0;
     spriteCount = 0;
     
@@ -567,11 +564,11 @@ void GameScene::movingBlocksAnimation1(list<int> blocks)
     // 場外から落とす
     moveBlock();
     
-    scheduleOnce(schedule_selector(GameScene::movedBlocks), MOVING_TIME * 2);
+    scheduleOnce(schedule_selector(GameScene::dropAnimationFinished), MOVING_TIME * 2);
 }
 
 // 消えたブロックを埋めるように新しい位置をセット
-void GameScene::searchNewPosition1(list<int> blocks)
+void GameScene::searchNewPosition(list<int> blocks)
 {
     // 消えるブロック数分のループ
     list<int>::iterator it1 = blocks.begin();
@@ -587,7 +584,7 @@ void GameScene::searchNewPosition1(list<int> blocks)
                     BlockSprite *blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
                     if(blockSprite != NULL) {
                         PositionIndex pos = getPositionIndex(tag);
-                        setNewPosition1(tag, pos);
+                        setNewPosition(tag, pos);
                     }
                 }
             }
@@ -597,7 +594,7 @@ void GameScene::searchNewPosition1(list<int> blocks)
 }
 
 // 新しい位置をセット
-void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
+void GameScene::setNewPosition(int tag, PositionIndex posIndex)
 {
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
     
@@ -638,6 +635,7 @@ void GameScene::moveBlock()
     
 }
 
+//新しいブロックを落とす
 void GameScene::dropNewBlocks()
 {
     for (int x = 0; x < MAX_BLOCK_X; x++) {
@@ -673,7 +671,7 @@ void GameScene::dropNewBlocks()
 }
 
 // ブロックの移動完了
-void GameScene::movedBlocks()
+void GameScene::dropAnimationFinished()
 {
     // 続けて連結があるかチェックして、消す
     // 消せなければアニメーション終了

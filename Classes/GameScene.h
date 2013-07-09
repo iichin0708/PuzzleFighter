@@ -110,17 +110,14 @@ protected:
     // 与えられたタグの引数リストよりブロックを削除する
     void removeBlock(std::list<int> blockTags);
     
-    // 親から実際に参照を削除する
-    void removingBlock(cocos2d::CCNode* block);
-
-    // ブロックを下に落とすアニメーション
-    void movingBlocksAnimation1(std::list<int> blocks);
+    // コマを下に落とすアニメーション
+    void movingBlocksAnimation(std::list<int> blocks);
     
-    // 下にずらすべきブロックを探索する
-    void searchNewPosition1(std::list<int> blocks);
+    // 下にずらすべきコマを探索する
+    void searchNewPosition(std::list<int> blocks);
     
-    // 消されたブロックの上にあるブロックに新しいポジションを設定する(下にずらす)
-    void setNewPosition1(int tag, PositionIndex posIndex);
+    // 消されたコマの上にあるコマに新しいポジションを設定する(下にずらす)
+    void setNewPosition(int tag, PositionIndex posIndex);
     
     // ブロックを実際に動かす(nextPosが設定してあるブロックのみ)
     void moveBlock();
@@ -129,7 +126,7 @@ protected:
     void dropNewBlocks();
     
     // ブロックを下に落とし終わったあとのメソッド
-    void movedBlocks();
+    void dropAnimationFinished();
 
     // リセットする(初めから始める)
     void menuResetCallback(cocos2d::CCObject* pSender);
