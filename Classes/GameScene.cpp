@@ -276,7 +276,7 @@ void GameScene::checkAndRemoveAndDrop()
             scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
         } else {
             m_animating = false;
-            CCLOG("潜在連結数 : %d", getSwapChainCount());
+            // CCLOG("潜在連結数 : %d", getSwapChainCount());
             // 潜在的な連結がないとき
             if (getSwapChainCount() <= 0) {
                 // TODO:盤面を新しく用意する
