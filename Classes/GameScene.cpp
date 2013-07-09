@@ -42,7 +42,6 @@ bool GameScene::init()
     showBlock();
     
     // ラベル作成
-    showLabel();
     showHighScoreLabel();
     
     // リセットボタン作成
@@ -526,7 +525,7 @@ void GameScene::removeAndDrop()
     removeBlock(removeBlockTagLists);
     
     // コマ削除後のアニメーション
-    movingBlocksAnimation1(removeBlockTagLists);
+    movingBlocksAnimation(removeBlockTagLists);
     
     removeBlockTagLists.clear();
 }
@@ -541,23 +540,18 @@ void GameScene::removeBlock(list<int> blockTags)
         CCNode* block = m_background->getChildByTag(*it);
         if (block)
         {
-            removingBlock(block);
+            // コマの削除
+            block->removeFromParentAndCleanup(true);
         }
         it++;
     }
 }
 
-// コマの削除
-void GameScene::removingBlock(CCNode* block)
-{
-    block->removeFromParentAndCleanup(true);
-}
-
 // コマ削除後のアニメーション
-void GameScene::movingBlocksAnimation1(list<int> blocks)
+void GameScene::movingBlocksAnimation(list<int> blocks)
 {
     // 削除された場所に既存のピースをずらす
-    searchNewPosition1(blocks);
+    searchNewPosition(blocks);
     int spriteCount = 0;
     spriteCount = 0;
     
@@ -571,11 +565,11 @@ void GameScene::movingBlocksAnimation1(list<int> blocks)
     // 場外から落とす
     moveBlock();
     
-    scheduleOnce(schedule_selector(GameScene::movedBlocks), MOVING_TIME * 2);
+    scheduleOnce(schedule_selector(GameScene::dropAnimationFinished), MOVING_TIME * 2);
 }
 
 // 消えたコマを埋めるように新しい位置をセット
-void GameScene::searchNewPosition1(list<int> blocks)
+void GameScene::searchNewPosition(list<int> blocks)
 {
     // 消えるコマ数分のループ
     list<int>::iterator it1 = blocks.begin();
@@ -591,7 +585,7 @@ void GameScene::searchNewPosition1(list<int> blocks)
                     BlockSprite *blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
                     if(blockSprite != NULL) {
                         PositionIndex pos = getPositionIndex(tag);
-                        setNewPosition1(tag, pos);
+                        setNewPosition(tag, pos);
                     }
                 }
             }
@@ -601,7 +595,7 @@ void GameScene::searchNewPosition1(list<int> blocks)
 }
 
 // 新しい位置をセット
-void GameScene::setNewPosition1(int tag, PositionIndex posIndex)
+void GameScene::setNewPosition(int tag, PositionIndex posIndex)
 {
     BlockSprite* blockSprite = (BlockSprite*)m_background->getChildByTag(tag);
     
@@ -677,32 +671,11 @@ void GameScene::dropNewBlocks()
 }
 
 // コマの移動完了
-void GameScene::movedBlocks()
+void GameScene::dropAnimationFinished()
 {
-    // ラベル再表示
-    showLabel();
-    
     // 続けて連結があるかチェックして、消す
     // 消せなければアニメーション終了
     checkAndRemoveAndDrop();
-    
-    /*
-     // ゲーム終了チェック
-     if (!existsSameBlock())
-     {
-     // ハイスコア記録・表示
-     saveHighScore();
-     
-     CCSize bgSize = m_background->getContentSize();
-     
-     // ゲーム終了表示
-     CCSprite* gameOver = CCSprite::create(PNG_GAMEOVER);
-     gameOver->setPosition(ccp(bgSize.width / 2, bgSize.height * 0.8));
-     m_background->addChild(gameOver, kZOrderGameOver, kTagGameOver);
-     
-     setTouchEnabled(false);
-     }
-     */
 }
 
 // コマのインデックス取得
@@ -983,57 +956,6 @@ map<int, bool> GameScene::getExistsBlockColumn()
     }
     */
     return xBlock;
-}
-
-// ラベル表示
-void GameScene::showLabel()
-{
-    CCSize bgSize = m_background->getContentSize();
-    
-    // 残数表示
-    int tagsForLabel[] = {kTagRedLabel, kTagBlueLabel, kTagYellowLabel, kTagGreenLabel, kTagGrayLabel};
-    const char* fontNames[] = {FONT_RED, FONT_BLUE, FONT_YELLOW, FONT_GREEN, FONT_GRAY};
-    float heightRate[] = {0.61, 0.51, 0.41, 0.31, 0.21};
-    
-    /*
-     // コマ種類のループ
-     vector<kBlock>::iterator it = blockTypes.begin();
-     while (it != blockTypes.end())
-     {
-     // コマ残数表示
-     int count = m_blockTags[*it].size();
-     const char* countStr = ccsf("%02d", count);
-     CCLabelBMFont* label = (CCLabelBMFont*)m_background->getChildByTag(tagsForLabel[*it]);
-     if (!label)
-     {
-     // コマ残数生成
-     label = CCLabelBMFont::create(countStr, fontNames[*it]);
-     label->setPosition(ccp(bgSize.width * 0.78, bgSize.height * heightRate[*it]));
-     m_background->addChild(label, kZOrderLabel, tagsForLabel[*it]);
-     }
-     else
-     {
-     label->setString(countStr);
-     }
-     
-     it++;
-     }
-     
-     // スコア表示
-     const char* scoreStr = ccsf("%d", m_score);
-     CCLabelBMFont* scoreLabel = (CCLabelBMFont*)m_background->getChildByTag(kTagScoreLabel);
-     if (!scoreLabel)
-     {
-     // スコア生成
-     scoreLabel = CCLabelBMFont::create(scoreStr, FONT_WHITE);
-     scoreLabel->setPosition(ccp(bgSize.width * 0.78, bgSize.height * 0.75));
-     m_background->addChild(scoreLabel, kZOrderLabel, kTagScoreLabel);
-     }
-     else
-     {
-     scoreLabel->setString(scoreStr);
-     }
-     */
 }
 
 // 全コマに対して、隣り合うコマが存在するかチェック

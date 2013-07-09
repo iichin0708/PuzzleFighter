@@ -117,17 +117,14 @@ protected:
     // 与えられたタグの引数リストよりコマを削除する
     void removeBlock(std::list<int> blockTags);
     
-    // 親から実際に参照を削除する
-    void removingBlock(cocos2d::CCNode* block);
-
     // コマを下に落とすアニメーション
-    void movingBlocksAnimation1(std::list<int> blocks);
+    void movingBlocksAnimation(std::list<int> blocks);
     
     // 下にずらすべきコマを探索する
-    void searchNewPosition1(std::list<int> blocks);
+    void searchNewPosition(std::list<int> blocks);
     
     // 消されたコマの上にあるコマに新しいポジションを設定する(下にずらす)
-    void setNewPosition1(int tag, PositionIndex posIndex);
+    void setNewPosition(int tag, PositionIndex posIndex);
     
     // コマを実際に動かす(nextPosが設定してあるコマのみ)
     void moveBlock();
@@ -136,12 +133,9 @@ protected:
     void dropNewBlocks();
     
     // コマを下に落とし終わったあとのメソッド
-    void movedBlocks();
+    void dropAnimationFinished();
 
     
-    // ラベルを表示する
-    void showLabel();
-
     // リセットする(初めから始める)
     void menuResetCallback(cocos2d::CCObject* pSender);
     
