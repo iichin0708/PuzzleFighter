@@ -47,6 +47,9 @@ bool GameScene::init()
     // 効果音の事前読み込み
     SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
     
+    // 4秒後にヒントが出る設定
+    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+    
     return true;
 }
 
@@ -152,6 +155,43 @@ void GameScene::showBlock()
 }
 
 
+// ヒントをランダムに一つ選び、1秒表示
+void GameScene::showSwapChainPosition()
+{
+    list<SwapChainPosition> hintPositions = getSwapChainPositions();
+    list<SwapChainPosition>::iterator it = hintPositions.begin(); // イテレータ
+    
+    int setHintPosition = rand() % hintPositions.size();
+    int count = 0;
+    
+    while( it != hintPositions.end() ) {
+        SwapChainPosition position = *it;
+        ++it;  // イテレータを１つ進める
+        
+        if(setHintPosition == count) {
+            PositionIndex pos1 = getPositionIndex(position.tag1);
+            PositionIndex pos2 = getPositionIndex(position.tag2);
+            CCPoint point1 = getPosition(pos1.x, pos1.y);
+            CCPoint point2 = getPosition(pos2.x, pos2.y);
+            CCPoint setPoint = ccp((point1.x + point2.x) / 2,
+                                   (point1.y + point2.y) / 2);
+            CCSprite *circle = CCSprite::create("circle.png");
+            
+            circle->setPosition(setPoint);
+            circle->setTag(kTagHintCircle);
+            
+            m_background->addChild(circle, 100);
+            CCRotateBy *actionRoll = CCRotateBy::create(2.0f, 360);
+            CCRepeatForever * actionRollForever = CCRepeatForever::create(actionRoll);
+            circle->runAction(actionRollForever);
+            break;
+        }
+        
+        count++;
+    }
+}
+
+
 // 位置取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
 CCPoint GameScene::getPosition(int posIndexX, int posIndexY)
 {
@@ -198,6 +238,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
         postTouchTag = tag;
         
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
+            unschedule(schedule_selector(GameScene::showSwapChainPosition));
             // コンボの初期化
             m_combo = 0;
             swapSprite();
@@ -261,11 +302,13 @@ void GameScene::checkAndRemoveAndDrop()
     
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
+        // 連結を作ったらヒントを消す
+        m_background->removeChildByTag(kTagHintCircle);
+
         m_combo++;
         
         // 2コンボ以上のときはアニメ演出
         if (m_combo >= 2) {
-            CCLOG("%d combo!", m_combo);
             char comboText[10];
             sprintf(comboText, "%d COMBO!", m_combo);
             CCLabelTTF *comboLabel = CCLabelTTF::create(comboText, "arial", 60);
@@ -311,11 +354,14 @@ void GameScene::checkAndRemoveAndDrop()
                 CCLOG("No Match!");
             }
         }
+        
+        scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     }
 }
 
 // 入れ替えアニメーションの終了
-void GameScene::exchangeAnimationFinished() {
+void GameScene::exchangeAnimationFinished()
+{
     m_animating = false;
 }
 
@@ -443,7 +489,6 @@ list<int> GameScene::getRemoveChainBlocks()
     return removeChainBlocks;
 }
 
-
 // 指定したブロックを含む３つ以上のブロック連結があるかどうか
 bool GameScene::isChainedBlock(int blockTag)
 {
@@ -545,6 +590,172 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
     SimpleAudioEngine::sharedEngine()->playEffect(MP3_REMOVE_BLOCK);
 }
 
+// ヒント（入れ替えで連結）の場所リストを取得
+list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
+{
+    list<SwapChainPosition> swapChainPosition;
+    
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int blockTag = getTag(x, y);
+            BlockSprite *block = (BlockSprite*)m_background->getChildByTag(blockTag);
+            
+            // ブロックの種類
+            kBlock blockType = block->getBlockType();
+            
+            // 間を1つ空けて横の後ろ2つをチェック
+            int blockTag1 = kTagBaseBlock + (x - 2) * 100 + y;
+            BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            int blockTag2 = kTagBaseBlock + (x - 3) * 100 + y;
+            BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + (x - 1) * 100 + y);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて前の後ろ2つをチェック
+            blockTag1 = kTagBaseBlock + (x + 2) * 100 + y;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + (x + 3) * 100 + y;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + (x + 1) * 100 + y);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて縦の後ろ2つをチェック
+            blockTag1 = kTagBaseBlock + x * 100 + y - 2;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + x * 100 + y - 3;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + x * 100 + y - 1);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて縦の前2つをチェック
+            blockTag1 = kTagBaseBlock + x * 100 + y + 2;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + x * 100 + y + 3;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + x * 100 + y + 1);
+                swapChainPosition.push_back(position);
+            }
+            
+            int tags[] = {
+                1,      // 上
+                -1,     // 下
+                -100,   // 左
+                100     // 右
+            };
+            
+            for (int i = 0; i < sizeof(tags) ; i++) {
+                int nextToBlockTag = blockTag + tags[i];
+                PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
+                
+                // 縦の走査のとき
+                if (tags[i] == 1 || tags[i] == -1) {
+                    // 横方向の繋がり
+                    int count = 1; // 横につながっている個数
+                    // 右方向に走査
+                    for (int tx = nextToBlockIndex.x + 1; tx <= nextToBlockIndex.x + 2; tx++) {
+                        int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 左方向に走査
+                    for (int tx = nextToBlockIndex.x - 1; tx >= nextToBlockIndex.x - 2; tx--) {
+                        int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 3つ繋がっているか
+                    if (count >= 3) {
+                        SwapChainPosition position = SwapChainPosition(blockTag, nextToBlockTag);
+                        swapChainPosition.push_back(position);
+                    }
+                }
+                
+                
+                // 横の走査のとき
+                if (tags[i] == 100 || tags[i] == -100) {
+                    // 縦方向の繋がり
+                    int count = 1; // 縦につながっている個数
+                    for (int ty = nextToBlockIndex.y + 1; ty <= nextToBlockIndex.y + 2; ty++) {
+                        int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    for (int ty = nextToBlockIndex.y - 1; ty >= nextToBlockIndex.y - 2; ty--) {
+                        int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 3つ繋がっているか
+                    if (count >= 3) {
+                        SwapChainPosition position = SwapChainPosition(blockTag, nextToBlockTag);
+                        swapChainPosition.push_back(position);
+                    }
+                }
+            }
+        }
+    }
+    
+    return swapChainPosition;
+}
 
 // 消滅リスト内のブロックを消して、上のブロックを落とすアニメーションセット
 void GameScene::removeAndDrop()
@@ -868,7 +1079,6 @@ int GameScene::getSwapChainBlockCount(int blockTag)
             if (count >= 3) { chainCount++; }
         }
     }
-
     
     return chainCount;
 }

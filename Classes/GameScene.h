@@ -8,6 +8,7 @@
 #define MAX_BLOCK_Y 6
 #define REMOVING_TIME 0.1f
 #define MOVING_TIME 0.2f
+#define HINT_TIME 4.0f
 
 #define KEY_HIGHSCORE "HighScore"
 
@@ -31,6 +32,7 @@ protected:
         kTagScoreLabel,
         kTagGameOver,
         kTagBaseBlock = 10000,
+        kTagHintCircle = 20000
     };
     
     enum kZOrder
@@ -53,6 +55,16 @@ protected:
         int y;
     };
  
+    struct SwapChainPosition
+    {
+        int tag1, tag2;
+        SwapChainPosition(int tag1, int tag2)
+        {
+            this->tag1 = tag1;
+            this->tag2 = tag2;
+        }
+    };
+    
     // タッチしたタグ(CCTouchBegan用)
     static int preTouchTag;
     
@@ -85,6 +97,8 @@ protected:
     void showBackground();
     // 初期ブロックを表示する
     void showBlock();
+    // ヒントを表示する
+    void showSwapChainPosition();
     
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
@@ -157,6 +171,9 @@ protected:
     // 盤面全体の潜在的な連結の数を取得する
     int getSwapChainCount();
 
+    // ヒント（入れ替えで連結）の場所リストを取得
+    std::list<SwapChainPosition> getSwapChainPositions();
+    
     /*********************************/
 
 
