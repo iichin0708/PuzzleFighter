@@ -155,17 +155,17 @@ void GameScene::showBlock()
 }
 
 
-// ヒントをランダムに一つ選び、1秒表示
+// ヒントをランダムに1つ表示
 void GameScene::showSwapChainPosition()
 {
-    list<SwapChainPosition> hintPositions = getSwapChainPositions();
-    list<SwapChainPosition>::iterator it = hintPositions.begin(); // イテレータ
+    list<BlockTagPair> hintPositions = getSwapChainPositions();
+    list<BlockTagPair>::iterator it = hintPositions.begin(); // イテレータ
     
     int setHintPosition = rand() % hintPositions.size();
     int count = 0;
     
     while( it != hintPositions.end() ) {
-        SwapChainPosition position = *it;
+        BlockTagPair position = *it;
         ++it;  // イテレータを１つ進める
         
         if(setHintPosition == count) {
@@ -591,9 +591,9 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
 }
 
 // ヒント（入れ替えで連結）の場所リストを取得
-list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
+list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
 {
-    list<SwapChainPosition> swapChainPosition;
+    list<BlockTagPair> swapChainPosition;
     
     for (int x = 0; x < MAX_BLOCK_X; x++) {
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
@@ -616,7 +616,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                 block1->getBlockType() == block2->getBlockType() &&
                 blockType == block1->getBlockType())
             {
-                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + (x - 1) * 100 + y);
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + (x - 1) * 100 + y);
                 swapChainPosition.push_back(position);
             }
             
@@ -633,7 +633,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                 block1->getBlockType() == block2->getBlockType() &&
                 blockType == block1->getBlockType())
             {
-                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + (x + 1) * 100 + y);
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + (x + 1) * 100 + y);
                 swapChainPosition.push_back(position);
             }
             
@@ -650,7 +650,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                 block1->getBlockType() == block2->getBlockType() &&
                 blockType == block1->getBlockType())
             {
-                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + x * 100 + y - 1);
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + x * 100 + y - 1);
                 swapChainPosition.push_back(position);
             }
             
@@ -667,7 +667,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                 block1->getBlockType() == block2->getBlockType() &&
                 blockType == block1->getBlockType())
             {
-                SwapChainPosition position = SwapChainPosition(blockTag, kTagBaseBlock + x * 100 + y + 1);
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + x * 100 + y + 1);
                 swapChainPosition.push_back(position);
             }
             
@@ -712,7 +712,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                     
                     // 3つ繋がっているか
                     if (count >= 3) {
-                        SwapChainPosition position = SwapChainPosition(blockTag, nextToBlockTag);
+                        BlockTagPair position = BlockTagPair(blockTag, nextToBlockTag);
                         swapChainPosition.push_back(position);
                     }
                 }
@@ -746,7 +746,7 @@ list<GameScene::SwapChainPosition> GameScene::getSwapChainPositions()
                     
                     // 3つ繋がっているか
                     if (count >= 3) {
-                        SwapChainPosition position = SwapChainPosition(blockTag, nextToBlockTag);
+                        BlockTagPair position = BlockTagPair(blockTag, nextToBlockTag);
                         swapChainPosition.push_back(position);
                     }
                 }

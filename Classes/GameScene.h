@@ -55,10 +55,11 @@ protected:
         int y;
     };
  
-    struct SwapChainPosition
+    // ブロックタグを2つセットで扱う
+    struct BlockTagPair
     {
         int tag1, tag2;
-        SwapChainPosition(int tag1, int tag2)
+        BlockTagPair(int tag1, int tag2)
         {
             this->tag1 = tag1;
             this->tag2 = tag2;
@@ -97,7 +98,7 @@ protected:
     void showBackground();
     // 初期ブロックを表示する
     void showBlock();
-    // ヒントを表示する
+    // ヒントをランダムに1つ表示
     void showSwapChainPosition();
     
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
@@ -172,7 +173,7 @@ protected:
     int getSwapChainCount();
 
     // ヒント（入れ替えで連結）の場所リストを取得
-    std::list<SwapChainPosition> getSwapChainPositions();
+    std::list<BlockTagPair> getSwapChainPositions();
     
     /*********************************/
 
