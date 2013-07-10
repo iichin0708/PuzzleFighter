@@ -50,6 +50,9 @@ bool GameScene::init()
     // 効果音の事前読み込み
     SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
     
+    // 4秒後にヒントが出る設定
+    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+    
     return true;
 }
 
@@ -76,10 +79,103 @@ void GameScene::showBackground()
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
-    // 背景を生成
+    // 背景の生成
+    CCSprite *background = CCSprite::create("back_ground.png");
+    addChild(background);
+    background->setPosition(ccp(winSize.width / 2,
+                                winSize.height / 2));
+    
+#pragma marks TODO: プレイヤーのパラメータを扱うクラスができたら移動
+    // HPゲージの生成
+    CCSprite *myHpGauge = CCSprite::create("gauge.png");
+    addChild(myHpGauge, 30000);
+    myHpGauge->setPosition(ccp(winSize.width / 4,
+                               winSize.height - (myHpGauge->getContentSize().height / 2)));
+    
+    CCSprite *myHpGaugeBar = CCSprite::create("gauge_red_bar.png");
+    myHpGauge->addChild(myHpGaugeBar, 0);
+    myHpGaugeBar->setPosition(ccp(myHpGauge->getContentSize().width / 2,
+                                  myHpGauge->getContentSize().height / 2));
+    
+    CCSprite *myHpGaugeFrame = CCSprite::create("gauge_frame.png");
+    myHpGauge->addChild(myHpGaugeFrame, 1);
+    myHpGaugeFrame->setPosition(ccp(myHpGauge->getContentSize().width / 2,
+                                    myHpGauge->getContentSize().height / 2));
+    
+    CCSprite *enemyHpGauge = CCSprite::create("gauge.png");
+    addChild(enemyHpGauge, 30000);
+    enemyHpGauge->setPosition(ccp(winSize.width * 3 / 4,
+                                  winSize.height - (myHpGauge->getContentSize().height / 2)));
+    
+    CCSprite *enemyHpGaugeBar = CCSprite::create("gauge_red_bar.png");
+    enemyHpGauge->addChild(enemyHpGaugeBar, 0);
+    enemyHpGaugeBar->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
+                                  enemyHpGauge->getContentSize().height / 2));
+    
+    CCSprite *enemyHpGaugeFrame = CCSprite::create("gauge_frame.png");
+    enemyHpGauge->addChild(enemyHpGaugeFrame, 1);
+    enemyHpGaugeFrame->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
+                                       enemyHpGauge->getContentSize().height / 2));
+    
+    // パズルの背景を生成
     m_background = CCSprite::create(PNG_BACKGROUND);
-    m_background->setPosition(ccp(winSize.width / 2, winSize.height / 2));
     addChild(m_background, kZOrderBackground, kTagBackground);
+    m_background->setPosition(ccp(m_background->getContentSize().width / 2 + 3,
+                                  winSize.height - myHpGauge->getContentSize().height - m_background->getContentSize().height / 2));
+    
+    CCSprite *backFrame = CCSprite::create("frame.png");
+    m_background->addChild(backFrame, 30000);
+    backFrame->setPosition(ccp(m_background->getContentSize().width / 2,
+                               m_background->getContentSize().height / 2));
+    
+    // 敵パズルの背景を生成
+    CCSprite *enemyBackGround = CCSprite::create(PNG_BACKGROUND);
+    addChild(enemyBackGround, kZOrderBackground, kTagBackground);
+    float enemyPuzzleScale = 2.0f / 3.5f;
+    enemyBackGround->setScale(enemyPuzzleScale);
+    enemyBackGround->setPosition(ccp(m_background->getContentSize().width + (winSize.width - m_background->getContentSize().width) / 2 + 3,
+                                     winSize.height - enemyHpGauge->getContentSize().height - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - 3));
+    
+    CCSprite *enemyBackFrame = CCSprite::create("frame.png");
+    enemyBackGround->addChild(enemyBackFrame, 30000);
+    enemyBackFrame->setPosition(ccp(enemyBackGround->getContentSize().width / 2,
+                                    enemyBackGround->getContentSize().height / 2));
+    
+    // スキルフレームの生成
+    CCSprite *magicFrame = CCSprite::create("magic_frame.png");
+    addChild(magicFrame, 30000);
+    magicFrame->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + magicFrame->getContentSize().width / 2 + 3,
+                                enemyBackGround->getPositionY() - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - magicFrame->getContentSize().height / 2 - 3));
+    
+    // スキルアイコンの生成
+    CCSprite *magicItem = CCSprite::create("magic01.png");
+    magicFrame->addChild(magicItem);
+    magicItem->setPosition(ccp(magicFrame->getContentSize().width / 2,
+                               magicFrame->getContentSize().height / 2));
+    
+    // スキルゲージの生成
+    CCSprite *magicGauge = CCSprite::create("gauge.png");
+    addChild(magicGauge, 20000);
+    float magicScale = 2.0f / 3.0f;
+    magicGauge->setScale(magicScale);
+    magicGauge->setPosition(ccp(magicFrame->getPositionX() + magicGauge->getContentSize().width * magicScale / 2,
+                                magicFrame->getPositionY()));
+    
+    CCSprite *magicGaugeBar = CCSprite::create("gauge_blue_bar.png");
+    magicGauge->addChild(magicGaugeBar, 0);
+    magicGaugeBar->setPosition(ccp(magicGauge->getContentSize().width / 2,
+                                   magicGauge->getContentSize().height / 2));
+    
+    CCSprite *magicGaugeFrame = CCSprite::create("gauge_frame.png");
+    magicGauge->addChild(magicGaugeFrame, 1);
+    magicGaugeFrame->setPosition(ccp(magicGauge->getContentSize().width / 2,
+                                     magicGauge->getContentSize().height / 2));
+    
+    // コイン表示領域
+    CCSprite *coinLabel = CCSprite::create("coin_label.png");
+    addChild(coinLabel);
+    coinLabel->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + coinLabel->getContentSize().width / 2,
+                               m_background->getPositionY() - m_background->getContentSize().height / 2 + coinLabel->getContentSize().height / 2));
 }
 
 // ブロック表示
@@ -160,11 +256,48 @@ void GameScene::showBlock()
 }
 
 
+// ヒントをランダムに1つ表示
+void GameScene::showSwapChainPosition()
+{
+    list<BlockTagPair> hintPositions = getSwapChainPositions();
+    list<BlockTagPair>::iterator it = hintPositions.begin(); // イテレータ
+    
+    int setHintPosition = rand() % hintPositions.size();
+    int count = 0;
+    
+    while( it != hintPositions.end() ) {
+        BlockTagPair position = *it;
+        ++it;  // イテレータを１つ進める
+        
+        if(setHintPosition == count) {
+            PositionIndex pos1 = getPositionIndex(position.tag1);
+            PositionIndex pos2 = getPositionIndex(position.tag2);
+            CCPoint point1 = getPosition(pos1.x, pos1.y);
+            CCPoint point2 = getPosition(pos2.x, pos2.y);
+            CCPoint setPoint = ccp((point1.x + point2.x) / 2,
+                                   (point1.y + point2.y) / 2);
+            CCSprite *circle = CCSprite::create("circle.png");
+            
+            circle->setPosition(setPoint);
+            circle->setTag(kTagHintCircle);
+            
+            m_background->addChild(circle, 100);
+            CCRotateBy *actionRoll = CCRotateBy::create(2.0f, 360);
+            CCRepeatForever * actionRollForever = CCRepeatForever::create(actionRoll);
+            circle->runAction(actionRollForever);
+            break;
+        }
+        
+        count++;
+    }
+}
+
+
 // 位置取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
 CCPoint GameScene::getPosition(int posIndexX, int posIndexY)
 {
-    float offsetX = m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
-    float offsetY = m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
+    float offsetX = 0;//m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
+    float offsetY = 0;//m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
     return CCPoint((posIndexX + 0.5) * m_blockSize + offsetX, (posIndexY + 0.5) * m_blockSize + offsetY);
 }
 
@@ -208,6 +341,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
         m_ccTouchMoving = true;
         postTouchTag = tag;
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
+            unschedule(schedule_selector(GameScene::showSwapChainPosition));
             // コンボの初期化
             m_combo = 0;
 
@@ -484,11 +618,16 @@ void GameScene::checkAndRemoveAndDrop()
             it1++;
         }
         
+        // 連結を作ったらヒントを消す
+        CCNode *circle = m_background->getChildByTag(kTagHintCircle);
+        if (circle != NULL) {
+            circle->removeFromParent();
+        }
+
         m_combo++;
         
         // 2コンボ以上のときはアニメ演出
         if (m_combo >= 2) {
-            CCLOG("%d combo!", m_combo);
             char comboText[10];
             sprintf(comboText, "%d COMBO!", m_combo);
             CCLabelTTF *comboLabel = CCLabelTTF::create(comboText, "arial", 60);
@@ -500,7 +639,7 @@ void GameScene::checkAndRemoveAndDrop()
             
             comboLabel->setPosition(ccp(origin.x + visibleSize.width / 2,
                                         origin.y + visibleSize.height / 2));
-            comboLabel->setColor(ccc3(0, 0, 0));
+            comboLabel->setColor(ccc3(255, 255, 255));
             addChild(comboLabel);
             
             float during = 0.5f;
@@ -610,16 +749,19 @@ void GameScene::checkAndRemoveAndDrop()
             // CCLOG("潜在連結数 : %d", getSwapChainCount());
             // 潜在的な連結がないとき
             if (getSwapChainCount() <= 0) {
-                // TODO:盤面を新しく用意する
+#pragma marks TODO: 盤面を新しく用意する
                 CCLOG("No Match!");
             }
         }
+        
+        scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     }
     CCLog("");
 }
 
 // 入れ替えアニメーションの終了
-void GameScene::exchangeAnimationFinished() {
+void GameScene::exchangeAnimationFinished()
+{
     m_animating = false;
     preTouchTag = -1;
     postTouchTag = 1;
@@ -748,6 +890,7 @@ list<int> GameScene::getRemoveChainBlocks2(int tag) {
             }
         }
         
+        removeReserveBlocks.clear();
     }
     
     removeChainBlocks.sort();
@@ -877,6 +1020,7 @@ list<int> GameScene::getRemoveChainBlocks()
             }
         }
         
+        removeReserveBlocks.clear();
     }
     
     removeChainBlocks.sort();
@@ -885,7 +1029,6 @@ list<int> GameScene::getRemoveChainBlocks()
     
     return removeChainBlocks;
 }
-
 
 // 指定したブロックを含む３つ以上のブロック連結があるかどうか
 bool GameScene::isChainedBlock(int blockTag)
@@ -993,6 +1136,172 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
     SimpleAudioEngine::sharedEngine()->playEffect(MP3_REMOVE_BLOCK);
 }
 
+// ヒント（入れ替えで連結）の場所リストを取得
+list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
+{
+    list<BlockTagPair> swapChainPosition;
+    
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int blockTag = getTag(x, y);
+            BlockSprite *block = (BlockSprite*)m_background->getChildByTag(blockTag);
+            
+            // ブロックの種類
+            kBlock blockType = block->getBlockType();
+            
+            // 間を1つ空けて横の後ろ2つをチェック
+            int blockTag1 = kTagBaseBlock + (x - 2) * 100 + y;
+            BlockSprite *block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            int blockTag2 = kTagBaseBlock + (x - 3) * 100 + y;
+            BlockSprite *block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + (x - 1) * 100 + y);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて前の後ろ2つをチェック
+            blockTag1 = kTagBaseBlock + (x + 2) * 100 + y;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + (x + 3) * 100 + y;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + (x + 1) * 100 + y);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて縦の後ろ2つをチェック
+            blockTag1 = kTagBaseBlock + x * 100 + y - 2;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + x * 100 + y - 3;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + x * 100 + y - 1);
+                swapChainPosition.push_back(position);
+            }
+            
+            // 間を1つ空けて縦の前2つをチェック
+            blockTag1 = kTagBaseBlock + x * 100 + y + 2;
+            block1 = (BlockSprite *)m_background->getChildByTag(blockTag1);
+            blockTag2 = kTagBaseBlock + x * 100 + y + 3;
+            block2 = (BlockSprite *)m_background->getChildByTag(blockTag2);
+            
+            // 一つ空けてターゲットのブロックと同じブロックが二つ並んでいたら
+            // 潜在的なブロックと見なす
+            if (block1 != NULL &&
+                block2 != NULL &&
+                block1->getBlockType() == block2->getBlockType() &&
+                blockType == block1->getBlockType())
+            {
+                BlockTagPair position = BlockTagPair(blockTag, kTagBaseBlock + x * 100 + y + 1);
+                swapChainPosition.push_back(position);
+            }
+            
+            int tags[] = {
+                1,      // 上
+                -1,     // 下
+                -100,   // 左
+                100     // 右
+            };
+            
+            for (int i = 0; i < sizeof(tags) ; i++) {
+                int nextToBlockTag = blockTag + tags[i];
+                PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
+                
+                // 縦の走査のとき
+                if (tags[i] == 1 || tags[i] == -1) {
+                    // 横方向の繋がり
+                    int count = 1; // 横につながっている個数
+                    // 右方向に走査
+                    for (int tx = nextToBlockIndex.x + 1; tx <= nextToBlockIndex.x + 2; tx++) {
+                        int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 左方向に走査
+                    for (int tx = nextToBlockIndex.x - 1; tx >= nextToBlockIndex.x - 2; tx--) {
+                        int targetTag = kTagBaseBlock + tx * 100 + nextToBlockIndex.y;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 3つ繋がっているか
+                    if (count >= 3) {
+                        BlockTagPair position = BlockTagPair(blockTag, nextToBlockTag);
+                        swapChainPosition.push_back(position);
+                    }
+                }
+                
+                
+                // 横の走査のとき
+                if (tags[i] == 100 || tags[i] == -100) {
+                    // 縦方向の繋がり
+                    int count = 1; // 縦につながっている個数
+                    for (int ty = nextToBlockIndex.y + 1; ty <= nextToBlockIndex.y + 2; ty++) {
+                        int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    for (int ty = nextToBlockIndex.y - 1; ty >= nextToBlockIndex.y - 2; ty--) {
+                        int targetTag = kTagBaseBlock + nextToBlockIndex.x * 100 + ty;
+                        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+                        if (target == NULL || target->getBlockType() != blockType) {
+                            break;
+                        }
+                        if (targetTag != blockTag) {
+                            count++;
+                        }
+                    }
+                    
+                    // 3つ繋がっているか
+                    if (count >= 3) {
+                        BlockTagPair position = BlockTagPair(blockTag, nextToBlockTag);
+                        swapChainPosition.push_back(position);
+                    }
+                }
+            }
+        }
+    }
+    
+    return swapChainPosition;
+}
 
 // 消滅リスト内のブロックを消して、上のブロックを落とすアニメーションセット
 void GameScene::removeAndDrop()
@@ -1337,7 +1646,6 @@ int GameScene::getSwapChainBlockCount(int blockTag)
             if (count >= 3) { chainCount++; }
         }
     }
-
     
     return chainCount;
 }
@@ -1387,16 +1695,17 @@ void GameScene::menuResetCallback(cocos2d::CCObject* pSender)
 // リセットボタン作成
 void GameScene::showResetButton()
 {
-    CCSize bgSize = m_background->getContentSize();
+    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
     // リセットボタン作成
     CCMenuItemImage* resetButton = CCMenuItemImage::create(PNG_RESET, PNG_RESET, this, menu_selector(GameScene::menuResetCallback));
-    resetButton->setPosition(ccp(bgSize.width * 0.78, bgSize.height * 0.1));
+    resetButton->setPosition(ccp(winSize.width - resetButton->getContentSize().width / 2,
+                                 resetButton->getContentSize().height / 2));
     
     // メニュー作成
     CCMenu* menu = CCMenu::create(resetButton, NULL);
     menu->setPosition(CCPointZero);
-    m_background->addChild(menu);
+    addChild(menu, 30000);
 }
 
 // Androidバックキーイベント

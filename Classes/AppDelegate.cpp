@@ -22,8 +22,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 #endif
     pDirector->setAnimationInterval(1.0 / 60);
 
+    pEGLView->setDesignResolutionSize(960, 640, kResolutionShowAll);
     // 画像が画面の高さにフィットして表示される設定
-    pDirector->setContentScaleFactor(768.0f / pDirector->getWinSize().height);
+    //pDirector->setContentScaleFactor(768.0f / pDirector->getWinSize().height);
     
     CCScene *pScene = GameScene::scene();
     pDirector->runWithScene(pScene);

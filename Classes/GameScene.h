@@ -9,12 +9,15 @@
 #define MAX_BLOCK_Y 6
 #define REMOVING_TIME 0.1f
 #define MOVING_TIME 0.2f
+#define HINT_TIME 4.0f
 
 #define KEY_HIGHSCORE "HighScore"
 
-#define PNG_BACKGROUND "background.png"
+//#define PNG_BACKGROUND "back_ground.png"
+#define PNG_BACKGROUND "back.png"
 #define PNG_GAMEOVER "gameover.png"
-#define PNG_RESET "reset.png"
+//#define PNG_RESET "reset.png"
+#define PNG_RESET "pause_button.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
 
 
@@ -33,6 +36,7 @@ protected:
         kTagScoreLabel,
         kTagGameOver,
         kTagBaseBlock = 10000,
+        kTagHintCircle = 20000
     };
     
     enum kZOrder
@@ -55,6 +59,17 @@ protected:
         int y;
     };
  
+    // ブロックタグを2つセットで扱う
+    struct BlockTagPair
+    {
+        int tag1, tag2;
+        BlockTagPair(int tag1, int tag2)
+        {
+            this->tag1 = tag1;
+            this->tag2 = tag2;
+        }
+    };
+    
     // タッチしたタグ(CCTouchBegan用)
     static int preTouchTag;
     
@@ -103,6 +118,8 @@ protected:
     void showBackground();
     // 初期ブロックを表示する
     void showBlock();
+    // ヒントをランダムに1つ表示
+    void showSwapChainPosition();
     
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
@@ -185,6 +202,10 @@ protected:
     void swapBlockAnimateFinished(BlockSprite *swapSprite);
     
     void setCanMoveSprite(BlockSprite *bSprite);
+
+    // ヒント（入れ替えで連結）の場所リストを取得
+    std::list<BlockTagPair> getSwapChainPositions();
+    
     /*********************************/
 
 
