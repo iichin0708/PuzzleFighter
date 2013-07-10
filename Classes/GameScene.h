@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Config.h"
+#include "BlockSprite.h"
 
 #define MAX_BLOCK_X 6
 #define MAX_BLOCK_Y 6
@@ -15,6 +16,7 @@
 #define PNG_GAMEOVER "gameover.png"
 #define PNG_RESET "reset.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
+
 
 
 class GameScene : public cocos2d::CCLayer
@@ -65,17 +67,25 @@ protected:
     // アニメーション中のフラグ
     bool m_animating;
     
+    // moving中
+    bool m_ccTouchMoving;
+    
     // 画像の大きさ
     float m_blockSize;
     
     // スコアを保持
     int m_score;
     
+    // 動かすことができないスプライトのタグを格納
+    std::list<int> cannotMoveSpritesTag;
+    
     // 背景画像
     cocos2d::CCSprite* m_background;
     
     // コンボ数
     int m_combo;
+    
+    void setEnableTouchSprite();
 
     /***** 以下メソッド群 ******/
     
@@ -89,8 +99,10 @@ protected:
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
     
+    void setSwapPosition(int preTag, int postTag);
+    
     // 2つのスプライトを入れ替える.
-    void swapSprite();
+    void swapSprite(BlockSprite *swapSprite1, BlockSprite *swapSprite2);
     
     // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
     void checkAndRemoveAndDrop();
