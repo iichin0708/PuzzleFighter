@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Config.h"
+#include "Player.h"
 
 #define MAX_BLOCK_X 6
 #define MAX_BLOCK_Y 6
@@ -91,6 +92,15 @@ protected:
     
     // コンボ数
     int m_combo;
+    
+    // プレイヤーのパラメータを扱うオブジェクト
+    Player *player;
+    
+    // 獲得コイン数
+    int coin;
+    
+    // コイン数表示ラベル
+    CCLabelTTF *coinCount;
 
     /***** 以下メソッド群 ******/
     
