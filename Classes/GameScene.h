@@ -61,8 +61,17 @@ protected:
     // タッチしたタグ(CCTouchMove用)
     static int postTouchTag;
     
+    // スワイプしたタグ
+    static int swapSpriteTag1;
+    
+    // スワイプしたタグ
+    static int swapSpriteTag2;
+    
     // 消すブロックのリスト
     static std::list<int> removeBlockTagLists;
+    
+    // スワップしたブロックのリスト
+    static std::list<int> swapBlockTagLists;
         
     // アニメーション中のフラグ
     bool m_animating;
@@ -70,15 +79,14 @@ protected:
     // moving中
     bool m_ccTouchMoving;
     
+    bool isChainFlag;
+    
     // 画像の大きさ
     float m_blockSize;
     
     // スコアを保持
     int m_score;
-    
-    // 動かすことができないスプライトのタグを格納
-    std::list<int> cannotMoveSpritesTag;
-    
+        
     // 背景画像
     cocos2d::CCSprite* m_background;
     
@@ -112,6 +120,9 @@ protected:
 
     // 連結していて消滅できるブロックの、タグ配列を取得
     std::list<int> getRemoveChainBlocks();
+    
+    // 連結していて消滅できるブロックの、タグ配列を取得
+    std::list<int> getRemoveChainBlocks2(int tag);
     
     // 指定したブロックを含む３つ以上のブロック連結があるかどうか
     bool isChainedBlock(int blockTag);
@@ -168,7 +179,12 @@ protected:
     
     // 盤面全体の潜在的な連結の数を取得する
     int getSwapChainCount();
-
+    
+    std::list<int> getCannotMoveTag();
+    
+    void swapBlockAnimateFinished(BlockSprite *swapSprite);
+    
+    void setCanMoveSprite(BlockSprite *bSprite);
     /*********************************/
 
 
