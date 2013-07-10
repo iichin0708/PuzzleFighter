@@ -75,10 +75,103 @@ void GameScene::showBackground()
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
-    // 背景を生成
+    // 背景の生成
+    CCSprite *background = CCSprite::create("back_ground.png");
+    addChild(background);
+    background->setPosition(ccp(winSize.width / 2,
+                                winSize.height / 2));
+    
+#pragma marks TODO: プレイヤーのパラメータを扱うクラスができたら移動
+    // HPゲージの生成
+    CCSprite *myHpGauge = CCSprite::create("gauge.png");
+    addChild(myHpGauge, 30000);
+    myHpGauge->setPosition(ccp(winSize.width / 4,
+                               winSize.height - (myHpGauge->getContentSize().height / 2)));
+    
+    CCSprite *myHpGaugeBar = CCSprite::create("gauge_red_bar.png");
+    myHpGauge->addChild(myHpGaugeBar, 0);
+    myHpGaugeBar->setPosition(ccp(myHpGauge->getContentSize().width / 2,
+                                  myHpGauge->getContentSize().height / 2));
+    
+    CCSprite *myHpGaugeFrame = CCSprite::create("gauge_frame.png");
+    myHpGauge->addChild(myHpGaugeFrame, 1);
+    myHpGaugeFrame->setPosition(ccp(myHpGauge->getContentSize().width / 2,
+                                    myHpGauge->getContentSize().height / 2));
+    
+    CCSprite *enemyHpGauge = CCSprite::create("gauge.png");
+    addChild(enemyHpGauge, 30000);
+    enemyHpGauge->setPosition(ccp(winSize.width * 3 / 4,
+                                  winSize.height - (myHpGauge->getContentSize().height / 2)));
+    
+    CCSprite *enemyHpGaugeBar = CCSprite::create("gauge_red_bar.png");
+    enemyHpGauge->addChild(enemyHpGaugeBar, 0);
+    enemyHpGaugeBar->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
+                                  enemyHpGauge->getContentSize().height / 2));
+    
+    CCSprite *enemyHpGaugeFrame = CCSprite::create("gauge_frame.png");
+    enemyHpGauge->addChild(enemyHpGaugeFrame, 1);
+    enemyHpGaugeFrame->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
+                                       enemyHpGauge->getContentSize().height / 2));
+    
+    // パズルの背景を生成
     m_background = CCSprite::create(PNG_BACKGROUND);
-    m_background->setPosition(ccp(winSize.width / 2, winSize.height / 2));
     addChild(m_background, kZOrderBackground, kTagBackground);
+    m_background->setPosition(ccp(m_background->getContentSize().width / 2 + 3,
+                                  winSize.height - myHpGauge->getContentSize().height - m_background->getContentSize().height / 2));
+    
+    CCSprite *backFrame = CCSprite::create("frame.png");
+    m_background->addChild(backFrame, 30000);
+    backFrame->setPosition(ccp(m_background->getContentSize().width / 2,
+                               m_background->getContentSize().height / 2));
+    
+    // 敵パズルの背景を生成
+    CCSprite *enemyBackGround = CCSprite::create(PNG_BACKGROUND);
+    addChild(enemyBackGround, kZOrderBackground, kTagBackground);
+    float enemyPuzzleScale = 2.0f / 3.5f;
+    enemyBackGround->setScale(enemyPuzzleScale);
+    enemyBackGround->setPosition(ccp(m_background->getContentSize().width + (winSize.width - m_background->getContentSize().width) / 2 + 3,
+                                     winSize.height - enemyHpGauge->getContentSize().height - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - 3));
+    
+    CCSprite *enemyBackFrame = CCSprite::create("frame.png");
+    enemyBackGround->addChild(enemyBackFrame, 30000);
+    enemyBackFrame->setPosition(ccp(enemyBackGround->getContentSize().width / 2,
+                                    enemyBackGround->getContentSize().height / 2));
+    
+    // スキルフレームの生成
+    CCSprite *magicFrame = CCSprite::create("magic_frame.png");
+    addChild(magicFrame, 30000);
+    magicFrame->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + magicFrame->getContentSize().width / 2 + 3,
+                                enemyBackGround->getPositionY() - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - magicFrame->getContentSize().height / 2 - 3));
+    
+    // スキルアイコンの生成
+    CCSprite *magicItem = CCSprite::create("magic01.png");
+    magicFrame->addChild(magicItem);
+    magicItem->setPosition(ccp(magicFrame->getContentSize().width / 2,
+                               magicFrame->getContentSize().height / 2));
+    
+    // スキルゲージの生成
+    CCSprite *magicGauge = CCSprite::create("gauge.png");
+    addChild(magicGauge, 20000);
+    float magicScale = 2.0f / 3.0f;
+    magicGauge->setScale(magicScale);
+    magicGauge->setPosition(ccp(magicFrame->getPositionX() + magicGauge->getContentSize().width * magicScale / 2,
+                                magicFrame->getPositionY()));
+    
+    CCSprite *magicGaugeBar = CCSprite::create("gauge_blue_bar.png");
+    magicGauge->addChild(magicGaugeBar, 0);
+    magicGaugeBar->setPosition(ccp(magicGauge->getContentSize().width / 2,
+                                   magicGauge->getContentSize().height / 2));
+    
+    CCSprite *magicGaugeFrame = CCSprite::create("gauge_frame.png");
+    magicGauge->addChild(magicGaugeFrame, 1);
+    magicGaugeFrame->setPosition(ccp(magicGauge->getContentSize().width / 2,
+                                     magicGauge->getContentSize().height / 2));
+    
+    // コイン表示領域
+    CCSprite *coinLabel = CCSprite::create("coin_label.png");
+    addChild(coinLabel);
+    coinLabel->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + coinLabel->getContentSize().width / 2,
+                               m_background->getPositionY() - m_background->getContentSize().height / 2 + coinLabel->getContentSize().height / 2));
 }
 
 
@@ -195,8 +288,8 @@ void GameScene::showSwapChainPosition()
 // 位置取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
 CCPoint GameScene::getPosition(int posIndexX, int posIndexY)
 {
-    float offsetX = m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
-    float offsetY = m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
+    float offsetX = 0;//m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
+    float offsetY = 0;//m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
     return CCPoint((posIndexX + 0.5) * m_blockSize + offsetX, (posIndexY + 0.5) * m_blockSize + offsetY);
 }
 
@@ -323,7 +416,7 @@ void GameScene::checkAndRemoveAndDrop()
             
             comboLabel->setPosition(ccp(origin.x + visibleSize.width / 2,
                                         origin.y + visibleSize.height / 2));
-            comboLabel->setColor(ccc3(0, 0, 0));
+            comboLabel->setColor(ccc3(255, 255, 255));
             addChild(comboLabel);
             
             float during = 0.5f;
@@ -1132,16 +1225,17 @@ void GameScene::menuResetCallback(cocos2d::CCObject* pSender)
 // リセットボタン作成
 void GameScene::showResetButton()
 {
-    CCSize bgSize = m_background->getContentSize();
+    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
     
     // リセットボタン作成
     CCMenuItemImage* resetButton = CCMenuItemImage::create(PNG_RESET, PNG_RESET, this, menu_selector(GameScene::menuResetCallback));
-    resetButton->setPosition(ccp(bgSize.width * 0.78, bgSize.height * 0.1));
+    resetButton->setPosition(ccp(winSize.width - resetButton->getContentSize().width / 2,
+                                 resetButton->getContentSize().height / 2));
     
     // メニュー作成
     CCMenu* menu = CCMenu::create(resetButton, NULL);
     menu->setPosition(CCPointZero);
-    m_background->addChild(menu);
+    addChild(menu, 30000);
 }
 
 // Androidバックキーイベント

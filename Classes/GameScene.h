@@ -12,9 +12,11 @@
 
 #define KEY_HIGHSCORE "HighScore"
 
-#define PNG_BACKGROUND "background.png"
+//#define PNG_BACKGROUND "back_ground.png"
+#define PNG_BACKGROUND "back.png"
 #define PNG_GAMEOVER "gameover.png"
-#define PNG_RESET "reset.png"
+//#define PNG_RESET "reset.png"
+#define PNG_RESET "pause_button.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
 
 
