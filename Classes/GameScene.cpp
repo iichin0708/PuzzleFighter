@@ -483,7 +483,7 @@ void GameScene::swapBlockAnimateFinished(BlockSprite *swapSprite) {
     swapSprite->setSwapAnimatingFlag(false);
     swapSprite->setCanMoveFlag(true);
     isChainFlag = false;
-    GameScene::checkAndRemoveAndDrop();
+    checkAndRemoveAndDrop();
 }
 
 void GameScene::setCanMoveSprite(BlockSprite *bSprite) {
@@ -675,13 +675,13 @@ void GameScene::checkAndRemoveAndDrop()
             // CCLOG("潜在連結数 : %d", getSwapChainCount());
             // 潜在的な連結がないとき
             if (getSwapChainCount() <= 0) {
-#pragma marks TODO: 盤面を新しく用意する
+#pragma mark TODO: 盤面を新しく用意する
                 CCLOG("No Match!");
             }
         }
         
-#pragma marks scheduleOnce問題
-        //scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+        unschedule(schedule_selector(GameScene::showSwapChainPosition));
+        scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     }
 }
 
