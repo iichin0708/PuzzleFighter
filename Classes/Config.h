@@ -16,4 +16,5 @@ enum kBlock
 #define DISP_POSITION_X 0
 #define DISP_POSITION_Y 0
 
+
 #endif // __CONFIG__H__
