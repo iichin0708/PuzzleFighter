@@ -16,9 +16,7 @@ public:
     CC_SYNTHESIZE(int, m_indexX, IndexX);
     CC_SYNTHESIZE(int, m_indexY, IndexY);
     CC_SYNTHESIZE(int, m_swapPartnerTag, SwapPartnerTag);
-    CC_SYNTHESIZE(bool, m_canMoveFlag, CanMoveFlag);
-    CC_SYNTHESIZE(bool, m_swapAnimatingFlag, SwapAnimatingFlag);
-
+    CC_SYNTHESIZE(bool, m_isTouchFlag, IsTouchFlag);
     
     void initNextPos();
     void setNextPos(int nextPosX, int nextPosY);

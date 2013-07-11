@@ -77,24 +77,16 @@ protected:
     // タッチしたタグ(CCTouchMove用)
     static int postTouchTag;
     
-    // スワイプしたタグ
-    static int swapSpriteTag1;
-    
-    // スワイプしたタグ
-    static int swapSpriteTag2;
-    
     // 消すブロックのリスト
     static std::list<int> removeBlockTagLists;
     
     // スワップしたブロックのリスト
     static std::list<int> swapBlockTagLists;
         
-    // アニメーション中のフラグ
-    bool m_animating;
-    
     // moving中
     bool m_ccTouchMoving;
     
+    // 再帰処理用のフラグ
     bool isChainFlag;
     
     // 画像の大きさ
@@ -134,19 +126,14 @@ protected:
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
     
-    void setSwapPosition(int preTag, int postTag);
-    
     // 2つのスプライトを入れ替える.
     void swapSprite(BlockSprite *swapSprite1, BlockSprite *swapSprite2);
-    
-    // 指定されたタグの場所を入れ替える
-    void swapPosition(int preTag, int postTag);
     
     // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
     void checkAndRemoveAndDrop();
     
     // 入れ替えアニメーションの終了メソッド
-    void exchangeAnimationFinished();
+    void swapAnimationFinished(BlockSprite *bSprite);
 
     // 連結していて消滅できるブロックの、タグ配列を取得
     std::list<int> getRemoveChainBlocks(int tag);
@@ -206,13 +193,7 @@ protected:
     
     // 盤面全体の潜在的な連結の数を取得する
     int getSwapChainCount();
-    
-    std::list<int> getCannotMoveTag();
-    
-    void swapBlockAnimateFinished(BlockSprite *swapSprite);
-    
-    void setCanMoveSprite(BlockSprite *bSprite);
-
+        
     // ヒント（入れ替えで連結）の場所リストを取得
     std::list<BlockTagPair> getSwapChainPositions();
     
