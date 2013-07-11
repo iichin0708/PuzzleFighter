@@ -246,9 +246,6 @@ void GameScene::showBlock()
                 pBlock->setPosition(getPosition(x, y));
                 pBlock->setIndexX(x);
                 pBlock->setIndexY(y);
-                pBlock->setSwapPartnerTag(-1);
-                pBlock->setCanMoveFlag(true);
-                pBlock->setSwapAnimatingFlag(false);
                 m_background->addChild(pBlock, kZOrderBlock, tag);
             }
         }
@@ -310,22 +307,31 @@ int GameScene::getTag(int posIndexX, int posIndexY)
 // タッチ開始イベント
 bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
 {
-    // アニメーション中はタップ処理を受け付けない
-//    if(!m_animating) {
-        CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
-        int tag = 0;
-        kBlock blockType;
-        getTouchBlockTag(touchPoint, tag, blockType);
-        
-        //触った場所にブロックがあった場合
-        if (tag != 0) {
+    CCLog("began");
+    for(int x = 0; x < MAX_BLOCK_X; x++) {
+        for(int y = 0; y < MAX_BLOCK_Y; y++) {
+            int tag = getTag(x, y);
             BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-            if (bSprite->getCanMoveFlag()) {
-                preTouchTag = tag;
-                return true;
+            if(bSprite->getNextPosX() != -1 || bSprite->getNextPosY() != -1) {
+                CCLog("nextX = %d, nextY = %d", bSprite->getNextPosX(), bSprite->getNextPosY());
             }
         }
-//    }
+    }
+    
+    CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
+    int tag = 0;
+    kBlock blockType;
+    getTouchBlockTag(touchPoint, tag, blockType);
+        
+    //触った場所にブロックがあった場合
+    if (tag != 0) {
+        BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
+        if (bSprite->getCanMoveFlag()) {
+            preTouchTag = tag;
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -349,32 +355,19 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
             BlockSprite *preSprite = (BlockSprite *)m_background->getChildByTag(preTouchTag);
             BlockSprite *postSprite = (BlockSprite *)m_background->getChildByTag(postTouchTag);
             if (preSprite->getCanMoveFlag() && postSprite->getCanMoveFlag()) {
-                //preSprite->setCanMoveFlag(false);
-                //postSprite->setCanMoveFlag(false);
                 swapSpriteTag1 = preTouchTag;
                 swapSpriteTag2 = postTouchTag;
                 preSprite->setSwapPartnerTag(preTouchTag);
                 postSprite->setSwapPartnerTag(postTouchTag);
                 swapBlockTagLists.push_back(postTouchTag);
-                CCLog("postTouch => %d", postTouchTag);
+                CCLog("ccTouchMoved");
                 swapSprite(preSprite, postSprite);
-                
-                
-                /*
-                preSprite->setSwapPartnerTag(preTouchTag);
-                postSprite->setSwapPartnerTag(postTouchTag);
-                swapBlockTagLists.push_back(postTouchTag);
-                */
-                
-                CCLog("move schedule");
-                //scheduleOnce(schedule_selector(GameScene::checkAndRemoveAndDrop), MOVING_TIME);
-                CCLog("move scheduled");
+//                swapPosition(swapSpriteTag1, swapSpriteTag2);
             }
         } else {
             m_ccTouchMoving = false;
         }
     }
-//    }
 }
 
 // タッチ終了イベント
@@ -421,22 +414,23 @@ void GameScene::swapSprite(BlockSprite *swapSprite1, BlockSprite *
     PositionIndex movedSwapPos1 = getPositionIndex(swapTag2);
     PositionIndex movedSwapPos2 = getPositionIndex(swapTag1);
     
+    /*
     // アクションの定義
-    CCMoveTo *swapSpriteMove1 = CCMoveTo::create(MOVING_TIME, getPosition(movedSwapPos1.x, movedSwapPos1.y));
-    CCMoveTo *swapSpriteMove2 = CCMoveTo::create(MOVING_TIME, getPosition(movedSwapPos2.x, movedSwapPos2.y));
-   
+    CCMoveTo *swapSpriteMove1 = CCMoveTo::create(MOVING_TIME / 3, getPosition(movedSwapPos1.x, movedSwapPos1.y));
+    CCMoveTo *swapSpriteMove2 = CCMoveTo::create(MOVING_TIME / 3, getPosition(movedSwapPos2.x, movedSwapPos2.y));
+    */
+    
+    CCPoint swapPos1 = getPosition(movedSwapPos1.x, movedSwapPos1.y);
+    CCPoint swapPos2 = getPosition(movedSwapPos2.x, movedSwapPos2.y);
+    
+    CCMoveBy *swapSpriteMove1 = CCMoveBy::create(MOVING_TIME, ccp(swapPos1.x - swapPos2.x, swapPos1.y - swapPos2.y));
+    CCMoveBy *swapSpriteMove2 = CCMoveBy::create(MOVING_TIME, ccp(swapPos2.x - swapPos1.x, swapPos2.y - swapPos1.y));
     
     //CCDelayTime *delay = CCDelayTime::create(MOVING_TIME);
     
     CCCallFuncN *func = CCCallFuncN::create(this, callfuncN_selector(GameScene::swapBlockAnimateFinished));
     CCFiniteTimeAction *action1 = CCSequence::create(swapSpriteMove1, func, NULL);
     CCFiniteTimeAction *action2 = CCSequence::create(swapSpriteMove2, func, NULL);
-    
-    /*
-    // 入れ替え
-    swapSprite1->runAction(swapSpriteMove1);
-    swapSprite2->runAction(swapSpriteMove2);
-    */
     
     swapSprite1->runAction(action1);
     swapSprite2->runAction(action2);
@@ -451,16 +445,49 @@ void GameScene::swapSprite(BlockSprite *swapSprite1, BlockSprite *
     swapSprite1->setTag(swapTag2);
     swapSprite2->setTag(swapTag1);
     
-    /*
-    CCLog("swap1=%d", swapTag1);
-    CCLog("swap2=%d", swapTag2);
-    swapSprite1->setSwapPartnerTag(swapTag1);
-    swapBlockTagLists.push_back(swapTag2);
-     */
 }
 
-void GameScene::swapBlockAnimateFinished(BlockSprite *swapSprite) {
-    CCLog("swapSprite_animationFinished = %d", swapSprite->getTag());
+void GameScene::swapPosition(int preTag, int postTag) {
+    BlockSprite *swapSprite1 = (BlockSprite *)m_background->getChildByTag(preTag);
+    BlockSprite *swapSprite2 = (BlockSprite*)m_background->getChildByTag(postTag);
+    
+    swapSprite1->setCanMoveFlag(false);
+    swapSprite1->setSwapAnimatingFlag(true);
+    
+    swapSprite2->setCanMoveFlag(false);
+    swapSprite2->setSwapAnimatingFlag(true);
+        
+    PositionIndex movedSwapPos1 = getPositionIndex(postTag);
+    PositionIndex movedSwapPos2 = getPositionIndex(preTag);
+        
+    CCPoint swapPos1 = getPosition(movedSwapPos1.x, movedSwapPos1.y);
+    CCPoint swapPos2 = getPosition(movedSwapPos2.x, movedSwapPos2.y);
+    
+    CCMoveBy *swapSpriteMove1 = CCMoveBy::create(MOVING_TIME, ccp(swapPos1.x - swapPos2.x, swapPos1.y - swapPos2.y));
+    CCMoveBy *swapSpriteMove2 = CCMoveBy::create(MOVING_TIME, ccp(swapPos2.x - swapPos1.x, swapPos2.y - swapPos1.y));
+    
+    //CCDelayTime *delay = CCDelayTime::create(MOVING_TIME);
+    
+    CCCallFuncN *func = CCCallFuncN::create(this, callfuncN_selector(GameScene::swapBlockAnimateFinished));
+    CCFiniteTimeAction *action1 = CCSequence::create(swapSpriteMove1, func, NULL);
+    CCFiniteTimeAction *action2 = CCSequence::create(swapSpriteMove2, func, NULL);
+    
+    swapSprite1->runAction(action1);
+    swapSprite2->runAction(action2);
+    
+    // インデックスの入れ替え
+    swapSprite1->setIndexX(movedSwapPos1.x);
+    swapSprite1->setIndexY(movedSwapPos1.y);
+    swapSprite2->setIndexX(movedSwapPos2.x);
+    swapSprite2->setIndexY(movedSwapPos2.y);
+    
+    // タグの入れ替え
+    swapSprite1->setTag(postTag);
+    swapSprite2->setTag(preTag);
+    
+}
+
+void GameScene::swapBlockAnimateFinished(BlockSprite *swapSprite) {    
     swapSprite->setSwapAnimatingFlag(false);
     swapSprite->setCanMoveFlag(true);
     isChainFlag = false;
@@ -469,6 +496,7 @@ void GameScene::swapBlockAnimateFinished(BlockSprite *swapSprite) {
 
 void GameScene::setCanMoveSprite(BlockSprite *bSprite) {
     bSprite->setCanMoveFlag(true);
+    exchangeAnimationFinished();
 }
 
 list<int> GameScene::getCannotMoveTag() {
@@ -478,9 +506,6 @@ list<int> GameScene::getCannotMoveTag() {
             int tag = getTag(x, y);
             BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
             if (!(bSprite->getCanMoveFlag())) {
-
-//            if (!(bSprite->getCanMoveFlag()) && !(bSprite->getSwapAnimatingFlag())) {
-                //CCLog("cannotTag = %d", tag);
                 cannotTagList.push_back(tag);
             }
         }
@@ -491,44 +516,43 @@ list<int> GameScene::getCannotMoveTag() {
 // 削除できるブロックがあれば、removeAndDropを呼び出す
 void GameScene::checkAndRemoveAndDrop()
 {
-    list<int>::iterator tmp = swapBlockTagLists.begin();
+    list<int>::iterator it = swapBlockTagLists.begin();
     int swapTag = -1;
-    while(tmp != swapBlockTagLists.end()) {
-        swapTag = *tmp;
-        CCLog("tmp = %d", *tmp);
-        tmp++;
+    while(it != swapBlockTagLists.end()) {
+        swapTag = *it;
         break;
     }
     
-    list<int> removeBlockTags = getRemoveChainBlocks2(swapTag);
-
-    CCLog("%d", swapBlockTagLists.size());
+    it = swapBlockTagLists.begin();
+    while(it != swapBlockTagLists.end()) {
+        CCLog("swapBlock = %d", *it);
+        it++;
+    }
     
+    
+    list<int> removeBlockTags = getRemoveChainBlocks(swapTag);
 
     // 消えることのできるブロックがある
     if(removeBlockTags.size() >= 3) {
-        CCLog("チェインあり");
-        CCLog("%d", swapBlockTagLists.size());
-        
+        CCLog("removeBlock");
         list<int>::iterator it = swapBlockTagLists.begin();
+        // スワップしたブロックのタグを取得するイテレータ
         while(it != swapBlockTagLists.end() ){
-            CCLog("it = %d", *it);
             BlockSprite *swapSprite1 = (BlockSprite*)m_background->getChildByTag(*it);
-            CCLog("swapSprite1 = %d", swapSprite1->getSwapPartnerTag());
             BlockSprite *swapSprite2;
             if(swapSprite1->getSwapPartnerTag() != -1) {
                 swapSprite2 = (BlockSprite*)m_background->getChildByTag(swapSprite1->getSwapPartnerTag());
             }
             list<int>::iterator it1 = removeBlockTags.begin();
             while (it1 != removeBlockTags.end()) {
-                CCLog("remove = %d", *it1);
+                // 消すリストに入っている
                 if (*it1 == *it) {
-                    CCLog("前方一致");
                     swapSprite1->setCanMoveFlag(false);
                     swapSprite1->setSwapPartnerTag(-1);
                     swapSprite2->setCanMoveFlag(true);
-                } else if(*it1 == swapSprite1->getSwapPartnerTag()) {
-                    CCLog("後方一致");
+                }
+                // ペアが消すリストに入っている
+                else if(*it1 == swapSprite1->getSwapPartnerTag()) {
                     swapSprite2->setCanMoveFlag(false);
                     swapSprite2->setSwapPartnerTag(-1);
                     swapSprite1->setCanMoveFlag(true);
@@ -537,80 +561,36 @@ void GameScene::checkAndRemoveAndDrop()
             }
             it++;
         }
-        /*
-        // スワイプしたブロックで、消すブロックと消さないブロックのふるい分け
-        list<int>::iterator it = removeBlockTags.begin();
-        while (it != removeBlockTags.end()) {
-            list<int>::iterator it1 = swapBlockTagLists.begin();
-            CCLog("remove = %d", *it);
-            while(it1 != swapBlockTagLists.end()) {
-                CCLog("*it1 = %d", *it1);
-                BlockSprite *swapSprite1 = (BlockSprite*)m_background->getChildByTag(*it);
-                CCLog("pair = %d", swapSprite1->getSwapPartnerTag());
-                BlockSprite *swapSprite2;
-                if(swapSprite1->getSwapPartnerTag() != -1) {
-                    swapSprite2 = (BlockSprite*)m_background->getChildByTag(swapSprite1->getSwapPartnerTag());
-                }
-                if(*it == *it1) {
-                    CCLog("フラグ");
-                    // ひとまず動かさないフラグを立てる
-                    swapSprite1->setCanMoveFlag(false);
-                    if (swapSprite1->getSwapPartnerTag() != -1) {
-                        BlockSprite *swapSprite3 = (BlockSprite*)m_background->getChildByTag(swapSprite1->getSwapPartnerTag());
-                        swapSprite1->setSwapPartnerTag(-1);
-                        if (swapSprite3->getSwapPartnerTag() != -1) {
-                            swapSprite3->setCanMoveFlag(true);
-                            swapSprite3->setSwapPartnerTag(-1);
-                        }
-                    }
-                    
-                } else if(*it == swapSprite1->getSwapPartnerTag()) {
-                    CCLog("フラグ2");
-                    // ひとまず動かさないフラグを立てる
-                    swapSprite2->setCanMoveFlag(false);
-                    if (swapSprite2->getSwapPartnerTag() != -1) {
-                        BlockSprite *swapSprite3 = (BlockSprite*)m_background->getChildByTag(swapSprite2->getSwapPartnerTag());
-                        swapSprite2->setSwapPartnerTag(-1);
-                        if (swapSprite3->getSwapPartnerTag() != -1) {
-                            swapSprite3->setCanMoveFlag(true);
-                            swapSprite3->setSwapPartnerTag(-1);
-                        }
-                    }
-                }
-                it1++;
-            }
-            it++;
-        }
-         */
  
-        // 参照削除
+        // 参照削除するところ
         list<int>::iterator it1 = swapBlockTagLists.begin();
         while (it1 != swapBlockTagLists.end()) {
-            CCLog("%d", *it1);
+            // ペアでない場合
             BlockSprite *swapSprite = (BlockSprite*)m_background->getChildByTag(*it1);
             //消される場合
             if( !(swapSprite->getCanMoveFlag()) && swapSprite->getSwapPartnerTag() == -1) {
-                CCLog("消されるやーつ");
                 // 動かせないフラグを立てる
                 swapSprite->setCanMoveFlag(false);
                 swapBlockTagLists.remove(*it1);
             } //消されない場合
             else if(swapSprite->getCanMoveFlag() && (swapSprite->getSwapPartnerTag() == -1)) {
-                CCLog("消されないやーつ");
+                swapSprite->setCanMoveFlag(true);
+                swapSprite->setSwapAnimatingFlag(false);
                 swapBlockTagLists.remove(*it1);
             }
             
+            //ペアの場合
             if(swapSprite->getSwapPartnerTag() != -1) {
                 BlockSprite *swapPartnerSprite = (BlockSprite*)m_background->getChildByTag(swapSprite->getSwapPartnerTag());
                 //消される場合
                 if( !(swapPartnerSprite->getCanMoveFlag()) && swapPartnerSprite->getSwapPartnerTag() == -1) {
-                    CCLog("消されるやーつ");
                     // 動かせないフラグを立てる
                     swapSprite->setCanMoveFlag(false);
                     swapBlockTagLists.remove(*it1);
                 } //消されない場合
                 else if(swapPartnerSprite->getCanMoveFlag() && (swapPartnerSprite->getSwapPartnerTag() == -1)) {
-                    CCLog("消されないやーつ");
+                    swapSprite->setCanMoveFlag(true);
+                    swapSprite->setSwapAnimatingFlag(false);
                     swapBlockTagLists.remove(*it1);
                 }
                 
@@ -662,88 +642,42 @@ void GameScene::checkAndRemoveAndDrop()
         removeBlocksAniamtion(removeBlockTags, REMOVING_TIME);
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
-    } else {
-        CCLog("チェインなし");
-        CCLog("swapBlockTagLists.size = %d", swapBlockTagLists.size());
-        list<int>::iterator it = swapBlockTagLists.begin();
-        while(it != swapBlockTagLists.end()) {
-            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(*it);
-            if(bSprite->getSwapPartnerTag() == -1) {
-                swapBlockTagLists.remove(*it);
-            }
-            it++;
-        }
-        
-        int tag1;
-        int tag2;
-        
+    } else {        
         if (0 < swapBlockTagLists.size()) {
             list<int>::iterator it = swapBlockTagLists.begin();
+            // スワップしたブロック履歴のイテレータ
             while (it != swapBlockTagLists.end())
             {
-//                CCLog("*it = %d", *it);
+                CCLog("*it = %d", *it);
                 BlockSprite *swapSprite1 = (BlockSprite*)m_background->getChildByTag(*it);
-                CCLog("*partner = %d", swapSprite1->getSwapPartnerTag());
                 if (swapSprite1->getSwapPartnerTag() != -1) {
-                    CCLog("-1ではない。");
                     BlockSprite *swapSprite2 = (BlockSprite*)m_background->getChildByTag(swapSprite1->getSwapPartnerTag());
-//                    while (true) {
-//                        CCLog("a");
+                    // 1発目の移動アニメーションが終了していれば、戻るアニメーションを実行する
                     if ( !(swapSprite1->getSwapAnimatingFlag()) && !(swapSprite2->getSwapAnimatingFlag()) ) {
-                    
+                        //swapPosition(*it, swapSprite1->getSwapPartnerTag());
+                        // パートナーを削除
                         swapSprite1->setSwapPartnerTag(-1);
                         swapSprite2->setSwapPartnerTag(-1);
                         
-                        CCLog("条件文クリア");
+                        // 元の位置に戻す
                         swapSprite(swapSprite1, swapSprite2);
+
+                        // 移動終了後、動かせるようにする.
                         CCDelayTime *delay = CCDelayTime::create(MOVING_TIME);
                         CCCallFuncN *func = CCCallFuncN::create(this, callfuncN_selector(GameScene::setCanMoveSprite));
                         CCFiniteTimeAction *action1 = CCSequence::create(delay, func, NULL);
                         CCFiniteTimeAction *action2 = CCSequence::create(delay, func, NULL);
                         swapSprite1->runAction(action1);
                         swapSprite2->runAction(action2);
-                        //                    CCLog("size1 = %d", swapBlockTagLists.size());
+
+                        // スワップ履歴から削除
                         swapBlockTagLists.remove(swapSprite1->getSwapPartnerTag());
                         swapBlockTagLists.remove(*it);
-                        //                    CCLog("size2 = %d", swapBlockTagLists.size());
-                        tag1 = *it;
-                        tag2 = swapSprite1->getSwapPartnerTag();
-                        break;
                     }
-//                    }
-                } else {
-                    swapBlockTagLists.remove(*it);
                 }
-//                break;
                 it++;
             }
             
-            swapBlockTagLists.remove(tag1);
-            swapBlockTagLists.remove(tag2);
-            
-            CCLog("size3 = %d", swapBlockTagLists.size());
-            
-            it = swapBlockTagLists.begin();
-            while(it != swapBlockTagLists.end()) {
-                CCLog("tag => %d", *it);
-                it++;
-            }
-        // ブロック入れ替え直後であれば、元に戻したあと入力受付状態にする
-        //if(swapSpriteTag1 != -1 && swapSpriteTag2 != -1) {
-/*
-//            BlockSprite *preSprite = (BlockSprite *)m_background->getChildByTag(swapSpriteTag1);
-//            BlockSprite *postSprite = (BlockSprite *)m_background->getChildByTag(swapSpriteTag2);
-
-            BlockSprite *preSprite = (BlockSprite *)m_background->getChildByTag(tagArray[0]);
-            BlockSprite *postSprite = (BlockSprite *)m_background->getChildByTag(tagArray[1]);
-            
-            preSprite->setCanMoveFlag(false);
-            postSprite->setCanMoveFlag(false);
-            swapSprite(preSprite, postSprite);
-         */
-        
-            CCLog("");
-            scheduleOnce(schedule_selector(GameScene::exchangeAnimationFinished), MOVING_TIME);
         } else {
             m_animating = false;
             // CCLOG("潜在連結数 : %d", getSwapChainCount());
@@ -754,9 +688,9 @@ void GameScene::checkAndRemoveAndDrop()
             }
         }
         
-        scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+#pragma marks scheduleOnce問題
+        //scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     }
-    CCLog("");
 }
 
 // 入れ替えアニメーションの終了
@@ -769,8 +703,8 @@ void GameScene::exchangeAnimationFinished()
     swapSpriteTag2 = -1;
 }
 
-
-list<int> GameScene::getRemoveChainBlocks2(int tag) {
+// 連結していて消滅できるブロックの、タグ配列を取得
+list<int> GameScene::getRemoveChainBlocks(int tag) {
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
@@ -780,19 +714,15 @@ list<int> GameScene::getRemoveChainBlocks2(int tag) {
         }
         
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(tag);
-        CCLog("GETREMOVE.tag = %d", tag);
-        CCLog("partnerTag = %d", bSprite->getSwapPartnerTag());
         if(tag != -1 && bSprite->getSwapPartnerTag() != -1) {
             // 移動させたブロックが連結になったか
             if (! isChainedBlock(tag) &&
                 ! isChainedBlock(bSprite->getSwapPartnerTag()))
             {
-                CCLog("partnerTag2 = %d", bSprite->getSwapPartnerTag());
                 // 連結がなければ消えるブロックなし
                 return removeChainBlocks;
             }
         }
-        CCLog("partnerTag3 = %d", bSprite->getSwapPartnerTag());
     }
     
     // 消滅候補ブロックリスト
@@ -897,135 +827,6 @@ list<int> GameScene::getRemoveChainBlocks2(int tag) {
     
     removeChainBlocks.unique();
     
-    
-    return removeChainBlocks;
-}
-
-// 連結していて消滅できるブロックの、タグ配列を取得
-list<int> GameScene::getRemoveChainBlocks()
-{
-    // 消滅できるブロックリスト
-    list<int> removeChainBlocks;
-    
-    /*
-    if(preTouchTag != -1 && postTouchTag != -1) {
-        // 移動させたブロックが連結になったか
-        if (! isChainedBlock(preTouchTag) &&
-            ! isChainedBlock(postTouchTag))
-        {
-            // 連結がなければ消えるブロックなし
-            return removeChainBlocks;
-        }
-    }
-    
-    // タッチしたブロックのタグを初期化
-    preTouchTag = -1;
-    postTouchTag = -1;
-    */
-    
-    // 消滅候補ブロックリスト
-    list<int> removeReserveBlocks;
-    
-    // 1行ずつ横の連なりを走査
-    for (int y = 0; y <= 5; y++) {
-        // 比較対象のブロックの種類
-        kBlock currentType;
-        
-        for (int x = 0; x <= 5; x++) {
-            // ターゲットのブロックを取得
-            int targetTag = kTagBaseBlock + x * 100 + y;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            kBlock targetType = target->getBlockType();
-            
-            // カレントとターゲットが同じ種類のブロックかどうか
-            if (targetType == currentType) {
-                // 同じなら消滅候補に追加
-                removeReserveBlocks.push_back(targetTag);
-                
-            } else {
-                // 違うならカレントをターゲットに変更
-                currentType = targetType;
-                
-                // その時点で消滅候補が３つ以上（繋がりが３つ以上）なら
-                if (removeReserveBlocks.size() >= 3) {
-                    list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
-                    while( it != removeReserveBlocks.end() ) {
-                        removeChainBlocks.push_back(*it);
-                        ++it;  // イテレータを１つ進める
-                    }
-                }
-                
-                // 消滅候補を空にして、ターゲットを追加
-                removeReserveBlocks.clear();
-                removeReserveBlocks.push_back(targetTag);
-            }
-        }
-        
-        // 対象の行の走査終了時も消滅候補をチェックして空にする
-        if (removeReserveBlocks.size() >= 3) {
-            list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
-            while( it != removeReserveBlocks.end() ) {
-                removeChainBlocks.push_back(*it);
-                ++it;  // イテレータを１つ進める
-            }
-        }
-        
-        removeReserveBlocks.clear();
-    }
-    
-    
-    // 1列ずつ縦の連なりを走査
-    for (int x = 0; x <= 5; x++) {
-        // 比較対象のブロックの種類
-        kBlock currentType;
-        
-        for (int y = 0; y <= 5; y++) {
-            // ターゲットのブロックを取得
-            int targetTag = kTagBaseBlock + x * 100 + y;
-            BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
-            kBlock targetType = target->getBlockType();
-            
-            // カレントとターゲットが同じ種類のブロックかどうか
-            if (targetType == currentType) {
-                // 同じなら消滅候補に追加
-                removeReserveBlocks.push_back(targetTag);
-                
-            } else {
-                // 違うならカレントをターゲットに変更
-                currentType = targetType;
-                
-                // その時点で消滅候補が３つ以上（繋がりが３つ以上）なら
-                if (removeReserveBlocks.size() >= 3) {
-                    list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
-                    while( it != removeReserveBlocks.end() ) {
-                        removeChainBlocks.push_back(*it);
-                        ++it;  // イテレータを１つ進める
-                    }
-                }
-                
-                // 消滅候補を空にして、ターゲットを追加
-                removeReserveBlocks.clear();
-                removeReserveBlocks.push_back(targetTag);
-                
-            
-            }
-        }
-        
-        // 対象の行の走査終了時も消滅候補をチェックして空にする
-        if (removeReserveBlocks.size() >= 3) {
-            list<int>::iterator it = removeReserveBlocks.begin(); // イテレータ
-            while( it != removeReserveBlocks.end() ) {
-                removeChainBlocks.push_back(*it);
-                ++it;  // イテレータを１つ進める
-            }
-        }
-        
-        removeReserveBlocks.clear();
-    }
-    
-    removeChainBlocks.sort();
-    
-    removeChainBlocks.unique();
     
     return removeChainBlocks;
 }
@@ -1336,14 +1137,18 @@ void GameScene::removeBlock(list<int> blockTags)
 // ブロック削除後のアニメーション
 void GameScene::movingBlocksAnimation(list<int> blocks)
 {
+    CCLog("setNewPosition");
     // 削除された場所に既存のピースをずらす
     searchNewPosition(blocks);
     int spriteCount = 0;
     spriteCount = 0;
     
     
+    CCLog("preMove");
     // 新しい位置がセットされたピースのアニメーション
+    
     moveBlock();
+    CCLog("postMove");
     
     // 新しいブロックを場外に追加
     dropNewBlocks();
@@ -1351,6 +1156,7 @@ void GameScene::movingBlocksAnimation(list<int> blocks)
     // 場外から落とす
     moveBlock();
     
+#pragma mark checkDuring
     scheduleOnce(schedule_selector(GameScene::dropAnimationFinished), MOVING_TIME * 2);
 }
 
@@ -1400,6 +1206,13 @@ void GameScene::setNewPosition(int tag, PositionIndex posIndex)
 // ブロックを移動する
 void GameScene::moveBlock()
 {
+    list<int>::iterator it = swapBlockTagLists.begin();
+    while (it != swapBlockTagLists.end()) {
+        CCLog("moveBlock swapBlockTag = %d", *it);
+        it++;
+    }
+    
+    
     for(int x = 0; x < MAX_BLOCK_X; x++) {
         for( int y = 0; y < MAX_BLOCK_Y; y++) {
             int tag = getTag(x, y);
@@ -1409,6 +1222,9 @@ void GameScene::moveBlock()
                 int nextPosY = blockSprite->getNextPosY();
                 
                 if(nextPosX != -1 || nextPosY != -1) {
+                    CCPoint nowPosition = getPosition(blockSprite->getIndexX(), blockSprite->getIndexY());
+                    CCPoint nextPosition = getPosition(nextPosX, nextPosY);
+
                     int newTag = getTag(nextPosX, nextPosY);
                     blockSprite->initNextPos();
                     blockSprite->setTag(newTag);
@@ -1418,7 +1234,9 @@ void GameScene::moveBlock()
                     //移動中は触らせない
                     blockSprite->setCanMoveFlag(false);
                     
-                    CCMoveTo* move = CCMoveTo::create(MOVING_TIME, getPosition(nextPosX, nextPosY));
+                    CCLog("moveBlock Move");
+//                    CCMoveTo* move = CCMoveTo::create(MOVING_TIME, getPosition(nextPosX, nextPosY));
+                    CCMoveBy* move = CCMoveBy::create(MOVING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
                     blockSprite->runAction(move);
                 }
             }
@@ -1455,7 +1273,9 @@ void GameScene::dropNewBlocks()
             //落ちる目的地はタグの場所
             pBlock->setNextPos(x, MAX_BLOCK_Y - removedCount);
             pBlock->setIndexX(x);
+#pragma mark 差分
             pBlock->setIndexY(MAX_BLOCK_Y - removedCount);
+            pBlock->setIndexY(MAX_BLOCK_Y + i);
 #pragma mark add
             pBlock->setCanMoveFlag(true);
             pBlock->setSwapAnimatingFlag(false);
@@ -1471,6 +1291,7 @@ void GameScene::dropNewBlocks()
 // ブロックの移動完了
 void GameScene::dropAnimationFinished()
 {
+    //動けないリストの取得
     list<int> cannotMoveSpriteTags= getCannotMoveTag();
     list<int>::iterator it = cannotMoveSpriteTags.begin();
     while (it != cannotMoveSpriteTags.end())
@@ -1479,7 +1300,7 @@ void GameScene::dropAnimationFinished()
         blockSprite->setCanMoveFlag(true);
         it++;
     }
-
+    
     isChainFlag = true;
     // 続けて連結があるかチェックして、消す
     // 消せなければアニメーション終了

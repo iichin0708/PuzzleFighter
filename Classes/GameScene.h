@@ -129,6 +129,9 @@ protected:
     // 2つのスプライトを入れ替える.
     void swapSprite(BlockSprite *swapSprite1, BlockSprite *swapSprite2);
     
+    // 指定されたタグの場所を入れ替える
+    void swapPosition(int preTag, int postTag);
+    
     // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
     void checkAndRemoveAndDrop();
     
@@ -136,11 +139,8 @@ protected:
     void exchangeAnimationFinished();
 
     // 連結していて消滅できるブロックの、タグ配列を取得
-    std::list<int> getRemoveChainBlocks();
-    
-    // 連結していて消滅できるブロックの、タグ配列を取得
-    std::list<int> getRemoveChainBlocks2(int tag);
-    
+    std::list<int> getRemoveChainBlocks(int tag);
+        
     // 指定したブロックを含む３つ以上のブロック連結があるかどうか
     bool isChainedBlock(int blockTag);
     
@@ -208,6 +208,7 @@ protected:
     
     /*********************************/
 
+    void moveKenji(int tag);
 
 public:
     
