@@ -1,4 +1,4 @@
- #include "GameScene.h"
+#include "GameScene.h"
 #include "SimpleAudioEngine.h"
 #include "CCPlaySE.h"
 
@@ -27,6 +27,12 @@ CCScene* GameScene::scene()
 bool GameScene::init()
 {
     if (!CCLayer::init()) { return false; }
+    
+    // プレイヤーの用意（最大体力、最大スキルポイント、攻撃力、回復力、スキルポイントチャージ力）
+    player = new Player(1000, 100, 10, 10, 10);
+    
+    // 獲得コイン数初期化
+    coin = 0;
     
     // タップイベントを取得する
     setTouchEnabled(true);
@@ -85,27 +91,16 @@ void GameScene::showBackground()
     background->setPosition(ccp(winSize.width / 2,
                                 winSize.height / 2));
     
-#pragma marks TODO: プレイヤーのパラメータを扱うクラスができたら移動
-    // HPゲージの生成
-    CCSprite *myHpGauge = CCSprite::create("gauge.png");
-    addChild(myHpGauge, 30000);
-    myHpGauge->setPosition(ccp(winSize.width / 4,
-                               winSize.height - (myHpGauge->getContentSize().height / 2)));
+    // プレイヤーの体力ゲージ生成
+    addChild(player->hpGauge, 30000);
+    player->hpGauge->setPosition(ccp(winSize.width / 4,
+                                     winSize.height - (player->hpGauge->getContentSize().height / 2)));
     
-    CCSprite *myHpGaugeBar = CCSprite::create("gauge_red_bar.png");
-    myHpGauge->addChild(myHpGaugeBar, 0);
-    myHpGaugeBar->setPosition(ccp(myHpGauge->getContentSize().width / 2,
-                                  myHpGauge->getContentSize().height / 2));
-    
-    CCSprite *myHpGaugeFrame = CCSprite::create("gauge_frame.png");
-    myHpGauge->addChild(myHpGaugeFrame, 1);
-    myHpGaugeFrame->setPosition(ccp(myHpGauge->getContentSize().width / 2,
-                                    myHpGauge->getContentSize().height / 2));
-    
+    // 相手プレイヤーの体力ゲージ生成
     CCSprite *enemyHpGauge = CCSprite::create("gauge.png");
     addChild(enemyHpGauge, 30000);
     enemyHpGauge->setPosition(ccp(winSize.width * 3 / 4,
-                                  winSize.height - (myHpGauge->getContentSize().height / 2)));
+                                  winSize.height - (player->hpGauge->getContentSize().height / 2)));
     
     CCSprite *enemyHpGaugeBar = CCSprite::create("gauge_red_bar.png");
     enemyHpGauge->addChild(enemyHpGaugeBar, 0);
@@ -121,7 +116,7 @@ void GameScene::showBackground()
     m_background = CCSprite::create(PNG_BACKGROUND);
     addChild(m_background, kZOrderBackground, kTagBackground);
     m_background->setPosition(ccp(m_background->getContentSize().width / 2 + 3,
-                                  winSize.height - myHpGauge->getContentSize().height - m_background->getContentSize().height / 2));
+                                  winSize.height - player->hpGauge->getContentSize().height - m_background->getContentSize().height / 2));
     
     CCSprite *backFrame = CCSprite::create("frame.png");
     m_background->addChild(backFrame, 30000);
@@ -148,34 +143,33 @@ void GameScene::showBackground()
                                 enemyBackGround->getPositionY() - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - magicFrame->getContentSize().height / 2 - 3));
     
     // スキルアイコンの生成
-    CCSprite *magicItem = CCSprite::create("magic01.png");
+    CCSprite *magicItem = CCSprite::create("magic02.png");
     magicFrame->addChild(magicItem);
     magicItem->setPosition(ccp(magicFrame->getContentSize().width / 2,
                                magicFrame->getContentSize().height / 2));
     
     // スキルゲージの生成
-    CCSprite *magicGauge = CCSprite::create("gauge.png");
-    addChild(magicGauge, 20000);
+    addChild(player->magicGauge);
     float magicScale = 2.0f / 3.0f;
-    magicGauge->setScale(magicScale);
-    magicGauge->setPosition(ccp(magicFrame->getPositionX() + magicGauge->getContentSize().width * magicScale / 2,
-                                magicFrame->getPositionY()));
-    
-    CCSprite *magicGaugeBar = CCSprite::create("gauge_blue_bar.png");
-    magicGauge->addChild(magicGaugeBar, 0);
-    magicGaugeBar->setPosition(ccp(magicGauge->getContentSize().width / 2,
-                                   magicGauge->getContentSize().height / 2));
-    
-    CCSprite *magicGaugeFrame = CCSprite::create("gauge_frame.png");
-    magicGauge->addChild(magicGaugeFrame, 1);
-    magicGaugeFrame->setPosition(ccp(magicGauge->getContentSize().width / 2,
-                                     magicGauge->getContentSize().height / 2));
+    player->magicGauge->setScale(magicScale);
+    player->magicGauge->setPosition(ccp(magicFrame->getPositionX() + player->magicGauge->getContentSize().width * magicScale / 2,
+                                        magicFrame->getPositionY()));
     
     // コイン表示領域
     CCSprite *coinLabel = CCSprite::create("coin_label.png");
     addChild(coinLabel);
     coinLabel->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + coinLabel->getContentSize().width / 2,
                                m_background->getPositionY() - m_background->getContentSize().height / 2 + coinLabel->getContentSize().height / 2));
+    
+    CCSprite *coin = CCSprite::create("coin.png");
+    coinLabel->addChild(coin);
+    coin->setPosition(ccp(coin->getContentSize().width,
+                          coinLabel->getContentSize().height / 2));
+    
+    coinCount = CCLabelTTF::create("0", "arial", 45);
+    coinLabel->addChild(coinCount);
+    coinCount->setPosition(ccp(coin->getPositionX() + coin->getContentSize().width / 2 + 30,
+                               coinLabel->getContentSize().height / 2));
 }
 
 // ブロック表示
@@ -293,9 +287,7 @@ void GameScene::showSwapChainPosition()
 // 位置取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
 CCPoint GameScene::getPosition(int posIndexX, int posIndexY)
 {
-    float offsetX = 0;//m_background->getContentSize().width * 0.168 + DISP_POSITION_X;
-    float offsetY = 0;//m_background->getContentSize().height * 0.029 + DISP_POSITION_Y;
-    return CCPoint((posIndexX + 0.5) * m_blockSize + offsetX, (posIndexY + 0.5) * m_blockSize + offsetY);
+    return CCPoint((posIndexX + 0.5) * m_blockSize, (posIndexY + 0.5) * m_blockSize);
 }
 
 // タグ取得 (0 <= posIndexX <= 6 , 0 <= posIndexY <= 6)
@@ -1120,17 +1112,43 @@ void GameScene::removeAndDrop()
 // 配列のブロックを削除
 void GameScene::removeBlock(list<int> blockTags)
 {
+    int blueCount = 0;
+    int grayCount = 0;
+    int greenCount = 0;
+    int redCount = 0;
+    int yellowCount = 0;
+    
     list<int>::iterator it = blockTags.begin();
     while (it != blockTags.end())
     {
         // 対象となるブロックを取得
-        CCNode* block = m_background->getChildByTag(*it);
+        BlockSprite* block = (BlockSprite *)m_background->getChildByTag(*it);
         if (block)
         {
+            // 各種類のブロックの数を数える
+            switch (block->getBlockType()) {
+                case kBlockBlue:    blueCount++; break;
+                case kBlockGray:    grayCount++; break;
+                case kBlockGreen:   greenCount++; break;
+                case kBlockRed:     redCount++; break;
+                case kBlockYellow:  yellowCount++; break;
+                default: break;
+            }
             // コマの削除
             block->removeFromParentAndCleanup(true);
         }
         it++;
+    }
+    
+    // 消した分だけブロックの効果発動
+    if (blueCount >= 1) player->chargeMagicPoint(blueCount);
+    if (grayCount >= 1) CCLOG("手錠 %d 個", grayCount);
+    if (greenCount >= 1) player->heal(greenCount);
+    if( redCount >= 1) player->attack(redCount);
+    if (yellowCount >= 1) {
+        coin += yellowCount;
+        CCString *coinValue = CCString::createWithFormat("%d", coin);
+        coinCount->setString(coinValue->getCString());
     }
 }
 

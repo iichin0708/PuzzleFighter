@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include "Config.h"
 #include "BlockSprite.h"
+#include "Player.h"
 
 #define MAX_BLOCK_X 6
 #define MAX_BLOCK_Y 6
@@ -109,6 +110,15 @@ protected:
     int m_combo;
     
     void setEnableTouchSprite();
+
+    // プレイヤーのパラメータを扱うオブジェクト
+    Player *player;
+    
+    // 獲得コイン数
+    int coin;
+    
+    // コイン数表示ラベル
+    CCLabelTTF *coinCount;
 
     /***** 以下メソッド群 ******/
     
