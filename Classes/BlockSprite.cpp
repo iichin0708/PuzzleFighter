@@ -4,9 +4,7 @@ BlockSprite::BlockSprite()
 {
     initNextPos();
     m_swapPartnerTag = -1;
-    m_canMoveFlag = true;
-    m_swapAnimatingFlag = false;
-
+    m_isTouchFlag = true;
 }
 
 BlockSprite::~BlockSprite()
