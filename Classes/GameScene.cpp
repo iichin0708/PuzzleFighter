@@ -393,11 +393,12 @@ void GameScene::swapSprite(BlockSprite *swapSprite1, BlockSprite *
     
     CCCallFuncN *func = CCCallFuncN::create(this, callfuncN_selector(GameScene::swapAnimationFinished));
     CCFiniteTimeAction *action1 = CCSequence::create(swapSpriteMove1, func, NULL);
-    CCFiniteTimeAction *action2 = CCSequence::create(swapSpriteMove2, func, NULL);
+    //CCFiniteTimeAction *action2 = CCSequence::create(swapSpriteMove2, func, NULL);
     
     swapSprite1->runAction(action1);
-    swapSprite2->runAction(action2);
-
+    //swapSprite2->runAction(action2);
+    swapSprite2->runAction(swapSpriteMove2);
+    
     // インデックスの入れ替え
     swapSprite1->setIndexX(movedSwapPos1.x);
     swapSprite1->setIndexY(movedSwapPos1.y);
@@ -420,6 +421,8 @@ void GameScene::swapAnimationFinished(BlockSprite *bSprite)
         postTouchTag = 1;
         return;
     }
+    BlockSprite *partnerSprite = (BlockSprite*)m_background->getChildByTag(bSprite->getSwapPartnerTag());
+    partnerSprite->setIsTouchFlag(true);
     isChainFlag = false;
     checkAndRemoveAndDrop();
 }
