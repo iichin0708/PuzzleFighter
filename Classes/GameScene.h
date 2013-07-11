@@ -3,6 +3,7 @@
 
 #include "cocos2d.h"
 #include "Config.h"
+#include "BlockSprite.h"
 #include "Player.h"
 
 #define MAX_BLOCK_X 6
@@ -19,6 +20,7 @@
 //#define PNG_RESET "reset.png"
 #define PNG_RESET "pause_button.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
+
 
 
 class GameScene : public cocos2d::CCLayer
@@ -75,24 +77,40 @@ protected:
     // タッチしたタグ(CCTouchMove用)
     static int postTouchTag;
     
+    // スワイプしたタグ
+    static int swapSpriteTag1;
+    
+    // スワイプしたタグ
+    static int swapSpriteTag2;
+    
     // 消すブロックのリスト
     static std::list<int> removeBlockTagLists;
+    
+    // スワップしたブロックのリスト
+    static std::list<int> swapBlockTagLists;
         
     // アニメーション中のフラグ
     bool m_animating;
+    
+    // moving中
+    bool m_ccTouchMoving;
+    
+    bool isChainFlag;
     
     // 画像の大きさ
     float m_blockSize;
     
     // スコアを保持
     int m_score;
-    
+        
     // 背景画像
     cocos2d::CCSprite* m_background;
     
     // コンボ数
     int m_combo;
     
+    void setEnableTouchSprite();
+
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
     
@@ -116,8 +134,13 @@ protected:
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
     
+    void setSwapPosition(int preTag, int postTag);
+    
     // 2つのスプライトを入れ替える.
-    void swapSprite();
+    void swapSprite(BlockSprite *swapSprite1, BlockSprite *swapSprite2);
+    
+    // 指定されたタグの場所を入れ替える
+    void swapPosition(int preTag, int postTag);
     
     // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
     void checkAndRemoveAndDrop();
@@ -126,8 +149,8 @@ protected:
     void exchangeAnimationFinished();
 
     // 連結していて消滅できるブロックの、タグ配列を取得
-    std::list<int> getRemoveChainBlocks();
-    
+    std::list<int> getRemoveChainBlocks(int tag);
+        
     // 指定したブロックを含む３つ以上のブロック連結があるかどうか
     bool isChainedBlock(int blockTag);
     
@@ -183,12 +206,19 @@ protected:
     
     // 盤面全体の潜在的な連結の数を取得する
     int getSwapChainCount();
+    
+    std::list<int> getCannotMoveTag();
+    
+    void swapBlockAnimateFinished(BlockSprite *swapSprite);
+    
+    void setCanMoveSprite(BlockSprite *bSprite);
 
     // ヒント（入れ替えで連結）の場所リストを取得
     std::list<BlockTagPair> getSwapChainPositions();
     
     /*********************************/
 
+    void moveKenji(int tag);
 
 public:
     

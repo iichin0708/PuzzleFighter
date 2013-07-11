@@ -13,6 +13,12 @@ public:
     CC_SYNTHESIZE_READONLY(kBlock, m_blockType, BlockType);
     CC_SYNTHESIZE_READONLY(int, m_nextPosX, NextPosX);
     CC_SYNTHESIZE_READONLY(int, m_nextPosY, NextPosY);
+    CC_SYNTHESIZE(int, m_indexX, IndexX);
+    CC_SYNTHESIZE(int, m_indexY, IndexY);
+    CC_SYNTHESIZE(int, m_swapPartnerTag, SwapPartnerTag);
+    CC_SYNTHESIZE(bool, m_canMoveFlag, CanMoveFlag);
+    CC_SYNTHESIZE(bool, m_swapAnimatingFlag, SwapAnimatingFlag);
+
     
     void initNextPos();
     void setNextPos(int nextPosX, int nextPosY);

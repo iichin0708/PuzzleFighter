@@ -3,6 +3,10 @@
 BlockSprite::BlockSprite()
 {
     initNextPos();
+    m_swapPartnerTag = -1;
+    m_canMoveFlag = true;
+    m_swapAnimatingFlag = false;
+
 }
 
 BlockSprite::~BlockSprite()
