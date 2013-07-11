@@ -451,16 +451,12 @@ void GameScene::checkAndRemoveAndDrop()
                 // 消すリストに入っている
                 if (*it1 == *it) {
                     swapSprite1->setSwapPartnerTag(-1);
-                    
                     swapSprite1->setIsTouchFlag(false);
-                    //swapSprite2->setIsTouchFlag(true);
                 }
                 // ペアが消すリストに入っている
                 else if(*it1 == swapSprite1->getSwapPartnerTag()) {
                     swapSprite2->setSwapPartnerTag(-1);
-                    
                     swapSprite2->setIsTouchFlag(false);
-                    //swapSprite1->setIsTouchFlag(true);
                 }
                 it1++;
             }
