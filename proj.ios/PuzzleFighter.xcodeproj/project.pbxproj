@@ -203,6 +203,9 @@
 		BF1712461292920000B8313A /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BF170DB212928DE900B8313A /* libxml2.dylib */; };
 		BF1712471292920000B8313A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BF170DB412928DE900B8313A /* libz.dylib */; };
 		BF1C47F01293687400B63C5D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF1C47EA1293683800B63C5D /* QuartzCore.framework */; };
+		D3AD572E178EA9E400B08206 /* Gauge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AD572A178EA9E400B08206 /* Gauge.cpp */; };
+		D3AD572F178EA9E400B08206 /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AD572C178EA9E400B08206 /* Player.cpp */; };
+		D3AD5731178EAA1C00B08206 /* coin.png in Resources */ = {isa = PBXBuildFile; fileRef = D3AD5730178EAA1C00B08206 /* coin.png */; };
 		D3BE02A71785039E00AB7B3B /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */; };
 		D3BE02A81785039E00AB7B3B /* BlockSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A01785039E00AB7B3B /* BlockSprite.cpp */; };
 		D3BE02A91785039E00AB7B3B /* CCPlaySE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A21785039E00AB7B3B /* CCPlaySE.cpp */; };
@@ -664,6 +667,11 @@
 		BF170DB212928DE900B8313A /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		BF170DB412928DE900B8313A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		BF1C47EA1293683800B63C5D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		D3AD572A178EA9E400B08206 /* Gauge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Gauge.cpp; path = ../Classes/Gauge.cpp; sourceTree = "<group>"; };
+		D3AD572B178EA9E400B08206 /* Gauge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Gauge.h; path = ../Classes/Gauge.h; sourceTree = "<group>"; };
+		D3AD572C178EA9E400B08206 /* Player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Player.cpp; path = ../Classes/Player.cpp; sourceTree = "<group>"; };
+		D3AD572D178EA9E400B08206 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Player.h; path = ../Classes/Player.h; sourceTree = "<group>"; };
+		D3AD5730178EAA1C00B08206 /* coin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coin.png; sourceTree = "<group>"; };
 		D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDelegate.cpp; path = ../Classes/AppDelegate.cpp; sourceTree = "<group>"; };
 		D3BE029F1785039E00AB7B3B /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Classes/AppDelegate.h; sourceTree = "<group>"; };
 		D3BE02A01785039E00AB7B3B /* BlockSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BlockSprite.cpp; path = ../Classes/BlockSprite.cpp; sourceTree = "<group>"; };
@@ -1239,6 +1247,10 @@
 				D3BE02A41785039E00AB7B3B /* Config.h */,
 				D3BE02A51785039E00AB7B3B /* GameScene.cpp */,
 				D3BE02A61785039E00AB7B3B /* GameScene.h */,
+				D3AD572A178EA9E400B08206 /* Gauge.cpp */,
+				D3AD572B178EA9E400B08206 /* Gauge.h */,
+				D3AD572C178EA9E400B08206 /* Player.cpp */,
+				D3AD572D178EA9E400B08206 /* Player.h */,
 			);
 			name = Classes;
 			path = ../classes;
@@ -1536,6 +1548,7 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D3AD5730178EAA1C00B08206 /* coin.png */,
 				D3E90335178D7E96001055A4 /* back_ground.png */,
 				D3E90336178D7E96001055A4 /* back.png */,
 				D3E90337178D7E96001055A4 /* circle.png */,
@@ -1683,6 +1696,7 @@
 				D3E9034C178D7E96001055A4 /* magic01.png in Resources */,
 				D3E9034D178D7E96001055A4 /* magic02.png in Resources */,
 				D3E9034E178D7E96001055A4 /* pause_button.png in Resources */,
+				D3AD5731178EAA1C00B08206 /* coin.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1878,6 +1892,8 @@
 				D3BE02A81785039E00AB7B3B /* BlockSprite.cpp in Sources */,
 				D3BE02A91785039E00AB7B3B /* CCPlaySE.cpp in Sources */,
 				D3BE02AA1785039E00AB7B3B /* GameScene.cpp in Sources */,
+				D3AD572E178EA9E400B08206 /* Gauge.cpp in Sources */,
+				D3AD572F178EA9E400B08206 /* Player.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
