@@ -24,7 +24,7 @@ CCScene* GameScene::scene()
 bool GameScene::init()
 {
     if (!CCLayer::init()) { return false; }
-    
+
     // プレイヤーの用意（最大体力、最大スキルポイント、攻撃力、回復力、スキルポイントチャージ力）
     player = new Player(1000, 100, 10, 10, 10);
     
