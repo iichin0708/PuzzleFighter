@@ -83,8 +83,8 @@ protected:
     // スワップしたブロックのリスト
     static std::list<int> swapBlockTagLists;
         
-    // moving中
-    bool m_ccTouchMoving;
+    // ブロックをスワップしたかどうか
+    bool m_isSwappedBlocks;
     
     // 再帰処理用のフラグ
     bool isChainFlag;

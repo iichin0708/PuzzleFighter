@@ -320,17 +320,13 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
 
-#pragma mark m_ccTouchMoving => isSwappedBlocks
-    if (!m_ccTouchMoving && tag != 0) {
-        m_ccTouchMoving = true;
+    if (!m_isSwappedBlocks && tag != 0) {
+        m_isSwappedBlocks = true;
         postTouchTag = tag;
-#pragma mark  ブロックのタッチ判定を一括で行う
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             unschedule(schedule_selector(GameScene::showSwapChainPosition));
             // コンボの初期化
             m_combo = 0;
-
-#pragma mark add 
             BlockSprite *preSprite = (BlockSprite *)m_background->getChildByTag(preTouchTag);
             BlockSprite *postSprite = (BlockSprite *)m_background->getChildByTag(postTouchTag);
             if (preSprite->getIsTouchFlag() && postSprite->getIsTouchFlag()){
@@ -341,7 +337,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
                 swapSprite(preSprite, postSprite);
             }
         } else {
-            m_ccTouchMoving = false;
+            m_isSwappedBlocks = false;
         }
     }
 }
@@ -349,7 +345,7 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
 // タッチ終了イベント
 void GameScene::ccTouchEnded(CCTouch* pTouch, CCEvent* pEvent)
 {
-    m_ccTouchMoving = false;
+    m_isSwappedBlocks = false;
 }
 
 //上下左右に動いたかどうか(正しいスワップがされたかどうか)
@@ -416,13 +412,11 @@ void GameScene::swapSprite(BlockSprite *swapSprite1, BlockSprite *
 // 入れ替えアニメーションの終了
 void GameScene::swapAnimationFinished(BlockSprite *bSprite)
 {
-#pragma mark ペアのタッチ操作について.
+    // タッチ可能状態に遷移
     bSprite->setIsTouchFlag(true);
 
-#pragma mark pre,post -1の削除検証
+    // パートナーの登録されていなければ終了
     if (bSprite->getSwapPartnerTag() == -1) {
-        preTouchTag = -1;
-        postTouchTag = -1;
         return;
     }
 
@@ -461,50 +455,29 @@ void GameScene::checkAndRemoveAndDrop()
                 if (*it1 == *it) {
                     swapSprite1->setSwapPartnerTag(-1);
                     swapSprite1->setIsTouchFlag(false);
-                    
+                    swapSprite2->setSwapPartnerTag(-1);
+                    swapBlockTagLists.remove(*it);
                 }
                 // ペアが消すリストに入っている
                 else if(*it1 == swapSprite1->getSwapPartnerTag()) {
                     swapSprite2->setSwapPartnerTag(-1);
                     swapSprite2->setIsTouchFlag(false);
-                    
+                    swapSprite1->setSwapPartnerTag(-1);
+                    swapBlockTagLists.remove(*it1);
                 }
                 it1++;
             }
             it++;
         }
- 
-#pragma mark タグリストからの消去
+
+        // 直前にスワイプしたもので、消すリストに入っていなかったものをスワイプブロックタグリストから削除
         list<int>::iterator it1 = swapBlockTagLists.begin();
         while (it1 != swapBlockTagLists.end()) {
-            // ペアでない場合
             BlockSprite *swapSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-            //消される場合
-            if( !(swapSprite->getIsTouchFlag()) && swapSprite->getSwapPartnerTag() == -1) {
-                // 動かせないフラグを立てる
-                swapSprite->setIsTouchFlag(false);
-                swapBlockTagLists.remove(*it1);
-            } //消されない場合
-            else if( swapSprite->getIsTouchFlag() && swapSprite->getSwapPartnerTag() != -1) {
-                swapSprite->setIsTouchFlag(true);
+            if (swapSprite->getSwapPartnerTag() == -1 && swapSprite->getIsTouchFlag()) {
                 swapBlockTagLists.remove(*it1);
             }
-            
-            //ペアの場合
-            if(swapSprite->getSwapPartnerTag() != -1) {
-                BlockSprite *swapPartnerSprite = (BlockSprite*)m_background->getChildByTag(swapSprite->getSwapPartnerTag());
-                //消される場合
-                if( !(swapPartnerSprite->getIsTouchFlag()) && swapPartnerSprite->getSwapPartnerTag() == -1) {
-                    // 動かせないフラグを立てる
-                    swapPartnerSprite->setIsTouchFlag(false);
-                    swapBlockTagLists.remove(*it1);
-                } //消されない場合
-                else if(swapPartnerSprite->getIsTouchFlag() && swapPartnerSprite->getSwapPartnerTag() != -1) {
-                    swapPartnerSprite->setIsTouchFlag(true);
-                    swapBlockTagLists.remove(*it1);
-                }
-                
-            }
+                       
             it1++;
         }
         
@@ -825,7 +798,6 @@ void GameScene::removeBlocksAniamtion(list<int> blockTags, float during)
             block->runAction(action);
         }
         
-#pragma mark add
         // これから消えるブロックを触らせない
         BlockSprite *blockSprite = (BlockSprite*)m_background->getChildByTag(*it);
         blockSprite->setIsTouchFlag(false);
