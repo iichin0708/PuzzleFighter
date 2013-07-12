@@ -320,9 +320,11 @@ void GameScene::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent)
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
 
+#pragma mark m_ccTouchMoving => isSwappedBlocks
     if (!m_ccTouchMoving && tag != 0) {
         m_ccTouchMoving = true;
         postTouchTag = tag;
+#pragma mark  ブロックのタッチ判定を一括で行う
         if (checkCorrectSwap(preTouchTag, postTouchTag)) {
             unschedule(schedule_selector(GameScene::showSwapChainPosition));
             // コンボの初期化
@@ -414,15 +416,19 @@ void GameScene::swapSprite(BlockSprite *swapSprite1, BlockSprite *
 // 入れ替えアニメーションの終了
 void GameScene::swapAnimationFinished(BlockSprite *bSprite)
 {
+#pragma mark ペアのタッチ操作について.
     bSprite->setIsTouchFlag(true);
-    // 再帰処理終了
+
+#pragma mark pre,post -1の削除検証
     if (bSprite->getSwapPartnerTag() == -1) {
         preTouchTag = -1;
-        postTouchTag = 1;
+        postTouchTag = -1;
         return;
     }
+
     BlockSprite *partnerSprite = (BlockSprite*)m_background->getChildByTag(bSprite->getSwapPartnerTag());
     partnerSprite->setIsTouchFlag(true);
+    
     isChainFlag = false;
     checkAndRemoveAndDrop();
 }
@@ -455,18 +461,20 @@ void GameScene::checkAndRemoveAndDrop()
                 if (*it1 == *it) {
                     swapSprite1->setSwapPartnerTag(-1);
                     swapSprite1->setIsTouchFlag(false);
+                    
                 }
                 // ペアが消すリストに入っている
                 else if(*it1 == swapSprite1->getSwapPartnerTag()) {
                     swapSprite2->setSwapPartnerTag(-1);
                     swapSprite2->setIsTouchFlag(false);
+                    
                 }
                 it1++;
             }
             it++;
         }
  
-        // 参照削除するところ
+#pragma mark タグリストからの消去
         list<int>::iterator it1 = swapBlockTagLists.begin();
         while (it1 != swapBlockTagLists.end()) {
             // ペアでない場合
@@ -535,6 +543,7 @@ void GameScene::checkAndRemoveAndDrop()
         
         removeBlockTagLists = removeBlockTags;
         
+#pragma mark 得点加算は不要かも
         // 得点加算 (消したブロック数 - 2) の2 乗
         m_score += pow(removeBlockTags.size() - 2, 2);
 
@@ -542,7 +551,14 @@ void GameScene::checkAndRemoveAndDrop()
         
         scheduleOnce(schedule_selector(GameScene::removeAndDrop), REMOVING_TIME);
     } else {
-        //CCLog("swapBlockTagLists.size() = %d", swapBlockTagLists.size());
+        // CCLOG("潜在連結数 : %d", getSwapChainCount());
+        // 潜在的な連結がないとき
+        if (getSwapChainCount() <= 0) {
+            #pragma mark TODO: 盤面を新しく用意する
+            #pragma mark TODO: ブロックドロップ終了時に移行?
+//            swapBlockTagLists.clear();
+            CCLOG("No Match!");
+        }
         
         if (0 < swapBlockTagLists.size()) {
             list<int>::iterator it = swapBlockTagLists.begin();
@@ -577,14 +593,6 @@ void GameScene::checkAndRemoveAndDrop()
                 it++;
             }
             
-        } else {
-            //m_animating = false;
-            // CCLOG("潜在連結数 : %d", getSwapChainCount());
-            // 潜在的な連結がないとき
-            if (getSwapChainCount() <= 0) {
-#pragma mark TODO: 盤面を新しく用意する
-                CCLOG("No Match!");
-            }
         }
         
         unschedule(schedule_selector(GameScene::showSwapChainPosition));
@@ -592,11 +600,13 @@ void GameScene::checkAndRemoveAndDrop()
     }
 }
 
+
 // 連結していて消滅できるブロックの、タグ配列を取得
 list<int> GameScene::getRemoveChainBlocks(int tag) {
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
-    
+
+#pragma mark swapAnimationFinishedに移動
     if(!isChainFlag) {
         if (tag == -1) {
             return removeChainBlocks;

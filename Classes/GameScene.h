@@ -101,8 +101,7 @@ protected:
     // コンボ数
     int m_combo;
     
-    void setEnableTouchSprite();
-
+    
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
     
@@ -113,6 +112,9 @@ protected:
     CCLabelTTF *coinCount;
 
     /***** 以下メソッド群 ******/
+    void setEnableTouchSprite();
+
+    
     
     // 変数を初期化する
     void initForVariables();
@@ -209,7 +211,7 @@ public:
     
     virtual bool ccTouchBegan(cocos2d::CCTouch* pTouch, cocos2d::CCEvent* pEvent);
     virtual void ccTouchEnded(cocos2d::CCTouch* pTouch, cocos2d::CCEvent* pEvent);
-    virtual void ccTouchMoved(cocos2d::CCTouch* pTouch, cocos2d::CCEvent *pEvent);
+    virtual void ccTouchMoved(cocos2d::CCTouch* pTouch, cocos2d::CCEvent* pEvent);
 
     virtual void keyBackClicked();
     virtual void keyMenuClicked();
