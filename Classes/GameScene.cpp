@@ -32,6 +32,9 @@ bool GameScene::init()
     // 獲得コイン数初期化
     coin = 0;
     
+    // コンボ数初期化
+    m_combo = 0;
+    
     // タップイベントを取得する
     setTouchEnabled(true);
     setTouchMode(kCCTouchesOneByOne);
@@ -575,7 +578,6 @@ void GameScene::recursiveCheck() {
     // ブロックが消えるとき、ヒント表示までの時間をリセットする
     unschedule(schedule_selector(GameScene::showSwapChainPosition));
     scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
-
  }
 
 // 指定されたブロックリストを削除する
@@ -909,6 +911,38 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
     }
     
     return swapChainPosition;
+}
+
+// コンボ数の演出
+void GameScene::showCombo()
+{
+    char comboText[10];
+    sprintf(comboText, "%d COMBO!", m_combo);
+    CCLabelTTF *comboLabel = CCLabelTTF::create(comboText, "arial", 60);
+    
+    // 表示できる画面サイズ取得
+    CCDirector* pDirector = CCDirector::sharedDirector();
+    CCPoint origin = pDirector->getVisibleOrigin();
+    CCSize visibleSize = pDirector->getVisibleSize();
+    
+    comboLabel->setPosition(ccp(origin.x + visibleSize.width / 2,
+                                origin.y + visibleSize.height / 2));
+    comboLabel->setColor(ccc3(255, 255, 255));
+    addChild(comboLabel);
+    
+    float during = 0.5f;
+    CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+    CCScaleTo *actionScaleUp = CCScaleTo::create(during, 1.5f);
+    comboLabel->runAction(actionFadeOut);
+    comboLabel->runAction(actionScaleUp);
+    
+    comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
+}
+
+// コンボ数のリセット
+void GameScene::resetCombo()
+{
+    m_combo = 0;
 }
 
 // ブロックのインデックス取得
