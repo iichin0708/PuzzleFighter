@@ -12,6 +12,7 @@
 #define REMOVING_TIME 0.1f
 #define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
+#define COMBO_TIME 1.0f
 
 #define KEY_HIGHSCORE "HighScore"
 
@@ -119,6 +120,11 @@ protected:
     // ヒント（入れ替えで連結）の場所リストを取得
     std::list<BlockTagPair> getSwapChainPositions();
     
+    // コンボ数の演出
+    void showCombo();
+    
+    // コンボ数のリセット
+    void resetCombo();
 
     /*********************************/
 
