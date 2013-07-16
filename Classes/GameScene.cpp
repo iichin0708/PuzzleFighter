@@ -522,7 +522,10 @@ void GameScene::recursiveCheck() {
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
             BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
 //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
+            /*
             if (bSprite == NULL || !(bSprite->m_blockState == BlockSprite::kStopping || bSprite->m_blockState == BlockSprite::kDropping)) {
+             */
+            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
                 CCLog("return x = %d, y = %d", x, y);
                 continue;
             }
@@ -551,7 +554,7 @@ void GameScene::recursiveCheck() {
             addBlocks();
         }
     }
-}
+ }
 
 // 指定されたブロックリストを削除する
 void GameScene::removeBlocks(list<int> removeBlocks) {

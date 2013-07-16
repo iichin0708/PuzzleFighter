@@ -66,13 +66,13 @@ const char* BlockSprite::getBlockImageFileName(kBlock blockType)
 
         case kBlockGreen:
             return "green.png";
-
+        /*
         case kBlockGray:
             return "gray.png";
- /*
+         
         case kBlockBlack:
             return "black.png";
-  */          
+        */
         default:
             CCAssert(false, "invalid blockType");
             return "";
@@ -117,8 +117,14 @@ void BlockSprite::moveBlock()
         
         // 動かす前にタッチできないようにする
         m_isTouchFlag = false;
-                        
-        CCMoveBy* move = CCMoveBy::create(MOVING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
+        
+        //CCMoveBy* move = CCMoveBy::create(MOVING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
+        CCMoveBy *move;
+        if (m_blockState == kChanging || m_blockState == kRechanging) {
+            move = CCMoveBy::create(SWAPPING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
+        } else {
+            move = CCMoveBy::create(MOVING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
+        }
         this->runAction(move);
     }
 }
@@ -148,7 +154,8 @@ void BlockSprite::changePosition()
     }
         
     // MOVING_TIME分のアニメーション移動を待つディレイタイム
-    CCDelayTime *moveAnimationDelay = CCDelayTime::create(MOVING_TIME );
+//    CCDelayTime *moveAnimationDelay = CCDelayTime::create(MOVING_TIME);
+    CCDelayTime *moveAnimationDelay = CCDelayTime::create(SWAPPING_TIME);
     
     // ブロックを動かす一連の処理
     CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(BlockSprite::moveBlock));
