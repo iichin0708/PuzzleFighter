@@ -40,13 +40,7 @@ protected:
         kTagHintCircle = 20000
     };
     
-    enum kZOrder
-    {
-        kZOrderBackground,
-        kZOrderLabel,
-        kZOrderBlock,
-        kZOrderGameOver,
-    };
+
     
     struct PositionIndex
     {
@@ -77,26 +71,14 @@ protected:
     // タッチしたタグ(CCTouchMove用)
     static int postTouchTag;
     
-    // 消すブロックのリスト
-    static std::list<int> removeBlockTagLists;
-    
-    // スワップしたブロックのリスト
-    static std::list<int> swapBlockTagLists;
-        
     // ブロックをスワップしたかどうか
     bool m_isSwappedBlocks;
-    
-    // 再帰処理用のフラグ
-    bool isChainFlag;
     
     // 画像の大きさ
     float m_blockSize;
     
     // スコアを保持
     int m_score;
-        
-    // 背景画像
-    cocos2d::CCSprite* m_background;
     
     // コンボ数
     int m_combo;
@@ -112,10 +94,7 @@ protected:
     CCLabelTTF *coinCount;
 
     /***** 以下メソッド群 ******/
-    void setEnableTouchSprite();
-
-    
-    
+        
     // 変数を初期化する
     void initForVariables();
     // 背景を表示する
@@ -128,62 +107,17 @@ protected:
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
     
-    // 2つのスプライトを入れ替える.
-    void swapSprite(BlockSprite *swapSprite1, BlockSprite *swapSprite2);
-    
     // 盤面上で連結のあればパズルを消して、新しいブロックを落とす
     void checkAndRemoveAndDrop();
     
-    // 入れ替えアニメーションの終了メソッド
-    void swapAnimationFinished(BlockSprite *bSprite);
-
-    // 連結していて消滅できるブロックの、タグ配列を取得
-    std::list<int> getRemoveChainBlocks(int tag);
-        
-    // 指定したブロックを含む３つ以上のブロック連結があるかどうか
-    bool isChainedBlock(int blockTag);
-    
-    // ブロックを消すアニメーション
-    void removeBlocksAniamtion(std::list<int> blockTags, float during);
-    
-    // 静的変数[removeBlockTagLists]に格納されているタグリストを削除し、新しいブロックを落とす
-    void removeAndDrop();
-    
-    // 与えられたタグの引数リストよりブロックを削除する
-    void removeBlock(std::list<int> blockTags);
-    
-    // コマを下に落とすアニメーション
-    void movingBlocksAnimation(std::list<int> blocks);
-    
-    // 下にずらすべきコマを探索する
-    void searchNewPosition(std::list<int> blocks);
-    
-    // 消されたコマの上にあるコマに新しいポジションを設定する(下にずらす)
-    void setNewPosition(int tag, PositionIndex posIndex);
-    
-    // ブロックを実際に動かす(nextPosが設定してあるブロックのみ)
-    void moveBlock();
-    
-    // 追加したブロックを落とす
-    void dropNewBlocks();
-    
-    // ブロックを下に落とし終わったあとのメソッド
-    void dropAnimationFinished();
-
     // リセットする(初めから始める)
     void menuResetCallback(cocos2d::CCObject* pSender);
     
     // リセットボタンを画面に表示させる
     void showResetButton();
     
-    
+    void setNewPosition();
     /***** 以下ユーティリティ系メソッド *****/
-    
-    // 与えられたインデックスから画面上のポイントを返す
-    cocos2d::CCPoint getPosition(int posIndexX, int posIndexY);
-
-    // 与えられたインデックスからタグを取得する
-    int getTag(int posIndexX, int posIndexY);
     // タッチされたブロックのタグを取得
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
 
@@ -199,14 +133,27 @@ protected:
     // ヒント（入れ替えで連結）の場所リストを取得
     std::list<BlockTagPair> getSwapChainPositions();
     
+
     /*********************************/
 
-    void moveKenji(int tag);
+
+    
+
+
 
 public:
+    enum kZOrder
+    {
+        kZOrderBackground,
+        kZOrderLabel,
+        kZOrderBlock,
+        kZOrderGameOver,
+    };
     
     virtual bool init();
     static cocos2d::CCScene* scene();
+    static bool addFlag;
+    
     CREATE_FUNC(GameScene);
     
     virtual bool ccTouchBegan(cocos2d::CCTouch* pTouch, cocos2d::CCEvent* pEvent);
@@ -215,6 +162,29 @@ public:
 
     virtual void keyBackClicked();
     virtual void keyMenuClicked();
+    
+    // 与えられたインデックスからタグを取得する
+    int getTag(int posIndexX, int posIndexY);
+    
+    // 連鎖があるブロックを消去する.
+    void removeChainBlocks();
+    
+    // 指定したブロックより上にあるブロックの新しいポジションを設定
+    void setDropNewPosition(BlockSprite *bSprite);
+    
+    // 背景画像
+    cocos2d::CCSprite* m_background;
+    
+    // 与えられたインデックスから画面上のポイントを返す
+    cocos2d::CCPoint getPosition(int posIndexX, int posIndexY);
+    
+    std::list<int> checkChain(BlockSprite *bSprite);
+    
+    void removeBlocks(std::list<int> removeBlock);
+    
+    void addBlocks();
+
+    void recursiveCheck();
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
