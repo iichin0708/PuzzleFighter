@@ -328,7 +328,8 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     //触った場所にブロックがあった場合
     if (tag != 0) {
         BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-        if (bSprite->getIsTouchFlag() && bSprite->m_blockState == BlockSprite::kStopping) {
+        //if (bSprite->getIsTouchFlag() && bSprite->m_blockState == BlockSprite::kStopping) {
+        if (bSprite->m_blockState == BlockSprite::kStopping) {
             preTouchTag = tag;
             return true;
         }
@@ -395,7 +396,6 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
 void GameScene::setDeletingFlags(std::list<int> removeBlockTags) {
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
-        CCLog("%d", *it);
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;
         it++;
@@ -562,7 +562,6 @@ void GameScene::recursiveCheck() {
     
     if (0 < removeList.size()) {
         removeBlocks(removeList);
-        
         if (GameScene::addFlag) {
             while (!GameScene::addFlag){
                 
