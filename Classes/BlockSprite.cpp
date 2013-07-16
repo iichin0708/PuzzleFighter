@@ -113,6 +113,12 @@ void BlockSprite::moveBlock()
         if (isMakeChain()) {
             CCLog("チェインあり");
             m_blockState = kDeleting;
+            
+            // ヒントサークルが表示されていれば、消去する
+            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
+            if(circle != NULL) {
+                circle->removeFromParentAndCleanup(true);
+            }
         }
         
         // 動かす前にタッチできないようにする
@@ -154,7 +160,6 @@ void BlockSprite::changePosition()
     }
         
     // MOVING_TIME分のアニメーション移動を待つディレイタイム
-//    CCDelayTime *moveAnimationDelay = CCDelayTime::create(MOVING_TIME);
     CCDelayTime *moveAnimationDelay = CCDelayTime::create(SWAPPING_TIME);
     
     // ブロックを動かす一連の処理
@@ -172,10 +177,11 @@ void BlockSprite::changePosition()
 void BlockSprite::changePositionFinished() {
     // 入れ替え後、片方のブロックが消えた場合
     if (m_blockState == kChanging && m_partnerBlock->m_blockState == kDeleting) {
-         m_isTouchFlag = true;
+        m_isTouchFlag = true;
         m_partnerBlock = NULL;
         m_blockState = kStopping;
         CCLog("1");
+
     // 再入れ替え前
     } else if (m_blockState == kChanging && (m_partnerBlock->m_blockState == kChanging || m_partnerBlock->m_blockState == kRechanging)) {
         CCLog("2");

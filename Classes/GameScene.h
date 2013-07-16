@@ -6,7 +6,7 @@
 #include "BlockSprite.h"
 #include "Player.h"
 
-#define MAX_BLOCK_X 6
+#define MAX_BLOCK_X 7
 #define MAX_BLOCK_Y 6
 #define SWAPPING_TIME 0.1f
 #define REMOVING_TIME 0.1f
@@ -19,7 +19,8 @@
 #define PNG_BACKGROUND "back.png"
 #define PNG_GAMEOVER "gameover.png"
 //#define PNG_RESET "reset.png"
-#define PNG_RESET "pause_button.png"
+//#define PNG_RESET "pause_button.png"
+#define PNG_RESET "pause_button_reverse.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
 
 
@@ -27,22 +28,7 @@
 class GameScene : public cocos2d::CCLayer
 {
 protected:
-    enum kTag
-    {
-        kTagBackground = 1,
-        kTagRedLabel,
-        kTagBlueLabel,
-        kTagYellowLabel,
-        kTagGreenLabel,
-        kTagGrayLabel,
-        kTagScoreLabel,
-        kTagGameOver,
-        kTagBaseBlock = 10000,
-        kTagHintCircle = 20000
-    };
-    
-
-    
+    /*
     struct PositionIndex
     {
         PositionIndex(int x1, int y1)
@@ -54,6 +40,7 @@ protected:
         int x;
         int y;
     };
+     */
  
     // ブロックタグを2つセットで扱う
     struct BlockTagPair
@@ -102,8 +89,6 @@ protected:
     void showBackground();
     // 初期ブロックを表示する
     void showBlock();
-    // ヒントをランダムに1つ表示
-    void showSwapChainPosition();
     
     // CCTouchMoveにて取得したタッチポイントが隣接するピースを触ったかどうか
     bool checkCorrectSwap(int preTag, int postTag);
@@ -123,7 +108,7 @@ protected:
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
 
     // タグからインデックスを取得する
-    PositionIndex getPositionIndex(int tag);
+    BlockSprite::PositionIndex getPositionIndex(int tag);
     
     // 指定したブロックにある潜在的な連結の数
     int getSwapChainBlockCount(int blockTag);
@@ -143,6 +128,20 @@ protected:
 
 
 public:
+    enum kTag
+    {
+        kTagBackground = 1,
+        kTagRedLabel,
+        kTagBlueLabel,
+        kTagYellowLabel,
+        kTagGreenLabel,
+        kTagGrayLabel,
+        kTagScoreLabel,
+        kTagGameOver,
+        kTagBaseBlock = 10000,
+        kTagHintCircle = 20000
+    };
+
     enum kZOrder
     {
         kZOrderBackground,
@@ -172,6 +171,9 @@ public:
     
     // 指定したブロックより上にあるブロックの新しいポジションを設定
     void setDropNewPosition(BlockSprite *bSprite);
+    
+    // ヒントをランダムに1つ表示
+    void showSwapChainPosition();
     
     // 背景画像
     cocos2d::CCSprite* m_background;
