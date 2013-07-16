@@ -7,7 +7,6 @@ enum kBlock
     kBlockBlue,
     kBlockYellow,
     kBlockGreen,
-    kBlockGray,
     kBlockCount,
 };
 

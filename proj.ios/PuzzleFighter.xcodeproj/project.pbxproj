@@ -218,30 +218,29 @@
 		D311B311178D50CE0052034E /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D311B30F178D50CE0052034E /* Player.cpp */; };
 		D311B31A178D6DFE0052034E /* Gauge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D311B318178D6DFE0052034E /* Gauge.cpp */; };
 		D311B31C178D8DA40052034E /* coin.png in Resources */ = {isa = PBXBuildFile; fileRef = D311B31B178D8DA40052034E /* coin.png */; };
+		D34FBFC6179526E5008A68D8 /* blue.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFC5179526E4008A68D8 /* blue.png */; };
+		D34FBFC8179526F1008A68D8 /* red.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFC7179526F1008A68D8 /* red.png */; };
+		D34FBFCA17952708008A68D8 /* yellow.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFC917952707008A68D8 /* yellow.png */; };
+		D34FBFCC17952739008A68D8 /* green.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFCB17952738008A68D8 /* green.png */; };
 		D3520267178C092600A17F1A /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = D3520266178C092600A17F1A /* circle.png */; };
 		D3BE02A71785039E00AB7B3B /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */; };
 		D3BE02A81785039E00AB7B3B /* BlockSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A01785039E00AB7B3B /* BlockSprite.cpp */; };
 		D3BE02A91785039E00AB7B3B /* CCPlaySE.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A21785039E00AB7B3B /* CCPlaySE.cpp */; };
 		D3BE02AA1785039E00AB7B3B /* GameScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A51785039E00AB7B3B /* GameScene.cpp */; };
 		D3BE02C0178503AD00AB7B3B /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02AB178503AD00AB7B3B /* background.png */; };
-		D3BE02C1178503AD00AB7B3B /* blue.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02AC178503AD00AB7B3B /* blue.png */; };
 		D3BE02C2178503AD00AB7B3B /* blueFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02AD178503AD00AB7B3B /* blueFont.fnt */; };
 		D3BE02C3178503AD00AB7B3B /* blueFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02AE178503AD00AB7B3B /* blueFont.png */; };
 		D3BE02C4178503AD00AB7B3B /* gameover.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02AF178503AD00AB7B3B /* gameover.png */; };
-		D3BE02C5178503AD00AB7B3B /* gray.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B0178503AD00AB7B3B /* gray.png */; };
 		D3BE02C6178503AD00AB7B3B /* grayFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B1178503AD00AB7B3B /* grayFont.fnt */; };
 		D3BE02C7178503AD00AB7B3B /* grayFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B2178503AD00AB7B3B /* grayFont.png */; };
-		D3BE02C8178503AD00AB7B3B /* green.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B3178503AD00AB7B3B /* green.png */; };
 		D3BE02C9178503AD00AB7B3B /* greenFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B4178503AD00AB7B3B /* greenFont.fnt */; };
 		D3BE02CA178503AD00AB7B3B /* greenFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B5178503AD00AB7B3B /* greenFont.png */; };
-		D3BE02CB178503AD00AB7B3B /* red.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B6178503AD00AB7B3B /* red.png */; };
 		D3BE02CC178503AD00AB7B3B /* redFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B7178503AD00AB7B3B /* redFont.fnt */; };
 		D3BE02CD178503AD00AB7B3B /* redFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B8178503AD00AB7B3B /* redFont.png */; };
 		D3BE02CE178503AD00AB7B3B /* removeBlock.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02B9178503AD00AB7B3B /* removeBlock.mp3 */; };
 		D3BE02CF178503AD00AB7B3B /* reset.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BA178503AD00AB7B3B /* reset.png */; };
 		D3BE02D0178503AD00AB7B3B /* whiteFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BB178503AD00AB7B3B /* whiteFont.fnt */; };
 		D3BE02D1178503AD00AB7B3B /* whiteFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BC178503AD00AB7B3B /* whiteFont.png */; };
-		D3BE02D2178503AD00AB7B3B /* yellow.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BD178503AD00AB7B3B /* yellow.png */; };
 		D3BE02D3178503AD00AB7B3B /* yellowFont.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BE178503AD00AB7B3B /* yellowFont.fnt */; };
 		D3BE02D4178503AD00AB7B3B /* yellowFont.png in Resources */ = {isa = PBXBuildFile; fileRef = D3BE02BF178503AD00AB7B3B /* yellowFont.png */; };
 		D44C620C132DFF330009C878 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D44C620B132DFF330009C878 /* OpenAL.framework */; };
@@ -684,6 +683,10 @@
 		D311B318178D6DFE0052034E /* Gauge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gauge.cpp; sourceTree = "<group>"; };
 		D311B319178D6DFE0052034E /* Gauge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gauge.h; sourceTree = "<group>"; };
 		D311B31B178D8DA40052034E /* coin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coin.png; sourceTree = "<group>"; };
+		D34FBFC5179526E4008A68D8 /* blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blue.png; sourceTree = "<group>"; };
+		D34FBFC7179526F1008A68D8 /* red.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red.png; sourceTree = "<group>"; };
+		D34FBFC917952707008A68D8 /* yellow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yellow.png; sourceTree = "<group>"; };
+		D34FBFCB17952738008A68D8 /* green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green.png; sourceTree = "<group>"; };
 		D3520266178C092600A17F1A /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDelegate.cpp; path = ../Classes/AppDelegate.cpp; sourceTree = "<group>"; };
 		D3BE029F1785039E00AB7B3B /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Classes/AppDelegate.h; sourceTree = "<group>"; };
@@ -695,24 +698,19 @@
 		D3BE02A51785039E00AB7B3B /* GameScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GameScene.cpp; path = ../Classes/GameScene.cpp; sourceTree = "<group>"; };
 		D3BE02A61785039E00AB7B3B /* GameScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GameScene.h; path = ../Classes/GameScene.h; sourceTree = "<group>"; };
 		D3BE02AB178503AD00AB7B3B /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
-		D3BE02AC178503AD00AB7B3B /* blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blue.png; sourceTree = "<group>"; };
 		D3BE02AD178503AD00AB7B3B /* blueFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blueFont.fnt; sourceTree = "<group>"; };
 		D3BE02AE178503AD00AB7B3B /* blueFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blueFont.png; sourceTree = "<group>"; };
 		D3BE02AF178503AD00AB7B3B /* gameover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gameover.png; sourceTree = "<group>"; };
-		D3BE02B0178503AD00AB7B3B /* gray.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gray.png; sourceTree = "<group>"; };
 		D3BE02B1178503AD00AB7B3B /* grayFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grayFont.fnt; sourceTree = "<group>"; };
 		D3BE02B2178503AD00AB7B3B /* grayFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = grayFont.png; sourceTree = "<group>"; };
-		D3BE02B3178503AD00AB7B3B /* green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green.png; sourceTree = "<group>"; };
 		D3BE02B4178503AD00AB7B3B /* greenFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = greenFont.fnt; sourceTree = "<group>"; };
 		D3BE02B5178503AD00AB7B3B /* greenFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = greenFont.png; sourceTree = "<group>"; };
-		D3BE02B6178503AD00AB7B3B /* red.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red.png; sourceTree = "<group>"; };
 		D3BE02B7178503AD00AB7B3B /* redFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = redFont.fnt; sourceTree = "<group>"; };
 		D3BE02B8178503AD00AB7B3B /* redFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redFont.png; sourceTree = "<group>"; };
 		D3BE02B9178503AD00AB7B3B /* removeBlock.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = removeBlock.mp3; sourceTree = "<group>"; };
 		D3BE02BA178503AD00AB7B3B /* reset.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reset.png; sourceTree = "<group>"; };
 		D3BE02BB178503AD00AB7B3B /* whiteFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = whiteFont.fnt; sourceTree = "<group>"; };
 		D3BE02BC178503AD00AB7B3B /* whiteFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteFont.png; sourceTree = "<group>"; };
-		D3BE02BD178503AD00AB7B3B /* yellow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yellow.png; sourceTree = "<group>"; };
 		D3BE02BE178503AD00AB7B3B /* yellowFont.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = yellowFont.fnt; sourceTree = "<group>"; };
 		D3BE02BF178503AD00AB7B3B /* yellowFont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yellowFont.png; sourceTree = "<group>"; };
 		D44C620B132DFF330009C878 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -1548,6 +1546,10 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D34FBFC917952707008A68D8 /* yellow.png */,
+				D34FBFCB17952738008A68D8 /* green.png */,
+				D34FBFC7179526F1008A68D8 /* red.png */,
+				D34FBFC5179526E4008A68D8 /* blue.png */,
 				D311B31B178D8DA40052034E /* coin.png */,
 				D311B30D178D48010052034E /* pause_button.png */,
 				D311B307178D452C0052034E /* coin_label.png */,
@@ -1563,24 +1565,19 @@
 				D311B2FC178D0B8D0052034E /* magic02.png */,
 				D3520266178C092600A17F1A /* circle.png */,
 				D3BE02AB178503AD00AB7B3B /* background.png */,
-				D3BE02AC178503AD00AB7B3B /* blue.png */,
 				D3BE02AD178503AD00AB7B3B /* blueFont.fnt */,
 				D3BE02AE178503AD00AB7B3B /* blueFont.png */,
 				D3BE02AF178503AD00AB7B3B /* gameover.png */,
-				D3BE02B0178503AD00AB7B3B /* gray.png */,
 				D3BE02B1178503AD00AB7B3B /* grayFont.fnt */,
 				D3BE02B2178503AD00AB7B3B /* grayFont.png */,
-				D3BE02B3178503AD00AB7B3B /* green.png */,
 				D3BE02B4178503AD00AB7B3B /* greenFont.fnt */,
 				D3BE02B5178503AD00AB7B3B /* greenFont.png */,
-				D3BE02B6178503AD00AB7B3B /* red.png */,
 				D3BE02B7178503AD00AB7B3B /* redFont.fnt */,
 				D3BE02B8178503AD00AB7B3B /* redFont.png */,
 				D3BE02B9178503AD00AB7B3B /* removeBlock.mp3 */,
 				D3BE02BA178503AD00AB7B3B /* reset.png */,
 				D3BE02BB178503AD00AB7B3B /* whiteFont.fnt */,
 				D3BE02BC178503AD00AB7B3B /* whiteFont.png */,
-				D3BE02BD178503AD00AB7B3B /* yellow.png */,
 				D3BE02BE178503AD00AB7B3B /* yellowFont.fnt */,
 				D3BE02BF178503AD00AB7B3B /* yellowFont.png */,
 			);
@@ -1663,24 +1660,19 @@
 				1A9CE88C1765A12C000E3062 /* json_valueiterator.inl in Resources */,
 				1A9CE88E1765A12C000E3062 /* sconscript in Resources */,
 				D3BE02C0178503AD00AB7B3B /* background.png in Resources */,
-				D3BE02C1178503AD00AB7B3B /* blue.png in Resources */,
 				D3BE02C2178503AD00AB7B3B /* blueFont.fnt in Resources */,
 				D3BE02C3178503AD00AB7B3B /* blueFont.png in Resources */,
 				D3BE02C4178503AD00AB7B3B /* gameover.png in Resources */,
-				D3BE02C5178503AD00AB7B3B /* gray.png in Resources */,
 				D3BE02C6178503AD00AB7B3B /* grayFont.fnt in Resources */,
 				D3BE02C7178503AD00AB7B3B /* grayFont.png in Resources */,
-				D3BE02C8178503AD00AB7B3B /* green.png in Resources */,
 				D3BE02C9178503AD00AB7B3B /* greenFont.fnt in Resources */,
 				D3BE02CA178503AD00AB7B3B /* greenFont.png in Resources */,
-				D3BE02CB178503AD00AB7B3B /* red.png in Resources */,
 				D3BE02CC178503AD00AB7B3B /* redFont.fnt in Resources */,
 				D3BE02CD178503AD00AB7B3B /* redFont.png in Resources */,
 				D3BE02CE178503AD00AB7B3B /* removeBlock.mp3 in Resources */,
 				D3BE02CF178503AD00AB7B3B /* reset.png in Resources */,
 				D3BE02D0178503AD00AB7B3B /* whiteFont.fnt in Resources */,
 				D3BE02D1178503AD00AB7B3B /* whiteFont.png in Resources */,
-				D3BE02D2178503AD00AB7B3B /* yellow.png in Resources */,
 				D3BE02D3178503AD00AB7B3B /* yellowFont.fnt in Resources */,
 				D3BE02D4178503AD00AB7B3B /* yellowFont.png in Resources */,
 				D3520267178C092600A17F1A /* circle.png in Resources */,
@@ -1697,6 +1689,10 @@
 				D311B309178D452C0052034E /* coin_label.png in Resources */,
 				D311B30E178D48010052034E /* pause_button.png in Resources */,
 				D311B31C178D8DA40052034E /* coin.png in Resources */,
+				D34FBFC6179526E5008A68D8 /* blue.png in Resources */,
+				D34FBFC8179526F1008A68D8 /* red.png in Resources */,
+				D34FBFCA17952708008A68D8 /* yellow.png in Resources */,
+				D34FBFCC17952739008A68D8 /* green.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
