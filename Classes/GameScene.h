@@ -189,11 +189,13 @@ public:
     
     std::list<int> checkChain(BlockSprite *bSprite);
     
-    void removeBlocks(std::list<int> removeBlock);
+    void removeBlocks(std::list<int> removeBlockTags);
     
     void addBlocks();
 
     void recursiveCheck();
+    
+    void setDeletingFlags(std::list<int> removeBlockTags);
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
