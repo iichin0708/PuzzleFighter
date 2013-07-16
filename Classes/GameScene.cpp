@@ -82,13 +82,15 @@ void GameScene::initForVariables()
 void GameScene::showBackground()
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
-    
+    /*
     // 背景の生成
     CCSprite *background = CCSprite::create("back.png");
     addChild(background);
     background->setPosition(ccp(winSize.width / 2,
                                 winSize.height / 2));
+     */
     
+    /*
     // プレイヤーの体力ゲージ生成
 //    addChild(player->hpGauge, 30000);
     addChild(player->hpGauge, 0);
@@ -111,23 +113,28 @@ void GameScene::showBackground()
     enemyHpGauge->addChild(enemyHpGaugeFrame, 1);
     enemyHpGaugeFrame->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
                                        enemyHpGauge->getContentSize().height / 2));
-    
+    */
     
     // パズルの背景を生成
     m_background = CCSprite::create(PNG_BACKGROUND);
 //    addChild(m_background, kZOrderBackground, kTagBackground);
     addChild(m_background, kZOrderBackground, 0);
 
+    m_background->setPosition(ccp(winSize.width / 2,
+                                  m_background->getContentSize().height / 2));
+    /*
     m_background->setPosition(ccp(m_background->getContentSize().width / 2 + 3,
                                   winSize.height - player->hpGauge->getContentSize().height - m_background->getContentSize().height / 2));
+     */
     
     CCSprite *backFrame = CCSprite::create("frame.png");
-//    m_background->addChild(backFrame, 30000);
-    m_background->addChild(backFrame, 0);
+    m_background->addChild(backFrame, 30000);
+//    m_background->addChild(backFrame, 0);
 
     backFrame->setPosition(ccp(m_background->getContentSize().width / 2,
                                m_background->getContentSize().height / 2));
     
+    /*
     // 敵パズルの背景を生成
     CCSprite *enemyBackGround = CCSprite::create(PNG_BACKGROUND);
     addChild(enemyBackGround, kZOrderBackground, kTagBackground);
@@ -177,7 +184,7 @@ void GameScene::showBackground()
     coinLabel->addChild(coinCount);
     coinCount->setPosition(ccp(coin->getPositionX() + coin->getContentSize().width / 2 + 30,
                                coinLabel->getContentSize().height / 2));
-    
+     */
 }
 
 // ブロック表示
@@ -259,7 +266,6 @@ void GameScene::showBlock()
 // ヒントをランダムに1つ表示
 void GameScene::showSwapChainPosition()
 {
-    /*
     list<BlockTagPair> hintPositions = getSwapChainPositions();
     list<BlockTagPair>::iterator it = hintPositions.begin(); // イテレータ
     
@@ -271,8 +277,8 @@ void GameScene::showSwapChainPosition()
         ++it;  // イテレータを１つ進める
         
         if(setHintPosition == count) {
-            PositionIndex pos1 = getPositionIndex(position.tag1);
-            PositionIndex pos2 = getPositionIndex(position.tag2);
+            BlockSprite::PositionIndex pos1 = getPositionIndex(position.tag1);
+            BlockSprite::PositionIndex pos2 = getPositionIndex(position.tag2);
             CCPoint point1 = getPosition(pos1.x, pos1.y);
             CCPoint point2 = getPosition(pos2.x, pos2.y);
             CCPoint setPoint = ccp((point1.x + point2.x) / 2,
@@ -291,7 +297,6 @@ void GameScene::showSwapChainPosition()
         
         count++;
     }
-     */
 }
 
 
@@ -534,6 +539,9 @@ void GameScene::recursiveCheck() {
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
             BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
 //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
+            /*
+            if (bSprite == NULL || !(bSprite->m_blockState == BlockSprite::kStopping || bSprite->m_blockState == BlockSprite::kDropping)) {
+             */
             if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
                 CCLog("return x = %d, y = %d", x, y);
                 continue;
@@ -554,6 +562,7 @@ void GameScene::recursiveCheck() {
     
     if (0 < removeList.size()) {
         removeBlocks(removeList);
+        
         if (GameScene::addFlag) {
             while (!GameScene::addFlag){
                 
@@ -564,6 +573,10 @@ void GameScene::recursiveCheck() {
         }
     }
     
+    // ブロックが消えるとき、ヒント表示までの時間をリセットする
+    unschedule(schedule_selector(GameScene::showSwapChainPosition));
+    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+
  }
 
 // 指定されたブロックリストを削除する
@@ -822,7 +835,7 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
             
             for (int i = 0; i < sizeof(tags) ; i++) {
                 int nextToBlockTag = blockTag + tags[i];
-                PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
+                BlockSprite::PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
                 
                 // 縦の走査のとき
                 if (tags[i] == 1 || tags[i] == -1) {
@@ -900,12 +913,12 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
 }
 
 // ブロックのインデックス取得
-GameScene::PositionIndex GameScene::getPositionIndex(int tag)
+BlockSprite::PositionIndex GameScene::getPositionIndex(int tag)
 {
     int pos1_x = (tag - kTagBaseBlock) / 100;
     int pos1_y = (tag - kTagBaseBlock) % 100;
     
-    return PositionIndex(pos1_x, pos1_y);
+    return BlockSprite::PositionIndex(pos1_x, pos1_y);
 }
 
 // 指定したブロックに潜在的な連結があるかどうか
@@ -994,7 +1007,7 @@ int GameScene::getSwapChainBlockCount(int blockTag)
     
     for (int i = 0; i < sizeof(tags) ; i++) {
         int nextToBlockTag = blockTag + tags[i];
-        PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
+        BlockSprite::PositionIndex nextToBlockIndex = getPositionIndex(nextToBlockTag);
 
         // 縦の走査のとき
         if (tags[i] == 1 || tags[i] == -1) {
@@ -1112,8 +1125,12 @@ void GameScene::showResetButton()
     
     // リセットボタン作成
     CCMenuItemImage* resetButton = CCMenuItemImage::create(PNG_RESET, PNG_RESET, this, menu_selector(GameScene::menuResetCallback));
+    resetButton->setPosition(ccp(resetButton->getContentSize().width / 2,
+                                 winSize.height - resetButton->getContentSize().height / 2));
+    /*
     resetButton->setPosition(ccp(winSize.width - resetButton->getContentSize().width / 2,
                                  resetButton->getContentSize().height / 2));
+     */
     
     // メニュー作成
     CCMenu* menu = CCMenu::create(resetButton, NULL);

@@ -1,6 +1,5 @@
 #include "BlockSprite.h"
 #include "GameScene.h"
-#include <sys/sem.h>
 
 GameScene* BlockSprite::gameManager = NULL;
 bool BlockSprite::doubleDelete = false;
@@ -12,7 +11,6 @@ BlockSprite::BlockSprite()
     m_swapPartnerTag = -1;
     m_blockState = kStopping;
     m_isTouchFlag = true;
-    m_ignoreFlag = false;
 }
 
 BlockSprite::~BlockSprite()
@@ -64,10 +62,16 @@ const char* BlockSprite::getBlockImageFileName(kBlock blockType)
             
         case kBlockYellow:
             return "yellow.png";
-            
+
         case kBlockGreen:
             return "green.png";
-            
+        /*
+        case kBlockGray:
+            return "gray.png";
+         
+        case kBlockBlack:
+            return "black.png";
+        */
         default:
             CCAssert(false, "invalid blockType");
             return "";
@@ -91,7 +95,6 @@ void BlockSprite::setNextPos(int nextPosX, int nextPosY)
 // ブロックを移動する
 void BlockSprite::moveBlock()
 {
-    
     if (m_postPositionIndex.x != -1 || m_postPositionIndex.y != -1) {
         CCPoint nowPosition = getBlockPosition(m_prePositionIndex.x, m_prePositionIndex.y);
         CCPoint nextPosition = getBlockPosition(m_postPositionIndex.x, m_postPositionIndex.y);
@@ -110,6 +113,12 @@ void BlockSprite::moveBlock()
         if (isMakeChain()) {
             CCLog("チェインあり");
             m_blockState = kDeleting;
+            
+            // ヒントサークルが表示されていれば、消去する
+            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
+            if(circle != NULL) {
+                circle->removeFromParentAndCleanup(true);
+            }
         }
 */
 
@@ -123,6 +132,7 @@ void BlockSprite::moveBlock()
         // 動かす前にタッチできないようにする
         m_isTouchFlag = false;
         
+        //CCMoveBy* move = CCMoveBy::create(MOVING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
         CCMoveBy *move;
         if (m_blockState == kChanging || m_blockState == kRechanging) {
             move = CCMoveBy::create(SWAPPING_TIME, ccp(nextPosition.x - nowPosition.x, nextPosition.y - nowPosition.y));
@@ -160,7 +170,6 @@ void BlockSprite::changePosition()
     }
         
     // MOVING_TIME分のアニメーション移動を待つディレイタイム
-//    CCDelayTime *moveAnimationDelay = CCDelayTime::create(MOVING_TIME);
     CCDelayTime *moveAnimationDelay = CCDelayTime::create(SWAPPING_TIME);
     
     CCLog("changeTime");
@@ -179,10 +188,11 @@ void BlockSprite::changePosition()
 void BlockSprite::changePositionFinished() {
     // 入れ替え後、片方のブロックが消えた場合
     if (m_blockState == kChanging && m_partnerBlock->m_blockState == kDeleting) {
-         m_isTouchFlag = true;
+        m_isTouchFlag = true;
         m_partnerBlock = NULL;
         m_blockState = kStopping;
         CCLog("1");
+
     // 再入れ替え前
     } else if (m_blockState == kChanging && (m_partnerBlock->m_blockState == kChanging || m_partnerBlock->m_blockState == kRechanging)) {
         CCLog("2");
