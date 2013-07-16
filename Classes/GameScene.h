@@ -8,7 +8,7 @@
 
 #define MAX_BLOCK_X 6
 #define MAX_BLOCK_Y 6
-#define SWAPPING_TIME 0.1f
+#define SWAPPING_TIME 0.2f
 #define REMOVING_TIME 0.1f
 #define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
@@ -181,11 +181,13 @@ public:
     
     std::list<int> checkChain(BlockSprite *bSprite);
     
-    void removeBlocks(std::list<int> removeBlock);
+    void removeBlocks(std::list<int> removeBlockTags);
     
     void addBlocks();
 
     void recursiveCheck();
+    
+    void setDeletingFlags(std::list<int> removeBlockTags);
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__

@@ -386,6 +386,18 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
     return false;
 }
 
+//　与えられたタグのブロックの状態を全てkDeletingに変更する
+void GameScene::setDeletingFlags(std::list<int> removeBlockTags) {
+    list<int>::iterator it = removeBlockTags.begin();
+    while (it != removeBlockTags.end()) {
+        CCLog("%d", *it);
+        BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        removeSprite->m_blockState = BlockSprite::kDeleting;
+        it++;
+
+    }
+}
+
 void GameScene::removeChainBlocks() {
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
@@ -555,9 +567,9 @@ void GameScene::recursiveCheck() {
  }
 
 // 指定されたブロックリストを削除する
-void GameScene::removeBlocks(list<int> removeBlocks) {
-    list<int>::iterator it = removeBlocks.begin();
-    while(it != removeBlocks.end()) {
+void GameScene::removeBlocks(list<int> removeBlockTags) {
+    list<int>::iterator it = removeBlockTags.begin();
+    while(it != removeBlockTags.end()) {
         CCLog("*it = %d", *it);
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;

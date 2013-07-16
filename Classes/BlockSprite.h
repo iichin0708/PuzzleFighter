@@ -16,7 +16,7 @@ protected:
     
     const char* getBlockImageFileName(kBlock blockType);
     
-    
+    bool m_ignoreFlag;
 public:
     CC_SYNTHESIZE_READONLY(kBlock, m_blockType, BlockType);
     CC_SYNTHESIZE_READONLY(int, m_nextPosX, NextPosX);
