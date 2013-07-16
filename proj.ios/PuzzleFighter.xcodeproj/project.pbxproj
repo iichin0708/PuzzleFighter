@@ -218,6 +218,7 @@
 		D311B311178D50CE0052034E /* Player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D311B30F178D50CE0052034E /* Player.cpp */; };
 		D311B31A178D6DFE0052034E /* Gauge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D311B318178D6DFE0052034E /* Gauge.cpp */; };
 		D311B31C178D8DA40052034E /* coin.png in Resources */ = {isa = PBXBuildFile; fileRef = D311B31B178D8DA40052034E /* coin.png */; };
+		D31E15621794ED2300CE7067 /* black.png in Resources */ = {isa = PBXBuildFile; fileRef = D31E15611794ED2300CE7067 /* black.png */; };
 		D3520267178C092600A17F1A /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = D3520266178C092600A17F1A /* circle.png */; };
 		D3BE02A71785039E00AB7B3B /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */; };
 		D3BE02A81785039E00AB7B3B /* BlockSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A01785039E00AB7B3B /* BlockSprite.cpp */; };
@@ -684,6 +685,7 @@
 		D311B318178D6DFE0052034E /* Gauge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gauge.cpp; sourceTree = "<group>"; };
 		D311B319178D6DFE0052034E /* Gauge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gauge.h; sourceTree = "<group>"; };
 		D311B31B178D8DA40052034E /* coin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coin.png; sourceTree = "<group>"; };
+		D31E15611794ED2300CE7067 /* black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = black.png; sourceTree = "<group>"; };
 		D3520266178C092600A17F1A /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDelegate.cpp; path = ../Classes/AppDelegate.cpp; sourceTree = "<group>"; };
 		D3BE029F1785039E00AB7B3B /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Classes/AppDelegate.h; sourceTree = "<group>"; };
@@ -1548,6 +1550,7 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D31E15611794ED2300CE7067 /* black.png */,
 				D311B31B178D8DA40052034E /* coin.png */,
 				D311B30D178D48010052034E /* pause_button.png */,
 				D311B307178D452C0052034E /* coin_label.png */,
@@ -1697,6 +1700,7 @@
 				D311B309178D452C0052034E /* coin_label.png in Resources */,
 				D311B30E178D48010052034E /* pause_button.png in Resources */,
 				D311B31C178D8DA40052034E /* coin.png in Resources */,
+				D31E15621794ED2300CE7067 /* black.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
