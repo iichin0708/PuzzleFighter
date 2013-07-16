@@ -222,6 +222,7 @@
 		D34FBFC8179526F1008A68D8 /* red.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFC7179526F1008A68D8 /* red.png */; };
 		D34FBFCA17952708008A68D8 /* yellow.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFC917952707008A68D8 /* yellow.png */; };
 		D34FBFCC17952739008A68D8 /* green.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFCB17952738008A68D8 /* green.png */; };
+		D34FBFD017956827008A68D8 /* pause_button_reverse.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FBFCF17956826008A68D8 /* pause_button_reverse.png */; };
 		D3520267178C092600A17F1A /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = D3520266178C092600A17F1A /* circle.png */; };
 		D3BE02A71785039E00AB7B3B /* AppDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */; };
 		D3BE02A81785039E00AB7B3B /* BlockSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3BE02A01785039E00AB7B3B /* BlockSprite.cpp */; };
@@ -683,11 +684,11 @@
 		D311B318178D6DFE0052034E /* Gauge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gauge.cpp; sourceTree = "<group>"; };
 		D311B319178D6DFE0052034E /* Gauge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gauge.h; sourceTree = "<group>"; };
 		D311B31B178D8DA40052034E /* coin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coin.png; sourceTree = "<group>"; };
-		D31E15611794ED2300CE7067 /* black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = black.png; sourceTree = "<group>"; };
 		D34FBFC5179526E4008A68D8 /* blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blue.png; sourceTree = "<group>"; };
 		D34FBFC7179526F1008A68D8 /* red.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red.png; sourceTree = "<group>"; };
 		D34FBFC917952707008A68D8 /* yellow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yellow.png; sourceTree = "<group>"; };
 		D34FBFCB17952738008A68D8 /* green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = green.png; sourceTree = "<group>"; };
+		D34FBFCF17956826008A68D8 /* pause_button_reverse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause_button_reverse.png; sourceTree = "<group>"; };
 		D3520266178C092600A17F1A /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		D3BE029E1785039E00AB7B3B /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDelegate.cpp; path = ../Classes/AppDelegate.cpp; sourceTree = "<group>"; };
 		D3BE029F1785039E00AB7B3B /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../Classes/AppDelegate.h; sourceTree = "<group>"; };
@@ -1547,6 +1548,7 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				D34FBFCF17956826008A68D8 /* pause_button_reverse.png */,
 				D34FBFC917952707008A68D8 /* yellow.png */,
 				D34FBFCB17952738008A68D8 /* green.png */,
 				D34FBFC7179526F1008A68D8 /* red.png */,
@@ -1694,7 +1696,8 @@
 				D34FBFC8179526F1008A68D8 /* red.png in Resources */,
 				D34FBFCA17952708008A68D8 /* yellow.png in Resources */,
 				D34FBFCC17952739008A68D8 /* green.png in Resources */,
-zs			);
+				D34FBFD017956827008A68D8 /* pause_button_reverse.png in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
