@@ -69,10 +69,6 @@ protected:
     // スコアを保持
     int m_score;
     
-    // コンボ数
-    int m_combo;
-    
-    
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
     
@@ -122,9 +118,7 @@ protected:
     
     // コンボ数の演出
     void showCombo();
-    
-    // コンボ数のリセット
-    void resetCombo();
+
 
     /*********************************/
 
@@ -196,6 +190,16 @@ public:
     void recursiveCheck();
     
     void setDeletingFlags(std::list<int> removeBlockTags);
+    
+    int getRemoveColors(std::list<int> removeBlockTags);
+        
+    bool allMoved;
+    
+    // コンボ数
+    int m_combo;
+
+    // コンボ数のリセット
+    void resetCombo();
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__

@@ -114,11 +114,7 @@ void BlockSprite::moveBlock()
             CCLog("チェインあり");
             m_blockState = kDeleting;
             
-            // ヒントサークルが表示されていれば、消去する
-            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
-            if(circle != NULL) {
-                circle->removeFromParentAndCleanup(true);
-            }
+
         }
 */
 
@@ -126,6 +122,14 @@ void BlockSprite::moveBlock()
         if (isMakeChain()) {
             CCLog("チェインあり");
             gameManager->setDeletingFlags(gameManager->checkChain(this));
+//            gameManager->isChained = true;
+            gameManager->allMoved = false;
+            
+            // ヒントサークルが表示されていれば、消去する
+            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
+            if(circle != NULL) {
+                circle->removeFromParentAndCleanup(true);
+            }
         }
         
         
@@ -215,8 +219,12 @@ void BlockSprite::changePositionFinished() {
                 }
                 CCLog("3333");
                 gameManager->addBlocks();
+                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                gameManager->m_combo += 2;
             } else {
                 gameManager->addBlocks();
+                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                gameManager->m_combo += 2;
             }
 //            gameManager->checkChain(this);
         }
@@ -233,10 +241,14 @@ void BlockSprite::changePositionFinished() {
                 while (!GameScene::addFlag){
                     
                 }
-                                CCLog("3333");
+                CCLog("3333");
                 gameManager->addBlocks();
+                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                gameManager->m_combo++;
             } else {
-                gameManager->addBlocks(); 
+                gameManager->addBlocks();
+                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                gameManager->m_combo++;
             }
         }
 //        gameManager->removeChainBlocks();
@@ -386,5 +398,6 @@ void BlockSprite::dropFinished() {
     runAction(action);
     */
     
+    CCLog("myTag = %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
     gameManager->recursiveCheck();
 }
