@@ -604,6 +604,12 @@ void GameScene::recursiveCheck() {
         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
         
         
+        // ヒントサークルが表示されていれば、消去する
+        CCNode *circle = m_background->getChildByTag(GameScene::kTagHintCircle);
+        if(circle != NULL) {
+            circle->removeFromParentAndCleanup(true);
+        }
+
         // ブロックが消えるとき、ヒント表示までの時間をリセットする
         unschedule(schedule_selector(GameScene::showSwapChainPosition));
         scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);

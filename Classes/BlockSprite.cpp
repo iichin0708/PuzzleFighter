@@ -122,7 +122,9 @@ void BlockSprite::moveBlock()
             gameManager->setDeletingFlags(gameManager->checkChain(this));
 //            gameManager->isChained = true;
             gameManager->allMoved = false;
-            
+
+            unschedule(schedule_selector(GameScene::showSwapChainPosition));
+
             // ヒントサークルが表示されていれば、消去する
             CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
             if(circle != NULL) {
