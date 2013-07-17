@@ -768,6 +768,7 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
             int blockTag = getTag(x, y);
             BlockSprite *block = (BlockSprite*)m_background->getChildByTag(blockTag);
+            if(block == NULL) continue;
             
             // ブロックの種類
             kBlock blockType = block->getBlockType();

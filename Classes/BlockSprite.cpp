@@ -113,12 +113,7 @@ void BlockSprite::moveBlock()
         if (isMakeChain()) {
             CCLog("チェインあり");
             m_blockState = kDeleting;
-            
-            // ヒントサークルが表示されていれば、消去する
-            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
-            if(circle != NULL) {
-                circle->removeFromParentAndCleanup(true);
-            }
+ 
         }
 */
 
@@ -126,6 +121,12 @@ void BlockSprite::moveBlock()
         if (isMakeChain()) {
             CCLog("チェインあり");
             gameManager->setDeletingFlags(gameManager->checkChain(this));
+            
+            // ヒントサークルが表示されていれば、消去する
+            CCNode *circle = gameManager->m_background->getChildByTag(GameScene::kTagHintCircle);
+            if(circle != NULL) {
+                circle->removeFromParentAndCleanup(true);
+            }
         }
         
         
@@ -182,7 +183,6 @@ void BlockSprite::changePosition()
     setTag(gameManager->getTag(m_postPositionIndex.x, m_postPositionIndex.y));
     
     runAction(action1);
-
 }
 
 void BlockSprite::changePositionFinished() {
@@ -328,10 +328,12 @@ CCPoint BlockSprite::getBlockPosition(int indexX, int indexY)
     return CCPoint((indexX + 0.5) * m_blockSizes, (indexY + 0.5) * m_blockSizes);
 }
 
-void BlockSprite::removeSelfAnimation() {
+void BlockSprite::removeSelfAnimation()
+{
+    /*
     // ブロックが消えるアニメーションを生成
     CCScaleTo* scale = CCScaleTo::create(REMOVING_TIME, 0);
-    
+
     // REMOVING_TIME分のアニメーションを待つディレイタイム
     CCDelayTime *animationDelay = CCDelayTime::create(REMOVING_TIME);
     
@@ -340,10 +342,16 @@ void BlockSprite::removeSelfAnimation() {
     
     // 消すアニメーションの後に、参照を削除
     CCFiniteTimeAction* action = CCSequence::create(scale, animationDelay, func, NULL);
+     
+     // アクションを実行
+     runAction(action);
+    */
     
-    // アクションを実行
-    runAction(action);
+    animExplosion(REMOVING_TIME);
+    //animSplash(REMOVING_TIME);
     
+    // 参照を消す
+    scheduleOnce(schedule_selector(BlockSprite::removeSelf), REMOVING_TIME);
 }
 
 void BlockSprite::removeSelf() {
@@ -387,4 +395,72 @@ void BlockSprite::dropFinished() {
     */
     
     gameManager->recursiveCheck();
+}
+
+void BlockSprite::animExplosion(float animTime)
+{
+    CCScaleTo* scale = CCScaleTo::create(animTime, 3.0f);
+    CCFadeOut* fadeOut = CCFadeOut::create(animTime);
+    CCSpawn* explosion = CCSpawn::create(scale, fadeOut, NULL);
+    
+    runAction(explosion);
+}
+
+void BlockSprite::animSplash(float animTime)
+{
+    CCScaleTo* scale = CCScaleTo::create(animTime, 0);
+
+    CCSprite* waters[5];
+    for (int i = 0; i < sizeof(waters); i++) {
+        waters[i] = CCSprite::create("water.png");
+        waters[i]->setPosition(gameManager->getPosition(m_positionIndex.x, m_positionIndex.y));
+        
+        int vecX = rand() % 20 - 10;
+        int jumpHeight = rand() % 15 + 5;
+        CCJumpBy* actionJump = CCJumpBy::create(0.8f, ccp(vecX, 0), jumpHeight, 1);
+        waters[i]->runAction(actionJump);
+        
+        gameManager->m_background->addChild(waters[i]);
+    }
+    
+}
+
+void BlockSprite::animJump(float animTime)
+{
+    
+}
+
+void BlockSprite::animFloat(float animTime)
+{
+    
+}
+
+void BlockSprite::animHopSplash(float animTime)
+{
+    
+}
+
+void BlockSprite::animDrop(float animTime)
+{
+    
+}
+
+void BlockSprite::animLowJumpAndDrop(float animTime)
+{
+    
+}
+
+void BlockSprite::animSlash(float animTime)
+{
+    
+}
+
+void BlockSprite::animImage(float animTime)
+{
+    
+}
+
+void BlockSprite::animPress(float animTime)
+{
+    
 }
