@@ -81,6 +81,8 @@ void GameScene::initForVariables()
     m_blockSize = pBlock->getContentSize().height;
     
     m_score = 0;
+    
+    allMoved = true;
 }
 
 
@@ -324,7 +326,7 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     CCLog("");
     CCLog("");
     CCLog("");
-    CCLog("began");
+    CCLog("began   %d", m_combo);
     
     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
     int tag = 0;
@@ -538,63 +540,97 @@ void GameScene::removeChainBlocks() {
 }
 
 void GameScene::recursiveCheck() {
-//    bool isAllBlocksExist = true;
-//    bool isAllBlocksStopped = true;
-    list<int> removeList;
-    for (int x = 0; x < MAX_BLOCK_X; x++) {
-        for (int y = 0; y < MAX_BLOCK_Y; y++) {
-            BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
-//            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
-            /*
-            if (bSprite == NULL || !(bSprite->m_blockState == BlockSprite::kStopping || bSprite->m_blockState == BlockSprite::kDropping)) {
-             */
-            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
-                CCLog("return x = %d, y = %d", x, y);
-                continue;
-            }
-            list<int> list = checkChain(bSprite);
-            if (0 < list.size()) {
-                removeList.merge(list);
+    CCLog("recursiveCheck");
+    if(!allMoved) {
+        //    if (isChained) {
+        //    bool isAllBlocksExist = true;
+        //    bool isAllBlocksStopped = true;
+        list<int> removeList;
+        for (int x = 0; x < MAX_BLOCK_X; x++) {
+            for (int y = 0; y < MAX_BLOCK_Y; y++) {
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+                //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
+                /*
+                 if (bSprite == NULL || !(bSprite->m_blockState == BlockSprite::kStopping || bSprite->m_blockState == BlockSprite::kDropping)) {
+                 */
+                //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
+                if (bSprite == NULL) {
+                    
+                    CCLog("return x = %d, y = %d", x, y);
+                    return;
+                    //                continue;
+                }
+                list<int> list = checkChain(bSprite);
+                if (0 < list.size()) {
+                    removeList.merge(list);
+                    removeList.sort();
+                    removeList.unique();
+                }
             }
         }
+        
+        CCLog("全てのブロックの移動が終了");
+        list<int>::iterator it = removeList.begin();
+        while (it != removeList.end()) {
+            CCLog("removeTag = %d", *it);
+            it++;
+        }
+        
+        if (3 <= removeList.size()) {
+            removeBlocks(removeList);
+            if (GameScene::addFlag) {
+                while (!GameScene::addFlag){
+                    
+                }
+                addBlocks();
+                m_combo += getRemoveColors(removeList);
+                allMoved = true;
+            } else {
+                addBlocks();
+                m_combo += getRemoveColors(removeList);
+                allMoved = true;
+            }
+        }
+        
+        CCLog("combo = %d", m_combo);
+        unschedule(schedule_selector(GameScene::resetCombo));
+        scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+        
+        
+        // ブロックが消えるとき、ヒント表示までの時間をリセットする
+        unschedule(schedule_selector(GameScene::showSwapChainPosition));
+        scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+        
+        /*
+         m_combo++;
+         
+         // 2コンボ以上のときはアニメ演出
+         if (m_combo >= 2) {
+         showCombo();
+         }
+         
+         // コンボ時間の設定（時間切れでコンボ終了）
+         unschedule(schedule_selector(GameScene::resetCombo));
+         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+         */
+
+    } else {
+        CCLog("もう動いたよ");
     }
-    
-    CCLog("全てのブロックの移動が終了");
-    list<int>::iterator it = removeList.begin();
-    while (it != removeList.end()) {
-        CCLog("removeTag = %d", *it);
+ }
+
+int GameScene::getRemoveColors(std::list<int> removeBlockTags) {
+    list<int>::iterator it = removeBlockTags.begin();
+    list<int> colorLists;
+    while(it != removeBlockTags.end()) {
+        BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        colorLists.push_back(removeSprite->getBlockType());
         it++;
     }
-    
-    if (0 < removeList.size()) {
-        removeBlocks(removeList);
-        if (GameScene::addFlag) {
-            while (!GameScene::addFlag){
-                
-            }
-            addBlocks();
-        } else {
-            addBlocks();
-        }
-    }
-    
-    // ブロックが消えるとき、ヒント表示までの時間をリセットする
-    unschedule(schedule_selector(GameScene::showSwapChainPosition));
-    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
-    
-    /*
-     m_combo++;
-     
-     // 2コンボ以上のときはアニメ演出
-     if (m_combo >= 2) {
-     showCombo();
-     }
-     
-     // コンボ時間の設定（時間切れでコンボ終了）
-     unschedule(schedule_selector(GameScene::resetCombo));
-     scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
-     */
- }
+    colorLists.sort();
+    colorLists.unique();
+    return colorLists.size();
+}
 
 // 指定されたブロックリストを削除する
 void GameScene::removeBlocks(list<int> removeBlockTags) {
@@ -610,6 +646,7 @@ void GameScene::removeBlocks(list<int> removeBlockTags) {
 
 // 盤面にブロックを追加する
 void GameScene::addBlocks() {
+    CCLog("addbBlock");
     addFlag = true;
 #pragma mark 0.2f以下だと処理の順序がおかしくなる.
     CCDelayTime *removingDelay = CCDelayTime::create(REMOVING_TIME * 2.5);

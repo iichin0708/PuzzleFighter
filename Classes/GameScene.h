@@ -69,10 +69,6 @@ protected:
     // スコアを保持
     int m_score;
     
-    // コンボ数
-    int m_combo;
-    
-    
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
     
@@ -205,6 +201,16 @@ public:
     
     // アニメーションの取得
     CCSprite* getAnimation(char* animName);
+
+    int getRemoveColors(std::list<int> removeBlockTags);
+        
+    bool allMoved;
+    
+    // コンボ数
+    int m_combo;
+
+    // コンボ数のリセット
+    void resetCombo();
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
