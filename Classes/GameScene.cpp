@@ -591,12 +591,19 @@ void GameScene::recursiveCheck() {
                 }
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
+                //m_combo++;
                 allMoved = true;
             } else {
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
+                //m_combo++;
                 allMoved = true;
             }
+        }
+        
+        // 2コンボ以上のときはアニメ演出
+        if (m_combo >= 2) {
+            showCombo();
         }
         
         CCLog("combo = %d", m_combo);
@@ -604,23 +611,16 @@ void GameScene::recursiveCheck() {
         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
         
         
+        // ヒントサークルが表示されていれば、消去する
+        CCNode *circle = m_background->getChildByTag(GameScene::kTagHintCircle);
+        if(circle != NULL) {
+            circle->removeFromParentAndCleanup(true);
+        }
+
         // ブロックが消えるとき、ヒント表示までの時間をリセットする
         unschedule(schedule_selector(GameScene::showSwapChainPosition));
         scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
         
-        /*
-         m_combo++;
-         
-         // 2コンボ以上のときはアニメ演出
-         if (m_combo >= 2) {
-         showCombo();
-         }
-         
-         // コンボ時間の設定（時間切れでコンボ終了）
-         unschedule(schedule_selector(GameScene::resetCombo));
-         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
-         */
-
     } else {
         CCLog("もう動いたよ");
     }
@@ -1013,16 +1013,17 @@ void GameScene::showCombo()
     CCPoint origin = pDirector->getVisibleOrigin();
     CCSize visibleSize = pDirector->getVisibleSize();
     
-    comboLabel->setPosition(ccp(origin.x + visibleSize.width / 2,
-                                origin.y + visibleSize.height / 2));
+    comboLabel->setPosition(ccp(origin.x + comboLabel->getContentSize().width / 2 + 20,
+                                origin.y + visibleSize.height / 2 + 100));
+
     comboLabel->setColor(ccc3(255, 255, 255));
     addChild(comboLabel);
     
-    float during = 0.5f;
+    float during = COMBO_TIME;
     CCFadeOut *actionFadeOut = CCFadeOut::create(during);
     CCScaleTo *actionScaleUp = CCScaleTo::create(during, 1.5f);
     comboLabel->runAction(actionFadeOut);
-    comboLabel->runAction(actionScaleUp);
+    //comboLabel->runAction(actionScaleUp);
     
     comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
 }

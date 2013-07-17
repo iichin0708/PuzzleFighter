@@ -116,9 +116,6 @@ protected:
     // ヒント（入れ替えで連結）の場所リストを取得
     std::list<BlockTagPair> getSwapChainPositions();
     
-    // コンボ数の演出
-    void showCombo();
-    
     // アニメーションのキャッシュの追加
     void addAnimationCache(const char *fileName, const char *cacheName, int startNum, int endNum , bool isReverse, float duration);
 
@@ -210,6 +207,9 @@ public:
     void resetCombo();
     
     void setDeleteType(BlockSprite::kDeleteState state, std::list<int> removeBlockTags);
+    // コンボ数の演出
+    void showCombo();
+
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
