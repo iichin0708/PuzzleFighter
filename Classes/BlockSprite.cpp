@@ -29,8 +29,12 @@ BlockSprite* BlockSprite::createWithBlockType(kBlock blockType, int indexX, int 
         pRet->m_blockSizes = pRet->getContentSize().height;
         pRet->m_positionIndex = PositionIndex(indexX, indexY);
         pRet->m_prePositionIndex = pRet->m_positionIndex;
+        /** ねむす **/
+        pRet->m_deleteState = kNotDelete;
+        
         pRet->setPartnerBlock(NULL);
         pRet->autorelease();
+       
         return pRet;
     }
     else
@@ -201,7 +205,7 @@ void BlockSprite::changePositionFinished() {
     // チェインが存在した場合
     } else if (m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting) {
         CCLog("ダブルデリート");
-        m_partnerBlock = NULL;
+        //m_partnerBlock = NULL;
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
         if (!doubleDelete) {
@@ -228,7 +232,7 @@ void BlockSprite::changePositionFinished() {
         
     } else if (m_blockState == kDeleting) {
         CCLog("片方デリート");
-        m_partnerBlock = NULL;
+        //m_partnerBlock = NULL;
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
 #pragma mark gameManager
@@ -365,6 +369,25 @@ void BlockSprite::removeSelfAnimation()
 
 void BlockSprite::removeSelf() {
     CCLog("removeSelf");
+    if (m_deleteState == kDeleteThree) {
+        CCLog("THREEEEEEEEEEEEEEEEEEEEEEEEE");
+        if (m_partnerBlock != NULL) {
+            CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
+        }
+        CCLog("");
+    } else if (m_deleteState == kDeleteFour) {
+        CCLog("FOURRRRRRRRRRRRRRRRRRRRRRRRR");
+        if (m_partnerBlock != NULL) {
+            CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
+        }
+        CCLog("");
+    } else if (m_deleteState == kDeleteFive) {
+        CCLog("FIVEEEEEEEEEEEEEEEEEEEEEEEEE");
+        if (m_partnerBlock != NULL) {
+            CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
+        }
+        CCLog("");
+    }
     removeFromParentAndCleanup(true);
 }
 

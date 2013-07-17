@@ -200,6 +200,8 @@ public:
 
     // コンボ数のリセット
     void resetCombo();
+    
+    void setDeleteType(BlockSprite::kDeleteState state, std::list<int> removeBlockTags);
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
