@@ -9,7 +9,7 @@
 #define MAX_BLOCK_X 7
 #define MAX_BLOCK_Y 6
 #define SWAPPING_TIME 0.1f
-#define REMOVING_TIME 0.3f
+#define REMOVING_TIME 0.15f
 #define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
 #define COMBO_TIME 1.0f
@@ -118,8 +118,16 @@ protected:
     
     // コンボ数の演出
     void showCombo();
+    
+    // コンボ数のリセット
+    void resetCombo();
+    
+    // アニメーションのキャッシュの追加
+    void addAnimationCache(const char *fileName, const char *cacheName, int startNum, int endNum , bool isReverse, float duration);
 
-
+    // アニメーションの登録
+    void signUpAnimation();
+    
     /*********************************/
 
 
@@ -191,6 +199,9 @@ public:
     
     void setDeletingFlags(std::list<int> removeBlockTags);
     
+    // アニメーションの取得
+    CCSprite* getAnimation(char* animName);
+
     int getRemoveColors(std::list<int> removeBlockTags);
         
     bool allMoved;

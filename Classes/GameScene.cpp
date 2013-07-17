@@ -39,6 +39,9 @@ bool GameScene::init()
     setTouchEnabled(true);
     setTouchMode(kCCTouchesOneByOne);
     
+    // アニメーションの登録
+    signUpAnimation();
+    
     // バックキー・メニューキーイベントを取得する
     setKeypadEnabled(true);
     
@@ -1026,6 +1029,79 @@ BlockSprite::PositionIndex GameScene::getPositionIndex(int tag)
     int pos1_y = (tag - kTagBaseBlock) % 100;
     
     return BlockSprite::PositionIndex(pos1_x, pos1_y);
+}
+
+/*
+ * アニメーションキャッシュの追加
+ *   fileName  ファイル名の雛形 xxxx_%01d.png のように連番画像ファイル名の雛形を指定する
+ *   cacheName キャッシュに登録する名前　この名前で取り出しが出来る
+ *   startNum  画像ファイルの連番開始数値
+ *   endNum    画像ファイルの連番終了数値
+ *   isReverse trueにすると 画像ファイルのアニメーションを頭から最後に最後から頭までの逆再生を加える
+ *   duration  全フレームを表示する秒数の指定
+ */
+void GameScene::addAnimationCache(const char *fileName, const char *cacheName, int startNum, int endNum , bool isReverse, float duration)
+{
+    // アニメーションキャッシュはシングルトン
+    CCAnimationCache *animationCache = CCAnimationCache::sharedAnimationCache();
+    
+    // アニメーションフレームを管理するクラス
+    CCAnimation *animation = CCAnimation::create();
+    
+    // アニメーションのコマ分繰り返す
+    for (int i=startNum; i<=endNum; i++) {
+        // ファイル名を生成
+        char szImageFileName[128] = {0};
+        sprintf(szImageFileName, fileName, i);
+        
+        // アニメーション　フレームに画像を追加
+        animation->addSpriteFrameWithFileName(szImageFileName);
+    }
+    
+    // 用意した画像を反対の順番で格納する
+    if (isReverse) {
+        for (int i = endNum; i>=startNum; i--) {
+            // ファイル名を生成
+            char szImageFileName[128] = {0};
+            sprintf(szImageFileName, fileName, i);
+            
+            // アニメーション　フレームに画像を追加
+            animation->addSpriteFrameWithFileName(szImageFileName);
+        }
+    }
+    
+    // 引数の"duration"秒間の間で全フレームを表示
+    int frameCnt = (animation->getFrames())->count();
+    animation->setDelayPerUnit(duration / frameCnt);
+    
+    // 全フレーム表示後に最初のフレームにもどる設定
+    animation->setRestoreOriginalFrame(true);
+    
+    // 出来たアニメーションをキャッシュに登録
+    animationCache->addAnimation(animation, cacheName);
+}
+
+// アニメーションの登録
+void GameScene::signUpAnimation()
+{
+    addAnimationCache( "a14_01_%04d@2x.png", "normal", 1, 22, false, 0.35f );
+}
+
+// アニメーション取得
+CCSprite* GameScene::getAnimation(char* animName)
+{
+    CCSprite* sprite = CCSprite::create();
+    
+    CCAnimationCache *animationCache = CCAnimationCache::sharedAnimationCache();
+    CCAnimation *animation = animationCache->animationByName(animName);
+    CCAnimate* animate = CCAnimate::create(animation);
+    
+    CCCallFunc* removeSelf = CCCallFunc::create(sprite, callfunc_selector(CCSprite::removeFromParent));
+    
+    CCSequence* action = CCSequence::create(animate, removeSelf, NULL);
+    sprite->runAction(action);
+
+    return sprite;
 }
 
 // 指定したブロックに潜在的な連結があるかどうか
