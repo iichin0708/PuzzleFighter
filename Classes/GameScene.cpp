@@ -597,6 +597,20 @@ void GameScene::recursiveCheck() {
         // ブロックが消えるとき、ヒント表示までの時間をリセットする
         unschedule(schedule_selector(GameScene::showSwapChainPosition));
         scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+        
+        /*
+         m_combo++;
+         
+         // 2コンボ以上のときはアニメ演出
+         if (m_combo >= 2) {
+         showCombo();
+         }
+         
+         // コンボ時間の設定（時間切れでコンボ終了）
+         unschedule(schedule_selector(GameScene::resetCombo));
+         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+         */
+
     } else {
         CCLog("もう動いたよ");
     }
@@ -791,6 +805,7 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
             int blockTag = getTag(x, y);
             BlockSprite *block = (BlockSprite*)m_background->getChildByTag(blockTag);
+            if(block == NULL) continue;
             
             // ブロックの種類
             kBlock blockType = block->getBlockType();
