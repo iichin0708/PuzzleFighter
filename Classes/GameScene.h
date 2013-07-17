@@ -119,9 +119,6 @@ protected:
     // コンボ数の演出
     void showCombo();
     
-    // コンボ数のリセット
-    void resetCombo();
-    
     // アニメーションのキャッシュの追加
     void addAnimationCache(const char *fileName, const char *cacheName, int startNum, int endNum , bool isReverse, float duration);
 
@@ -208,7 +205,7 @@ public:
     
     // コンボ数
     int m_combo;
-
+    
     // コンボ数のリセット
     void resetCombo();
     
