@@ -399,10 +399,15 @@ void BlockSprite::dropFinished() {
 
 void BlockSprite::animExplosion(float animTime)
 {
-    CCScaleTo* scale = CCScaleTo::create(animTime, 3.0f);
+    CCScaleTo* scale = CCScaleTo::create(animTime, 0);
     CCFadeOut* fadeOut = CCFadeOut::create(animTime);
     CCSpawn* explosion = CCSpawn::create(scale, fadeOut, NULL);
     
+    CCSprite* effect = gameManager->getAnimation("normal");
+    effect->setScale(0.7f);
+    gameManager->addChild(effect);
+    effect->setPosition(gameManager->getPosition(m_positionIndex.x, m_positionIndex.y));
+
     runAction(explosion);
 }
 
