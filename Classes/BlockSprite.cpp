@@ -216,12 +216,26 @@ void BlockSprite::changePositionFinished() {
                 }
                 CCLog("3333");
                 gameManager->addBlocks();
-                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+
                 gameManager->m_combo += 2;
+                // 2コンボ以上のときはアニメ演出
+                if (gameManager->m_combo >= 2) {
+                    gameManager->showCombo();
+                }
+                
+                gameManager->unschedule(schedule_selector(GameScene::resetCombo));
+                gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
             } else {
                 gameManager->addBlocks();
-                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+
                 gameManager->m_combo += 2;
+                // 2コンボ以上のときはアニメ演出
+                if (gameManager->m_combo >= 2) {
+                    gameManager->showCombo();
+                }
+                
+                gameManager->unschedule(schedule_selector(GameScene::resetCombo));
+                gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
             }
 //            gameManager->checkChain(this);
         }
@@ -240,12 +254,27 @@ void BlockSprite::changePositionFinished() {
                 }
                 CCLog("3333");
                 gameManager->addBlocks();
-                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                
                 gameManager->m_combo++;
+                // 2コンボ以上のときはアニメ演出
+                if (gameManager->m_combo >= 2) {
+                    gameManager->showCombo();
+                }
+                
+                gameManager->unschedule(schedule_selector(GameScene::resetCombo));
+                gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+
             } else {
                 gameManager->addBlocks();
-                scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
+                
                 gameManager->m_combo++;
+                // 2コンボ以上のときはアニメ演出
+                if (gameManager->m_combo >= 2) {
+                    gameManager->showCombo();
+                }
+                
+                gameManager->unschedule(schedule_selector(GameScene::resetCombo));
+                gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
             }
         }
 //        gameManager->removeChainBlocks();
