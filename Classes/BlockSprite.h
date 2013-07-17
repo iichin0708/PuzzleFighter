@@ -91,6 +91,8 @@ public:
     
     int m_blockState;
     
+    int m_blockLevel;
+    
     void moveBlock();
     
     void changePosition();

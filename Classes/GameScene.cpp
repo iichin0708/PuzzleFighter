@@ -579,6 +579,11 @@ void GameScene::recursiveCheck() {
         }
         
         if (3 <= removeList.size()) {
+            //ここでパートナータグの調整する. (現状パートナータグの有るところのレベルがあがるため)
+            it = removeList.begin();
+            BlockSprite *tmpSprite = (BlockSprite*)m_background->getChildByTag(*it);
+            tmpSprite->setPartnerBlock(tmpSprite);
+            
             removeBlocks(removeList);
             if (GameScene::addFlag) {
                 while (!GameScene::addFlag){
@@ -726,10 +731,18 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     }
     
     removeBlockTagsTemp.clear();
-    
     removeBlockTags.sort();
     removeBlockTags.unique();
     removeBlockTags.reverse();
+    
+    
+    list<int>::iterator it = removeBlockTags.begin();
+    while (it != removeBlockTags.end()) {
+        CCLog("removeBlockTags = %d", *it);
+        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        CCLog("わたしのタイプ => %d", bSprite->m_blockState);
+        it++;
+    }
     
     // 数によって消え方の設定を変える
     if (removeBlockTags.size() == 3) {
@@ -737,14 +750,12 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     } else if (removeBlockTags.size() == 4) {
         setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
     } else if (5 <= removeBlockTags.size()){
+        CCLog("うえいうえい");
         setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
     }
 
-    list<int>::iterator it = removeBlockTags.begin();
-    while (it != removeBlockTags.end()) {
-        CCLog("removeBlockTags = %d", *it);
-        it++;
-    }
+    
+
     
     return removeBlockTags;
     
