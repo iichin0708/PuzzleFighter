@@ -218,6 +218,8 @@ void BlockSprite::changePosition()
 }
 
 void BlockSprite::changePositionFinished() {
+    CCLog("m_bloskStet = %d", m_blockState);
+    
     // 入れ替え後、片方のブロックが消えた場合
     if (m_blockState == kChanging && m_partnerBlock->m_blockState == kDeleting) {
         m_isTouchFlag = true;
@@ -230,11 +232,20 @@ void BlockSprite::changePositionFinished() {
         CCLog("2");
         changePosition();
     // チェインが存在した場合
-    } else if (m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting) {
+    } else if (m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting && this != m_partnerBlock) {
         CCLog("ダブルデリート");
         //m_partnerBlock = NULL;
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
+        // 数によって消え方の設定を変える
+        if (removeBlockTags.size() == 3) {
+            gameManager->setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
+        } else if (removeBlockTags.size() == 4) {
+            gameManager->setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
+        } else if (5 <= removeBlockTags.size()){
+            CCLog("うえいうえい");
+            gameManager->setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
+        }
         if (!doubleDelete) {
             gameManager->removeBlocks(removeBlockTags);
 //            gameManager->removeChainBlocks();
@@ -276,6 +287,15 @@ void BlockSprite::changePositionFinished() {
         //m_partnerBlock = NULL;
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
+        // 数によって消え方の設定を変える
+        if (removeBlockTags.size() == 3) {
+            gameManager->setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
+        } else if (removeBlockTags.size() == 4) {
+            gameManager->setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
+        } else if (5 <= removeBlockTags.size()){
+            CCLog("うえいうえい");
+            gameManager->setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
+        }
 #pragma mark gameManager
         if (3 <= removeBlockTags.size()) {
             gameManager->removeBlocks(removeBlockTags);
@@ -309,7 +329,7 @@ void BlockSprite::changePositionFinished() {
             }
         }
 //        gameManager->removeChainBlocks();
-    } else if (m_partnerBlock->m_blockState == kDropping) {
+    } else if (m_partnerBlock != NULL && m_partnerBlock->m_blockState == kDropping) {
         CCLog("パートナードロップ");
         m_isTouchFlag = true;
         m_partnerBlock = NULL;
