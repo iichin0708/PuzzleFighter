@@ -402,8 +402,10 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
 
 //　与えられたタグのブロックの状態を全てkDeletingに変更する
 void GameScene::setDeletingFlags(std::list<int> removeBlockTags) {
+    CCLog("sizeee = %ld", removeBlockTags.size());
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
+        CCLog("setDelete *it");
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;
         it++;
@@ -577,6 +579,11 @@ void GameScene::recursiveCheck() {
         }
         
         if (3 <= removeList.size()) {
+            //ここでパートナータグの調整する. (現状パートナータグの有るところのレベルがあがるため)
+            it = removeList.begin();
+            BlockSprite *tmpSprite = (BlockSprite*)m_background->getChildByTag(*it);
+            tmpSprite->setPartnerBlock(tmpSprite);
+            
             removeBlocks(removeList);
             if (GameScene::addFlag) {
                 while (!GameScene::addFlag){
@@ -691,6 +698,7 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     if (3 <= count) {
         removeBlockTags.merge(removeBlockTagsTemp);
     }
+    
     removeBlockTagsTemp.clear();
     
     // 右方向に走査
@@ -721,21 +729,47 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     if (3 <= count) {
         removeBlockTags.merge(removeBlockTagsTemp);
     }
-    removeBlockTagsTemp.clear();
     
+    removeBlockTagsTemp.clear();
     removeBlockTags.sort();
     removeBlockTags.unique();
     removeBlockTags.reverse();
     
+    
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
         CCLog("removeBlockTags = %d", *it);
+        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        CCLog("わたしのタイプ => %d", bSprite->m_blockState);
         it++;
     }
+    
+    // 数によって消え方の設定を変える
+    if (removeBlockTags.size() == 3) {
+        setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
+    } else if (removeBlockTags.size() == 4) {
+        setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
+    } else if (5 <= removeBlockTags.size()){
+        CCLog("うえいうえい");
+        setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
+    }
+
+    
+
     
     return removeBlockTags;
     
 }
+
+void GameScene::setDeleteType(BlockSprite::kDeleteState state, std::list<int> removeBlockTags) {
+    list<int>::iterator it = removeBlockTags.begin();
+    while (it != removeBlockTags.end()) {
+        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        bSprite->setDeleteState(state);
+        it++;
+    }
+}
+
 
 // 盤面全体を走査し、ブロックの新しいポジションを設定
 void GameScene::setNewPosition() {

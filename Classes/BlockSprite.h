@@ -17,6 +17,14 @@ protected:
     const char* getBlockImageFileName(kBlock blockType);
     
 public:
+    enum kDeleteState
+    {
+        kNotDelete = 0,
+        kDeleteThree = 3,
+        kDeleteFour,
+        kDeleteFive,
+    };
+    
     CC_SYNTHESIZE_READONLY(kBlock, m_blockType, BlockType);
     CC_SYNTHESIZE_READONLY(int, m_nextPosX, NextPosX);
     CC_SYNTHESIZE_READONLY(int, m_nextPosY, NextPosY);
@@ -25,8 +33,11 @@ public:
     CC_SYNTHESIZE(int, m_indexY, IndexY);
     CC_SYNTHESIZE(int, m_swapPartnerTag, SwapPartnerTag);
     CC_SYNTHESIZE(bool, m_isTouchFlag, IsTouchFlag);
+    
+    CC_SYNTHESIZE(kDeleteState, m_deleteState, DeleteState);
 
     CC_SYNTHESIZE(BlockSprite*, m_partnerBlock, PartnerBlock)
+    
     
     enum kBlockState
     {
@@ -62,6 +73,8 @@ public:
     PositionIndex m_prePositionIndex;
     PositionIndex m_postPositionIndex;
     
+    kDeleteState deleteState;
+    
     void initNextPos();
     void setNextPos(int nextPosX, int nextPosY);
     
@@ -77,6 +90,8 @@ public:
     int getTag(int posIndexX, int posIndexY);
     
     int m_blockState;
+    
+    int m_blockLevel;
     
     void moveBlock();
     

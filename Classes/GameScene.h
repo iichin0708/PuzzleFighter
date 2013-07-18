@@ -202,12 +202,14 @@ public:
     
     // コンボ数
     int m_combo;
-
+    
     // コンボ数のリセット
     void resetCombo();
     
+    void setDeleteType(BlockSprite::kDeleteState state, std::list<int> removeBlockTags);
     // コンボ数の演出
     void showCombo();
+
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__
