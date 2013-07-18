@@ -572,6 +572,16 @@ void GameScene::recursiveCheck() {
         }
         
         CCLog("全てのブロックの移動が終了");
+        // 数によって消え方の設定を変える
+        if (removeList.size() == 3) {
+            setDeleteType(BlockSprite::kDeleteThree, removeList);
+        } else if (removeList.size() == 4) {
+            setDeleteType(BlockSprite::kDeleteFour, removeList);
+        } else if (5 <= removeList.size()){
+            CCLog("うえいうえい");
+            setDeleteType(BlockSprite::kDeleteFive, removeList);
+        }
+        
         list<int>::iterator it = removeList.begin();
         while (it != removeList.end()) {
             CCLog("removeTag = %d", *it);
@@ -744,6 +754,7 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
         it++;
     }
     
+    /*
     // 数によって消え方の設定を変える
     if (removeBlockTags.size() == 3) {
         setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
@@ -753,10 +764,8 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
         CCLog("うえいうえい");
         setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
     }
-
-    
-
-    
+    */
+     
     return removeBlockTags;
     
 }
