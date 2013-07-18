@@ -100,6 +100,8 @@ protected:
     void showResetButton();
     
     void setNewPosition();
+    
+    void setPreDrop();
     /***** 以下ユーティリティ系メソッド *****/
     // タッチされたブロックのタグを取得
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
