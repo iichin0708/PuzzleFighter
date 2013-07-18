@@ -12,7 +12,7 @@
 #define REMOVING_TIME 0.15f
 #define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
-#define COMBO_TIME 1.0f
+#define COMBO_TIME 1.5f
 
 #define KEY_HIGHSCORE "HighScore"
 

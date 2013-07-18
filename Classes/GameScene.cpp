@@ -1062,7 +1062,7 @@ void GameScene::addAnimationCache(const char *fileName, const char *cacheName, i
 // アニメーションの登録
 void GameScene::signUpAnimation()
 {
-    addAnimationCache( "a14_01_%04d@2x.png", "normal", 1, 22, false, 0.35f );
+    addAnimationCache( "a14_01_%04d@2x.png", "normal", 1, 22, false, 0.2f );
 }
 
 // アニメーション取得
