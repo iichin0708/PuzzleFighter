@@ -804,21 +804,18 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         list<int>::iterator it1 = chainColorList.begin();
         if (3 == chainColorList.size()) {
             while (it1 != chainColorList.end()) {
-                CCLog("three = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->deleteState = BlockSprite::kDeleteThree;
                 it1++;
             }
         } else if (4 == chainColorList.size()) {
             while (it1 != chainColorList.end()) {
-                CCLog("four = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->deleteState = BlockSprite::kDeleteFour;
                 it1++;
             }
         } else if (5 <= chainColorList.size()) {
             while (it1 != chainColorList.end()) {
-                CCLog("five = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->deleteState = BlockSprite::kDeleteFive;
                 it1++;
@@ -914,7 +911,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
         switch (bSprite->getBlockType()) {
             case kBlockRed:
-                CCLog("tag == %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 redColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockBlue:
@@ -962,7 +958,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
     if (3 <= yellowColorTags.size()) {
         list<int>::iterator it = redColorTags.begin();
         while (it != redColorTags.end()) {
-            CCLog("it = %d", *it);
             it++;
         }
         setDeleteType(yellowColorTags);
