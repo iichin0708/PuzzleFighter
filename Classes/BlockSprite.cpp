@@ -236,7 +236,7 @@ void BlockSprite::changePositionFinished() {
         changePosition();
         
     // チェインが存在した場合
-    } else if (m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting && this != m_partnerBlock) {
+    } else if (m_partnerBlock != NULL && m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting && this != m_partnerBlock) {
         //CCLog("ダブルデリート");
         //m_partnerBlock = NULL;
         m_isTouchFlag = false;
