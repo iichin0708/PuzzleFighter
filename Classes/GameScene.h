@@ -12,7 +12,7 @@
 #define REMOVING_TIME 0.5f
 #define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
-#define COMBO_TIME 1.0f
+#define COMBO_TIME 1.5f
 
 #define KEY_HIGHSCORE "HighScore"
 
@@ -100,6 +100,8 @@ protected:
     void showResetButton();
     
     void setNewPosition();
+    
+    void setPreDrop();
     /***** 以下ユーティリティ系メソッド *****/
     // タッチされたブロックのタグを取得
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);
