@@ -31,7 +31,7 @@ BlockSprite* BlockSprite::createWithBlockType(kBlock blockType, int indexX, int 
         pRet->m_positionIndex = PositionIndex(indexX, indexY);
         pRet->m_prePositionIndex = pRet->m_positionIndex;
         /** ねむす **/
-        pRet->m_deleteState = kNotDelete;
+        pRet->deleteState = kNotDelete;
         
         pRet->setPartnerBlock(NULL);
         pRet->autorelease();
@@ -128,10 +128,10 @@ void BlockSprite::moveBlock()
         CCPoint nowPosition = getBlockPosition(m_prePositionIndex.x, m_prePositionIndex.y);
         CCPoint nextPosition = getBlockPosition(m_postPositionIndex.x, m_postPositionIndex.y);
         
-
+/*
         CCLog("%d, %d", m_prePositionIndex.x, m_prePositionIndex.y);
         CCLog("%d, %d", m_postPositionIndex.x, m_postPositionIndex.y);
-/*      CCLog("x = %f, y = %f", nowPosition.x, nowPosition.y);
+        CCLog("x = %f, y = %f", nowPosition.x, nowPosition.y);
         CCLog("xx = %f, y = %f", nextPosition.x, nextPosition.y);
 */
         // 次のポジションへ現在のポジションを更新
@@ -232,20 +232,14 @@ void BlockSprite::changePositionFinished() {
         CCLog("2");
         changePosition();
     // チェインが存在した場合
-    } else if (m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting && this != m_partnerBlock) {
+    } else if (m_partnerBlock != NULL && m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting) {
         CCLog("ダブルデリート");
         //m_partnerBlock = NULL;
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
         // 数によって消え方の設定を変える
-        if (removeBlockTags.size() == 3) {
-            gameManager->setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
-        } else if (removeBlockTags.size() == 4) {
-            gameManager->setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
-        } else if (5 <= removeBlockTags.size()){
-            CCLog("うえいうえい");
-            gameManager->setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
-        }
+        gameManager->searchAndSetDeleteType(removeBlockTags);
+        
         if (!doubleDelete) {
             gameManager->removeBlocks(removeBlockTags);
 //            gameManager->removeChainBlocks();
@@ -288,14 +282,8 @@ void BlockSprite::changePositionFinished() {
         m_isTouchFlag = false;
         std::list<int> removeBlockTags = gameManager->checkChain(this);
         // 数によって消え方の設定を変える
-        if (removeBlockTags.size() == 3) {
-            gameManager->setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
-        } else if (removeBlockTags.size() == 4) {
-            gameManager->setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
-        } else if (5 <= removeBlockTags.size()){
-            CCLog("うえいうえい");
-            gameManager->setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
-        }
+        gameManager->searchAndSetDeleteType(removeBlockTags);
+        
 #pragma mark gameManager
         if (3 <= removeBlockTags.size()) {
             gameManager->removeBlocks(removeBlockTags);
@@ -436,9 +424,9 @@ void BlockSprite::removeSelfAnimation()
      runAction(action);
     */
     
-    if (m_deleteState == kDeleteThree) {
+    if (deleteState == kDeleteThree) {
         // 何もしない
-    } else if (m_deleteState == kDeleteFour) {
+    } else if (deleteState == kDeleteFour) {
         CCLog("FOURRRRRRRRRRRRRRRRRRRRRRRRR");
         if (m_partnerBlock != NULL) {
             CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
@@ -449,7 +437,7 @@ void BlockSprite::removeSelfAnimation()
             
             return;
         }
-    } else if (m_deleteState == kDeleteFive) {
+    } else if (deleteState == kDeleteFive) {
         CCLog("FIVEEEEEEEEEEEEEEEEEEEEEEEEE");
         if (m_partnerBlock != NULL) {
             CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
@@ -468,7 +456,6 @@ void BlockSprite::removeSelfAnimation()
 }
 
 void BlockSprite::removeSelf() {
-    CCLog("removeSelf");
     removeFromParentAndCleanup(true);
 }
 
@@ -477,10 +464,12 @@ void BlockSprite::dropBlock() {
     CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(BlockSprite::moveBlock));
     CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(BlockSprite::dropFinished));
     
+    /*
     CCLog("pre.x = %d, pre.y = %d", m_prePositionIndex.x, m_prePositionIndex.y);
     CCLog("post.x = %d, post.y = %d", m_postPositionIndex.x, m_postPositionIndex.y);
     CCLog("newTag = %d",gameManager->getTag(m_postPositionIndex.x, m_postPositionIndex.y));
     CCLog("blockState = %d", m_blockState);
+    */
     
     // スワップ中ならmoveBlockの処理をしない.
     CCFiniteTimeAction *action;
@@ -507,7 +496,7 @@ void BlockSprite::dropFinished() {
     runAction(action);
     */
     
-    CCLog("myTag = %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
+//    CCLog("myTag = %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
     gameManager->recursiveCheck();
 }
 
