@@ -937,7 +937,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
     if (3 <= redColorTags.size()) {
         list<int>::iterator it = redColorTags.begin();
         while (it != redColorTags.end()) {
-            CCLog("it = %d", *it);
             it++;
         }
         setDeleteType(redColorTags);
@@ -946,7 +945,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
     if (3 <= blueColorTags.size()) {
         list<int>::iterator it = redColorTags.begin();
         while (it != redColorTags.end()) {
-            CCLog("it = %d", *it);
             it++;
         }
 
@@ -956,7 +954,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
     if (3 <= greenColorTags.size()) {
         list<int>::iterator it = redColorTags.begin();
         while (it != redColorTags.end()) {
-            CCLog("it = %d", *it);
             it++;
         }
         setDeleteType(greenColorTags);
