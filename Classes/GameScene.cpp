@@ -821,22 +821,22 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 it1++;
             }
         }
-        /*
-        list<int>::iterator itt = tempList.begin();
-        while (itt != tempList.end()) {
+        
+        list<int>::iterator itt = chainColorList.begin();
+        while (itt != chainColorList.end()) {
             removeBlockColorTags.remove(*itt);
-            CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
+            //CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
             itt++;
         }
-        */
+        
     }
 }
 
 list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int baseTag, int preTag) {
-    /*
-    CCLog("&tes = %ld" , tes.size());
-    CCLog("base = %d", baseTag);
-     */
+    
+//    CCLog("&tes = %ld" , removeBlockColorTags.size());
+//    CCLog("base = %d", baseTag);
+     
     
     list<int> seek;
 
@@ -847,7 +847,7 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
     list<int>::iterator it = removeBlockColorTags.begin();
 
     while (it != removeBlockColorTags.end()) {
-        //CCLog("it = %d", *it);
+//        CCLog("it = %d", *it);
         // 自分自身は操作しない.
         if (baseTag == *it) {
             it++;
@@ -867,8 +867,6 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
                 seek.push_back(*it);
                 list<int> checkUpLists = seekChainRecursive(removeBlockColorTags, *it, baseTag);
                 seek.merge(checkUpLists);
-            } else {
-                break;
             }
         }
         
@@ -899,6 +897,15 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
 }
 
 void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
+    
+//    CCLog("");
+//    CCLog("消えるリスト");
+    list<int>::iterator tes = removeBlockTags.begin();
+    while (tes != removeBlockTags.end()) {
+//        CCLog("delete Tag = %d", *tes);
+        tes++;
+    }
+    
     //各色のタグを格納するリスト
     list<int>redColorTags;
     list<int>blueColorTags;
