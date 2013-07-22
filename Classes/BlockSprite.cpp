@@ -30,7 +30,6 @@ BlockSprite* BlockSprite::createWithBlockType(kBlock blockType, int indexX, int 
         pRet->m_blockSizes = pRet->getContentSize().height;
         pRet->m_positionIndex = PositionIndex(indexX, indexY);
         pRet->m_prePositionIndex = pRet->m_positionIndex;
-        /** ねむす **/
         pRet->deleteState = kNotDelete;
         
         pRet->setPartnerBlock(NULL);
@@ -184,7 +183,7 @@ void BlockSprite::moveBlock()
 void BlockSprite::changePosition()
 {
     if (m_partnerBlock == NULL) {
-        //CCLog("Error : not setting partner block");
+        CCLog("Error : not setting partner block");
     }
 
     if (m_blockState == kStopping) {
@@ -287,7 +286,6 @@ void BlockSprite::changePositionFinished() {
         std::list<int> removeBlockTags = gameManager->checkChain(this);
         // 数によって消え方の設定を変える
         gameManager->searchAndSetDeleteType(removeBlockTags);
-        
 #pragma mark gameManager
         if (3 <= removeBlockTags.size()) {
             gameManager->removeBlocks(removeBlockTags);
@@ -431,6 +429,22 @@ void BlockSprite::removeSelfAnimation()
     if (deleteState == kDeleteThree) {
         // 何もしない
     } else if (deleteState == kDeleteFour) {
+        CCLog("blockState = %d", m_blockState);
+        /*
+        if (m_blockState == BlockSprite::kChanging) {
+            m_blockLevel = 1;
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_partnerBlock = NULL;
+            m_blockState = kStopping;
+            
+            return;
+        }*/
+        if (m_blockLevel == 1) {
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_blockState = kStopping;
+            return;
+        }
+        /*
         //CCLog("FOURRRRRRRRRRRRRRRRRRRRRRRRR");
         if (m_partnerBlock != NULL) {
             //CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
@@ -441,7 +455,27 @@ void BlockSprite::removeSelfAnimation()
             
             return;
         }
+         */
     } else if (deleteState == kDeleteFive) {
+        CCLog("blockState = %d", m_blockState);
+        /*
+        if (m_blockState == BlockSprite::kChanging) {
+            m_blockLevel = 1;
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_partnerBlock = NULL;
+            m_blockState = kStopping;
+            
+            return;
+        }
+        */
+        
+        if (m_blockLevel == 2) {
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_blockState = kStopping;
+            return;
+        }
+        
+        /*
         //CCLog("FIVEEEEEEEEEEEEEEEEEEEEEEEEE");
         if (m_partnerBlock != NULL) {
             //CCLog("わたしだ。 %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y));
@@ -451,6 +485,8 @@ void BlockSprite::removeSelfAnimation()
             m_blockState = kStopping;
             return;
         }
+         */
+        
     }
     animExplosion(REMOVING_TIME);
     //animSplash(REMOVING_TIME);
