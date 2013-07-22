@@ -590,12 +590,12 @@ void GameScene::recursiveCheck() {
         
         list<int>::iterator it = removeList.begin();
         while (it != removeList.end()) {
-//            CCLog("removeTag = %d", *it);
+            CCLog("removeTag = %d", *it);
             it++;
         }
         
         if (3 <= removeList.size()) {
-            //ここでパートナータグの調整する. (現状パートナータグの有るところのレベルがあがるため)
+            //ここでパートナータグの調整する. (パートナータグの存在するところのレベルがあがるため)
             it = removeList.begin();
             BlockSprite *tmpSprite = (BlockSprite*)m_background->getChildByTag(*it);
             tmpSprite->setPartnerBlock(tmpSprite);
@@ -679,8 +679,8 @@ void GameScene::addBlocks() {
     this->runAction(action);
      */
     
-    CCDelayTime *readyDelay = CCDelayTime::create(REMOVING_TIME * 2);
-    CCDelayTime *removingDelay = CCDelayTime::create(SWAPPING_TIME * 2);
+    CCDelayTime *readyDelay = CCDelayTime::create(REMOVING_TIME);
+    CCDelayTime *removingDelay = CCDelayTime::create(SWAPPING_TIME);
     CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(GameScene::setPreDrop));
     CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(GameScene::setNewPosition));
     CCFiniteTimeAction *action = CCSequence::create(readyDelay, func1, removingDelay, func2, NULL);
@@ -792,6 +792,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
     chainColorList.push_back(*it);
     removeBlockColorTags.remove(*it);
     while (it != removeBlockColorTags.end()) {
+        CCLog("removeBlockColorTags.size = %ld", removeBlockColorTags.size());
         if (removeBlockColorTags.size() == 0) {
             break;
         } else {
@@ -820,14 +821,27 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 bSprite->deleteState = BlockSprite::kDeleteFive;
                 it1++;
             }
+        } else {
+            while (it1 != chainColorList.end()) {
+                CCLog("it1 = %d", *it1);
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                bSprite->m_blockState = BlockSprite::kStopping;
+                it1++;
+            }
+            
+            removeBlockColorTags.clear();
+            chainColorList.clear();
+            break;
         }
         
         list<int>::iterator itt = chainColorList.begin();
         while (itt != chainColorList.end()) {
             removeBlockColorTags.remove(*itt);
-            //CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
+            CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
             itt++;
         }
+
+        removeBlockColorTags.clear();
         
     }
 }
@@ -918,15 +932,19 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
         switch (bSprite->getBlockType()) {
             case kBlockRed:
+                CCLog("Red = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 redColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockBlue:
+                CCLog("Blue = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 blueColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockGreen:
+                CCLog("Green = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 greenColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockYellow:
+                CCLog("Yellow = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 yellowColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                break;
             default:
