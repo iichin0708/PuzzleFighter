@@ -590,7 +590,7 @@ void GameScene::recursiveCheck() {
         
         list<int>::iterator it = removeList.begin();
         while (it != removeList.end()) {
-            CCLog("removeTag = %d", *it);
+            //CCLog("removeTag = %d", *it);
             it++;
         }
         
@@ -794,7 +794,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
     chainColorList.push_back(*it);
     removeBlockColorTags.remove(*it);
     while (it != removeBlockColorTags.end()) {
-        CCLog("removeBlockColorTags.size = %ld", removeBlockColorTags.size());
+        //CCLog("removeBlockColorTags.size = %ld", removeBlockColorTags.size());
         if (removeBlockColorTags.size() == 0) {
             break;
         } else {
@@ -830,7 +830,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
 
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
-                CCLog("setLevelFlag4 = %d", *it1);
+                //CCLog("setLevelFlag4 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->m_blockLevel = 1;
             }
@@ -849,13 +849,13 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
-                CCLog("setLevelFlag5 = %d", *it1);
+                //CCLog("setLevelFlag5 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->m_blockLevel = 2;
             }
         } else {
             while (it1 != chainColorList.end()) {
-                CCLog("it1 = %d", *it1);
+                //CCLog("it1 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->m_blockState = BlockSprite::kStopping;
                 if (bSprite->getPartnerBlock()) {
@@ -872,7 +872,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         list<int>::iterator itt = chainColorList.begin();
         while (itt != chainColorList.end()) {
             removeBlockColorTags.remove(*itt);
-            CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
+            //CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
             itt++;
         }
 
@@ -967,23 +967,23 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
         switch (bSprite->getBlockType()) {
             case kBlockRed:
-                CCLog("Red = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+                //CCLog("Red = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 redColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockBlue:
-                CCLog("Blue = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+                //CCLog("Blue = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 blueColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockGreen:
-                CCLog("Green = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+                //CCLog("Green = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 greenColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockYellow:
-                CCLog("Yellow = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+                //CCLog("Yellow = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 yellowColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                break;
             default:
-                CCLog("Error: No match colors(setDeleteType)");
+                //CCLog("Error: No match colors(setDeleteType)");
                 break;
         }
         it++;
