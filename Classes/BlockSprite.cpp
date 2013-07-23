@@ -148,7 +148,7 @@ void BlockSprite::moveBlock()
         // 消せるなら状態遷移
         if (isMakeChain()) {
            // CCLog("チェインあり");
-            gameManager->setDeletingFlags(gameManager->checkChain(this));
+            //gameManager->setDeletingFlags(gameManager->checkChain(this));
 //            gameManager->isChained = true;
             gameManager->allMoved = false;
 
@@ -220,11 +220,12 @@ void BlockSprite::changePosition()
     runAction(action1);
 }
 
-void BlockSprite::changePositionFinished() {
-    //CCLog("m_bloskStet = %d", m_blockState);
+void BlockSprite::changePositionFinished()
+{
+    gameManager->setDeletingFlags(gameManager->checkChain(this));
     
     // 入れ替え後、片方のブロックが消えた/変化した/落下予約状態になった場合
-    if (m_blockState == kChanging && (m_partnerBlock->m_blockState == kDeleting || m_partnerBlock->m_blockState == kStopping || m_partnerBlock->m_blockState == kPreDropping)) {
+    if (m_blockState == kChanging && (m_partnerBlock->isMakeChain() || m_partnerBlock->m_blockState == kStopping || m_partnerBlock->m_blockState == kPreDropping)) {
         m_isTouchFlag = true;
         m_partnerBlock = NULL;
         m_blockState = kStopping;
@@ -236,7 +237,7 @@ void BlockSprite::changePositionFinished() {
         changePosition();
         
     // チェインが存在した場合
-    } else if (m_partnerBlock != NULL && m_blockState == kDeleting && m_partnerBlock->m_blockState == kDeleting && this != m_partnerBlock) {
+    } else if (m_partnerBlock != NULL && m_blockState == kDeleting && m_partnerBlock->isMakeChain() && this != m_partnerBlock) {
         //CCLog("ダブルデリート");
         //m_partnerBlock = NULL;
         m_isTouchFlag = false;
