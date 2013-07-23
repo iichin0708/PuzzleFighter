@@ -872,7 +872,6 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         list<int>::iterator itt = chainColorList.begin();
         while (itt != chainColorList.end()) {
             removeBlockColorTags.remove(*itt);
-            //CCLog("ぬぬぬぬぬぬぬぬぬ = %d", *itt);
             itt++;
         }
 
