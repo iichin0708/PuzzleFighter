@@ -857,9 +857,11 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             while (it1 != chainColorList.end()) {
                 CCLog("it1 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                bSprite->m_blockState = BlockSprite::kStopping;
-                if (bSprite->getPartnerBlock()) {
-                    bSprite->m_blockLevel = 0;
+                if (bSprite != NULL) {
+                    bSprite->m_blockState = BlockSprite::kStopping;
+                    if (bSprite->getPartnerBlock()) {
+                        bSprite->m_blockLevel = 0;
+                    }
                 }
                 it1++;
             }
