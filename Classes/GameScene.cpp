@@ -90,109 +90,18 @@ void GameScene::initForVariables()
 void GameScene::showBackground()
 {
     CCSize winSize = CCDirector::sharedDirector()->getWinSize();
-    /*
-    // 背景の生成
-    CCSprite *background = CCSprite::create("back.png");
-    addChild(background);
-    background->setPosition(ccp(winSize.width / 2,
-                                winSize.height / 2));
-     */
-    
-    /*
-    // プレイヤーの体力ゲージ生成
-//    addChild(player->hpGauge, 30000);
-    addChild(player->hpGauge, 0);
-    player->hpGauge->setPosition(ccp(winSize.width / 4,
-                                     winSize.height - (player->hpGauge->getContentSize().height / 2)));
-    
-    // 相手プレイヤーの体力ゲージ生成
-    CCSprite *enemyHpGauge = CCSprite::create("gauge.png");
-//    addChild(enemyHpGauge, 30000);
-    addChild(enemyHpGauge, 0);
-    enemyHpGauge->setPosition(ccp(winSize.width * 3 / 4,
-                                  winSize.height - (player->hpGauge->getContentSize().height / 2)));
-    
-    CCSprite *enemyHpGaugeBar = CCSprite::create("gauge_red_bar.png");
-    enemyHpGauge->addChild(enemyHpGaugeBar, 0);
-    enemyHpGaugeBar->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
-                                  enemyHpGauge->getContentSize().height / 2));
-    
-    CCSprite *enemyHpGaugeFrame = CCSprite::create("gauge_frame.png");
-    enemyHpGauge->addChild(enemyHpGaugeFrame, 1);
-    enemyHpGaugeFrame->setPosition(ccp(enemyHpGauge->getContentSize().width / 2,
-                                       enemyHpGauge->getContentSize().height / 2));
-    */
-    
     // パズルの背景を生成
     m_background = CCSprite::create(PNG_BACKGROUND);
-//    addChild(m_background, kZOrderBackground, kTagBackground);
     addChild(m_background, kZOrderBackground, 0);
 
     m_background->setPosition(ccp(winSize.width / 2,
                                   m_background->getContentSize().height / 2));
-    /*
-    m_background->setPosition(ccp(m_background->getContentSize().width / 2 + 3,
-                                  winSize.height - player->hpGauge->getContentSize().height - m_background->getContentSize().height / 2));
-     */
     
     CCSprite *backFrame = CCSprite::create("frame.png");
     m_background->addChild(backFrame, 30000);
-//    m_background->addChild(backFrame, 0);
 
     backFrame->setPosition(ccp(m_background->getContentSize().width / 2,
                                m_background->getContentSize().height / 2));
-    
-    /*
-    // 敵パズルの背景を生成
-    CCSprite *enemyBackGround = CCSprite::create(PNG_BACKGROUND);
-    addChild(enemyBackGround, kZOrderBackground, kTagBackground);
-    float enemyPuzzleScale = 2.0f / 3.5f;
-    enemyBackGround->setScale(enemyPuzzleScale);
-    enemyBackGround->setPosition(ccp(m_background->getContentSize().width + (winSize.width - m_background->getContentSize().width) / 2 + 3,
-                                     winSize.height - enemyHpGauge->getContentSize().height - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - 3));
-    
-    CCSprite *enemyBackFrame = CCSprite::create("frame.png");
-//    enemyBackGround->addChild(enemyBackFrame, 30000);
-    enemyBackGround->addChild(enemyBackFrame, 0);
-    enemyBackFrame->setPosition(ccp(enemyBackGround->getContentSize().width / 2,
-                                    enemyBackGround->getContentSize().height / 2));
-    
-    // スキルフレームの生成
-    CCSprite *magicFrame = CCSprite::create("magic_frame.png");
-//    addChild(magicFrame, 30000);
-    addChild(magicFrame, 0);
-    magicFrame->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + magicFrame->getContentSize().width / 2 + 3,
-                                enemyBackGround->getPositionY() - enemyBackGround->getContentSize().height * enemyPuzzleScale / 2 - magicFrame->getContentSize().height / 2 - 3));
-    
-    // スキルアイコンの生成
-    CCSprite *magicItem = CCSprite::create("magic02.png");
-    magicFrame->addChild(magicItem);
-    magicItem->setPosition(ccp(magicFrame->getContentSize().width / 2,
-                               magicFrame->getContentSize().height / 2));
-    
-    // スキルゲージの生成
-    addChild(player->magicGauge);
-    float magicScale = 2.0f / 3.0f;
-    player->magicGauge->setScale(magicScale);
-    player->magicGauge->setPosition(ccp(magicFrame->getPositionX() + player->magicGauge->getContentSize().width * magicScale / 2,
-                                        magicFrame->getPositionY()));
-    
-    // コイン表示領域
-    CCSprite *coinLabel = CCSprite::create("coin_label.png");
-    addChild(coinLabel);
-    coinLabel->setPosition(ccp(m_background->getPositionX() + m_background->getContentSize().width / 2 + coinLabel->getContentSize().width / 2,
-                               m_background->getPositionY() - m_background->getContentSize().height / 2 + coinLabel->getContentSize().height / 2));
-    
-    CCSprite *coin = CCSprite::create("coin.png");
-    coinLabel->addChild(coin);
-    coin->setPosition(ccp(coin->getContentSize().width,
-                          coinLabel->getContentSize().height / 2));
-    
-    coinCount = CCLabelTTF::create("0", "arial", 45);
-    coinLabel->addChild(coinCount);
-    coinCount->setPosition(ccp(coin->getPositionX() + coin->getContentSize().width / 2 + 30,
-                               coinLabel->getContentSize().height / 2));
-     */
 }
 
 // ブロック表示
@@ -258,7 +167,6 @@ void GameScene::showBlock()
                 // 対応するブロック配列にタグを追加
                 int tag = getTag(x, y);
                 
-#pragma mark BlockSpriteクラス変更に伴う微調整
                 // ブロックを作成
                 BlockSprite* pBlock = BlockSprite::createWithBlockType(blockType, x, y);
                 pBlock->setPosition(getPosition(x, y));
@@ -323,11 +231,6 @@ int GameScene::getTag(int posIndexX, int posIndexY)
 // タッチ開始イベント
 bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
 {
-    //CCLog("");
-    //CCLog("");
-    //CCLog("");
-    //CCLog("began   %d", m_combo);
-    
     CCPoint touchPoint = m_background->convertTouchToNodeSpace(pTouch);
     int tag = 0;
     kBlock blockType;
@@ -336,8 +239,7 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     //触った場所にブロックがあった場合
     if (tag != 0) {
         BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-        CCLog("block type :  %d state : %d isTouchFlag : %d", bSprite->getBlockType(), bSprite->m_blockState, bSprite->getIsTouchFlag());
-        //if (bSprite->getIsTouchFlag() && bSprite->m_blockState == BlockSprite::kStopping) {
+        
         if (bSprite->m_blockState == BlockSprite::kStopping) {
             preTouchTag = tag;
             return true;
@@ -403,10 +305,8 @@ bool GameScene::checkCorrectSwap(int preTag, int postTag)
 
 //　与えられたタグのブロックの状態を全てkDeletingに変更する
 void GameScene::setDeletingFlags(std::list<int> removeBlockTags) {
-    //CCLog("sizeee = %ld", removeBlockTags.size());
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
-        //CCLog("setDelete *it");
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;
         it++;
@@ -523,57 +423,28 @@ void GameScene::removeChainBlocks() {
     
     list<int>::iterator it = removeChainBlocks.begin();
     while(it != removeChainBlocks.end()) {
-        //CCLog("*it = %d", *it);
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;
         removeSprite->removeSelfAnimation();
         it++;
     }
     
-#pragma mark 0.2f以下だと処理の順序がおかしくなる.
-    /*
-    CCDelayTime *removingDelay = CCDelayTime::create(REMOVING_TIME);
-//    CCDelayTime *finishTime = CCDelayTime::create(MOVING_TIME * 2);
-    CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(GameScene::setNewPosition));
-//    CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(GameScene::recursiveCheck));
-//    CCFiniteTimeAction *action = CCSequence::create(removingDelay, func1, finishTime, func2, NULL);
-//    CCFiniteTimeAction *action = CCSequence::create(removingDelay, func1, finishTime, NULL);
-    CCFiniteTimeAction *action = CCSequence::create(removingDelay, func1, NULL);
-
-    this->runAction(action);
-    */
-    
-
     CCDelayTime *readyDelay = CCDelayTime::create(REMOVING_TIME * 2);
     CCDelayTime *removingDelay = CCDelayTime::create(SWAPPING_TIME * 2);
     CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(GameScene::setPreDrop));
     CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(GameScene::setNewPosition));
     CCFiniteTimeAction *action = CCSequence::create(readyDelay, func1, removingDelay, func2, NULL);
     this->runAction(action);
-    
-    //CCLog("");
 }
 
 void GameScene::recursiveCheck() {
-    //CCLog("recursiveCheck");
     if(!allMoved) {
-        //    if (isChained) {
-        //    bool isAllBlocksExist = true;
-        //    bool isAllBlocksStopped = true;
         list<int> removeList;
         for (int x = 0; x < MAX_BLOCK_X; x++) {
             for (int y = 0; y < MAX_BLOCK_Y; y++) {
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
-                //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
-                /*
-                 if (bSprite == NULL || !(bSprite->m_blockState == BlockSprite::kStopping || bSprite->m_blockState == BlockSprite::kDropping)) {
-                 */
-                //            if (bSprite == NULL || bSprite->m_blockState != BlockSprite::kStopping) {
                 if (bSprite == NULL) {
-                    
-                    //CCLog("return x = %d, y = %d", x, y);
                     return;
-                    //                continue;
                 }
                 list<int> list = checkChain(bSprite);
                 if (0 < list.size()) {
@@ -584,24 +455,14 @@ void GameScene::recursiveCheck() {
             }
         }
         
-//        CCLog("全てのブロックの移動が終了");
-        // 数によって消え方の設定を変える
         searchAndSetDeleteType(removeList);
         
         list<int>::iterator it = removeList.begin();
         while (it != removeList.end()) {
-            //CCLog("removeTag = %d", *it);
             it++;
         }
         
         if (3 <= removeList.size()) {
-            /*
-            //ここでパートナータグの調整する. (パートナータグの存在するところのレベルがあがるため)
-            it = removeList.begin();
-            BlockSprite *tmpSprite = (BlockSprite*)m_background->getChildByTag(*it);
-            tmpSprite->setPartnerBlock(tmpSprite);
-            */
-            
             removeBlocks(removeList);
             if (GameScene::addFlag) {
                 while (!GameScene::addFlag){
@@ -609,12 +470,10 @@ void GameScene::recursiveCheck() {
                 }
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
-                //m_combo++;
                 allMoved = true;
             } else {
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
-                //m_combo++;
                 allMoved = true;
             }
         }
@@ -623,8 +482,7 @@ void GameScene::recursiveCheck() {
         if (m_combo >= 2) {
             showCombo();
         }
-        
-        //CCLog("combo = %d", m_combo);
+
         unschedule(schedule_selector(GameScene::resetCombo));
         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
         
@@ -658,7 +516,6 @@ int GameScene::getRemoveColors(std::list<int> removeBlockTags) {
 void GameScene::removeBlocks(list<int> removeBlockTags) {
     list<int>::iterator it = removeBlockTags.begin();
     while(it != removeBlockTags.end()) {
-        //CCLog("*it = %d", *it);
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
         removeSprite->m_blockState = BlockSprite::kDeleting;
         removeSprite->removeSelfAnimation();
@@ -668,18 +525,7 @@ void GameScene::removeBlocks(list<int> removeBlockTags) {
 
 // 盤面にブロックを追加する
 void GameScene::addBlocks() {
-    //CCLog("addbBlock");
     addFlag = true;
-#pragma mark 0.2f以下だと処理の順序がおかしくなる.
-    /*
-    CCDelayTime *removingDelay = CCDelayTime::create(REMOVING_TIME * 2.5);
-    //CCDelayTime *finishTime = CCDelayTime::create(MOVING_TIME * 2);
-    CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(GameScene::setNewPosition));
-    //    CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(GameScene::recursiveCheck));
-    //    CCFiniteTimeAction *action = CCSequence::create(removingDelay, func1, finishTime, func2, NULL);
-    CCFiniteTimeAction *action = CCSequence::create(removingDelay, func1, NULL);
-    this->runAction(action);
-     */
     
     CCDelayTime *readyDelay = CCDelayTime::create(REMOVING_TIME);
     CCDelayTime *removingDelay = CCDelayTime::create(SWAPPING_TIME);
@@ -762,26 +608,11 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
-        //CCLog("removeBlockTags = %d", *it);
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-        //CCLog("わたしのタイプ => %d", bSprite->m_blockState);
         it++;
     }
     
-    /*
-    // 数によって消え方の設定を変える
-    if (removeBlockTags.size() == 3) {
-        setDeleteType(BlockSprite::kDeleteThree, removeBlockTags);
-    } else if (removeBlockTags.size() == 4) {
-        setDeleteType(BlockSprite::kDeleteFour, removeBlockTags);
-    } else if (5 <= removeBlockTags.size()){
-        CCLog("うえいうえい");
-        setDeleteType(BlockSprite::kDeleteFive, removeBlockTags);
-    }
-    */
-     
     return removeBlockTags;
-    
 }
 
 void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
@@ -794,7 +625,6 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
     chainColorList.push_back(*it);
     removeBlockColorTags.remove(*it);
     while (it != removeBlockColorTags.end()) {
-        //CCLog("removeBlockColorTags.size = %ld", removeBlockColorTags.size());
         if (removeBlockColorTags.size() == 0) {
             break;
         } else {
@@ -830,7 +660,6 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
 
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
-                //CCLog("setLevelFlag4 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->m_blockLevel = 1;
             }
@@ -849,17 +678,17 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
-                //CCLog("setLevelFlag5 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 bSprite->m_blockLevel = 2;
             }
         } else {
             while (it1 != chainColorList.end()) {
-                //CCLog("it1 = %d", *it1);
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                bSprite->m_blockState = BlockSprite::kStopping;
-                if (bSprite->getPartnerBlock()) {
-                    bSprite->m_blockLevel = 0;
+                if (bSprite != NULL) {
+                    bSprite->m_blockState = BlockSprite::kStopping;
+                    if (bSprite->getPartnerBlock()) {
+                        bSprite->m_blockLevel = 0;
+                    }
                 }
                 it1++;
             }
@@ -876,16 +705,11 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         }
 
         removeBlockColorTags.clear();
-        
     }
 }
 
-list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int baseTag, int preTag) {
-    
-//    CCLog("&tes = %ld" , removeBlockColorTags.size());
-//    CCLog("base = %d", baseTag);
-     
-    
+list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int baseTag, int preTag)
+{
     list<int> seek;
 
     if (removeBlockColorTags.size() == 0) {
@@ -895,14 +719,13 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
     list<int>::iterator it = removeBlockColorTags.begin();
 
     while (it != removeBlockColorTags.end()) {
-//        CCLog("it = %d", *it);
         // 自分自身は操作しない.
         if (baseTag == *it) {
             it++;
             continue;
         }
+
         if (baseTag + 100 == *it) {
-            //CCLog("再帰1");
             seek.push_back(*it);
             list<int> checkRightLists = seekChainRecursive(removeBlockColorTags, *it, 0);
             seek.merge(checkRightLists);
@@ -911,18 +734,15 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
         if (baseTag + 1 == *it) {
             // 上のブロックが前回検査したものなら行わない
             if (baseTag + 1 != preTag) {
-                //CCLog("再帰2");
                 seek.push_back(*it);
                 list<int> checkUpLists = seekChainRecursive(removeBlockColorTags, *it, baseTag);
                 seek.merge(checkUpLists);
             }
         }
         
-        
         if (baseTag - 1 == *it) {
             // 下のブロックが前回検査したものなら行わない
             if (baseTag - 1 != preTag) {
-                //CCLog("再帰3");
                 seek.push_back(*it);
                 list<int> checkDownLists = seekChainRecursive(removeBlockColorTags, *it, baseTag);
                 seek.merge(checkDownLists);
@@ -933,24 +753,13 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
 
     removeBlockColorTags.remove(baseTag);
     
-    /*
-    list<int>::iterator itt = seek.begin();
-    while (itt != seek.end()) {
-        CCLog("ぬ = %d", *itt);
-        itt++;
-    }
-    */
-    
     return seek;
 }
 
-void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
-    
-//    CCLog("");
-//    CCLog("消えるリスト");
+void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
+{
     list<int>::iterator tes = removeBlockTags.begin();
     while (tes != removeBlockTags.end()) {
-//        CCLog("delete Tag = %d", *tes);
         tes++;
     }
     
@@ -966,23 +775,18 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
         switch (bSprite->getBlockType()) {
             case kBlockRed:
-                //CCLog("Red = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 redColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockBlue:
-                //CCLog("Blue = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 blueColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockGreen:
-                //CCLog("Green = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 greenColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
             case kBlockYellow:
-                //CCLog("Yellow = %d", getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 yellowColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                break;
             default:
-                //CCLog("Error: No match colors(setDeleteType)");
                 break;
         }
         it++;
@@ -1026,18 +830,19 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags) {
 
 
 // 盤面全体を走査し、ブロックの新しいポジションを設定
-void GameScene::setNewPosition() {
-    //CCLog("setNewPosition");
-
+void GameScene::setNewPosition()
+{
     for (int x = 0; x < MAX_BLOCK_X; x++) {
         int yChain = 0;
+        
         for (int y = MAX_BLOCK_Y - 1; 0 <= y; y--) {
             BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+            
             if (bSprite == NULL) {
-                //CCLog("ychain = %d", yChain);
                 kBlock blockType = (kBlock)(rand() % kBlockCount);
                 int tag = getTag(x, MAX_BLOCK_Y + yChain);
                 BlockSprite *newBlock = BlockSprite::createWithBlockType(blockType, x, MAX_BLOCK_Y + yChain);
+                
                 // 画面外にブロックを設置
                 newBlock->setPosition(getPosition(x, MAX_BLOCK_Y + yChain));
                 m_background->addChild(newBlock, kZOrderBlock, tag);
@@ -1045,8 +850,6 @@ void GameScene::setNewPosition() {
                 
                 // 一段ずつズラしていく
                 for(int dropY = y + 1; dropY < MAX_BLOCK_Y * 2; dropY++) {
-                    //CCLog("dropY = %d", dropY);
-
                     BlockSprite *dropBlock = (BlockSprite *)m_background->getChildByTag(getTag(x, dropY));
                     if (dropBlock == NULL) {
                         if (dropY < MAX_BLOCK_Y) {
@@ -1054,10 +857,12 @@ void GameScene::setNewPosition() {
                         }
                         break;
                     }
+                    
                     if (dropBlock->m_postPositionIndex.x == -1 || dropBlock->m_postPositionIndex.y == -1) {
                         dropBlock->m_postPositionIndex = dropBlock->m_positionIndex;
                     }
                     int minusIndex = 1;
+                    
                     if (MAX_BLOCK_Y < dropBlock->m_postPositionIndex.y) {
                         minusIndex += yChain;
                     }
@@ -1078,9 +883,8 @@ void GameScene::setNewPosition() {
             if (bSprite == NULL) {
                 continue;
             }
-            if (bSprite->m_blockState == BlockSprite::kPreDropping)// || bSprite->m_blockState == BlockSprite::kDropping)
-            {
-                //CCLog("drop => x = %d, y = %d", bSprite->m_postPositionIndex.x, bSprite->m_postPositionIndex.y);
+            
+            if (bSprite->m_blockState == BlockSprite::kPreDropping) {
                 bSprite->setTag(getTag(bSprite->m_postPositionIndex.x, bSprite->m_postPositionIndex.y));
                 bSprite->dropBlock();
             }
@@ -1089,22 +893,27 @@ void GameScene::setNewPosition() {
     addFlag = false;
 }
 
+
 void GameScene::setPreDrop()
 {
     for (int x = 0; x < MAX_BLOCK_X; x++) {
+        
         for (int y = MAX_BLOCK_Y - 1; 0 <= y; y--) {
             BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+            
             if (bSprite == NULL) {
+                
                 // 一段ずつズラしていく
                 for(int dropY = y + 1; dropY < MAX_BLOCK_Y * 2; dropY++) {
-                    //fCCLog("dropY = %d", dropY);
                     BlockSprite *dropBlock = (BlockSprite *)m_background->getChildByTag(getTag(x, dropY));
+                    
                     if (dropBlock == NULL) {
                         if (dropY < MAX_BLOCK_Y) {
                             continue;
                         }
                         break;
                     }
+                    
                     if (dropBlock->m_postPositionIndex.x == -1 || dropBlock->m_postPositionIndex.y == -1) {
                         dropBlock->m_postPositionIndex = dropBlock->m_positionIndex;
                     }
@@ -1122,10 +931,12 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
     list<BlockTagPair> swapChainPosition;
     
     for (int x = 0; x < MAX_BLOCK_X; x++) {
+        
         for (int y = 0; y < MAX_BLOCK_Y; y++) {
             int blockTag = getTag(x, y);
             BlockSprite *block = (BlockSprite*)m_background->getChildByTag(blockTag);
-            if(block == NULL) continue;
+            
+            if(block == NULL) { continue; }
             
             // ブロックの種類
             kBlock blockType = block->getBlockType();
@@ -1304,9 +1115,7 @@ void GameScene::showCombo()
     
     float during = COMBO_TIME;
     CCFadeOut *actionFadeOut = CCFadeOut::create(during);
-    //CCScaleTo *actionScaleUp = CCScaleTo::create(during, 1.5f);
     comboLabel->runAction(actionFadeOut);
-    //comboLabel->runAction(actionScaleUp);
     
     comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
 }
@@ -1325,6 +1134,7 @@ BlockSprite::PositionIndex GameScene::getPositionIndex(int tag)
     
     return BlockSprite::PositionIndex(pos1_x, pos1_y);
 }
+
 
 /*
  * アニメーションキャッシュの追加
@@ -1376,11 +1186,13 @@ void GameScene::addAnimationCache(const char *fileName, const char *cacheName, i
     animationCache->addAnimation(animation, cacheName);
 }
 
+
 // アニメーションの登録
 void GameScene::signUpAnimation()
 {
     addAnimationCache( "a14_01_%04d@2x.png", "normal", 1, 22, false, 0.2f );
 }
+
 
 // アニメーション取得
 CCSprite* GameScene::getAnimation(char* animName)
@@ -1398,6 +1210,7 @@ CCSprite* GameScene::getAnimation(char* animName)
 
     return sprite;
 }
+
 
 // 指定したブロックに潜在的な連結があるかどうか
 int GameScene::getSwapChainBlockCount(int blockTag)
@@ -1554,6 +1367,7 @@ int GameScene::getSwapChainBlockCount(int blockTag)
     return chainCount;
 }
 
+
 // 潜在的な連結の数を取得する
 int GameScene::getSwapChainCount()
 {
@@ -1568,6 +1382,7 @@ int GameScene::getSwapChainCount()
     
     return chainCount;
 }
+
 
 // タップされたブロックのタグを取得
 void GameScene::getTouchBlockTag(CCPoint touchPoint, int &tag, kBlock &blockType)
@@ -1589,12 +1404,14 @@ void GameScene::getTouchBlockTag(CCPoint touchPoint, int &tag, kBlock &blockType
     }
 }
 
+
 // リセットボタンタップ時の処理
 void GameScene::menuResetCallback(cocos2d::CCObject* pSender)
 {
     GameScene* scene = GameScene::create();
     CCDirector::sharedDirector()->replaceScene((CCScene*)scene);
 }
+
 
 // リセットボタン作成
 void GameScene::showResetButton()
@@ -1605,11 +1422,7 @@ void GameScene::showResetButton()
     CCMenuItemImage* resetButton = CCMenuItemImage::create(PNG_RESET, PNG_RESET, this, menu_selector(GameScene::menuResetCallback));
     resetButton->setPosition(ccp(resetButton->getContentSize().width / 2,
                                  winSize.height - resetButton->getContentSize().height / 2));
-    /*
-    resetButton->setPosition(ccp(winSize.width - resetButton->getContentSize().width / 2,
-                                 resetButton->getContentSize().height / 2));
-     */
-    
+
     // メニュー作成
     CCMenu* menu = CCMenu::create(resetButton, NULL);
     menu->setPosition(CCPointZero);
