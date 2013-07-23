@@ -12,6 +12,7 @@ BlockSprite::BlockSprite()
     m_blockState = kStopping;
     m_isTouchFlag = true;
     m_blockLevel = 0;
+    m_isLevelUp = false;
 }
 
 BlockSprite::~BlockSprite()
@@ -382,25 +383,80 @@ CCPoint BlockSprite::getBlockPosition(int indexX, int indexY)
 
 void BlockSprite::removeSelfAnimation()
 {
-    if (deleteState == kDeleteThree) {
-        gameManager->m_score += 500;
-    } else if (deleteState == kDeleteFour) {
-        gameManager->m_score += 1000;
-        if (m_blockLevel == 1) {
-            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
-            m_blockState = kStopping;
-            return;
+    if (m_blockLevel == 2) {
+    // レベル2のブロックが消えるとき、上下左右いっぱいのブロックを消す
+        // 横方向
+        for (int x = 0; x < MAX_BLOCK_X; x++) {
+            int targetTag = gameManager->getTag(x, m_positionIndex.y);
+            BlockSprite *target = (BlockSprite *)gameManager->m_background->getChildByTag(targetTag);
+            if (target == NULL || targetTag == cocos2d::CCNode::getTag() || target->m_blockState == kDeleting) {
+                continue;
+            }
+            target->m_blockState = BlockSprite::kDeleting;
+            target->removeSelfAnimation();
         }
         
-    } else if (deleteState == kDeleteFive) {
-        gameManager->m_score += 1500;
-        if (m_blockLevel == 2) {
-            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
-            m_blockState = kStopping;
-            return;
+        // 横方向
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            int targetTag = gameManager->getTag(m_positionIndex.x, y);
+            BlockSprite *target = (BlockSprite *)gameManager->m_background->getChildByTag(targetTag);
+            if (target == NULL || targetTag == cocos2d::CCNode::getTag() || target->m_blockState == kDeleting) {
+                continue;
+            }
+            target->m_blockState = BlockSprite::kDeleting;
+            target->removeSelfAnimation();
+        }
+        
+    } else if (m_blockLevel == 1) {
+    // レベル1のブロックが消えるとき、周囲8方向のブロックを消す
+        
+        int tags[] = {
+            1,      // 上
+            -1,     // 下
+            -100,   // 左
+            100,    // 右
+            -99,     // 左上
+            -101,   // 左下
+            101,    // 右上
+            99,     // 右下
+        };
+        
+        for (int i = 0; i < sizeof(tags) ; i++) {
+            int targetTag = cocos2d::CCNode::getTag() + tags[i];
+            BlockSprite *target = (BlockSprite *)gameManager->m_background->getChildByTag(targetTag);
+            if (target == NULL || targetTag == cocos2d::CCNode::getTag() || target->m_blockState == kDeleting) {
+                continue;
+            }
+            target->m_blockState = BlockSprite::kDeleting;
+            target->removeSelfAnimation();
         }
     }
     
+    if (m_isLevelUp) {
+        m_isLevelUp = false;
+        
+        if (deleteState == kDeleteThree) {
+        } else if (deleteState == kDeleteFour) {
+            m_blockLevel = 1;
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_blockState = kStopping;
+            return;
+            
+        } else if (deleteState == kDeleteFive) {
+            m_blockLevel = 2;
+            setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
+            m_blockState = kStopping;
+            return;
+        }
+    } else {
+        if (deleteState == kDeleteThree) {
+            gameManager->m_score += 500;
+        } else if (deleteState == kDeleteFour) {
+            gameManager->m_score += 1000;
+        } else if (deleteState == kDeleteFive) {
+            gameManager->m_score += 1500;
+        }
+    }
     changeImageToRemove();
     
     
@@ -442,10 +498,10 @@ void BlockSprite::changeImageToRemove() {
         default:
             break;
     }
+
 }
 
 void BlockSprite::removeSelf() {
-    //CCLog("removeSelf");
     removeFromParentAndCleanup(true);
 }
 
