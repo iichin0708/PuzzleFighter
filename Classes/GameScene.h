@@ -9,8 +9,8 @@
 #define MAX_BLOCK_X 7
 #define MAX_BLOCK_Y 6
 #define SWAPPING_TIME 0.1f
-#define REMOVING_TIME 0.2f
-#define MOVING_TIME 0.2f
+#define REMOVING_TIME 0.1f
+#define MOVING_TIME 0.3f
 #define HINT_TIME 4.0f
 #define COMBO_TIME 1.5f
 

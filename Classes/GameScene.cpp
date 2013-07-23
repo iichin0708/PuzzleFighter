@@ -61,6 +61,7 @@ bool GameScene::init()
     SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
     
     // 4秒後にヒントが出る設定
+    unschedule(schedule_selector(GameScene::showSwapChainPosition));
     scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     
     BlockSprite::setGameManager(this);
@@ -239,7 +240,6 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     //触った場所にブロックがあった場合
     if (tag != 0) {
         BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
-        
         if (bSprite->m_blockState == BlockSprite::kStopping) {
             preTouchTag = tag;
             return true;
@@ -314,7 +314,8 @@ void GameScene::setDeletingFlags(std::list<int> removeBlockTags) {
     }
 }
 
-void GameScene::removeChainBlocks() {
+void GameScene::removeChainBlocks()
+{
     // 消滅できるブロックリスト
     list<int> removeChainBlocks;
     
@@ -421,6 +422,8 @@ void GameScene::removeChainBlocks() {
     removeChainBlocks.unique();
     removeChainBlocks.reverse();
     
+    removeBlocks(removeChainBlocks);
+    /*
     list<int>::iterator it = removeChainBlocks.begin();
     while(it != removeChainBlocks.end()) {
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
@@ -428,6 +431,7 @@ void GameScene::removeChainBlocks() {
         removeSprite->removeSelfAnimation();
         it++;
     }
+     */
     
     CCDelayTime *readyDelay = CCDelayTime::create(REMOVING_TIME * 2);
     CCDelayTime *removingDelay = CCDelayTime::create(SWAPPING_TIME * 2);
@@ -513,10 +517,16 @@ int GameScene::getRemoveColors(std::list<int> removeBlockTags) {
 }
 
 // 指定されたブロックリストを削除する
-void GameScene::removeBlocks(list<int> removeBlockTags) {
+void GameScene::removeBlocks(list<int> removeBlockTags)
+{
     list<int>::iterator it = removeBlockTags.begin();
     while(it != removeBlockTags.end()) {
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        if (removeSprite == NULL) {
+            it++;
+            continue;
+        }
+        
         removeSprite->m_blockState = BlockSprite::kDeleting;
         removeSprite->removeSelfAnimation();
         it++;
@@ -639,19 +649,28 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         if (3 == chainColorList.size()) {
             while (it1 != chainColorList.end()) {
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                if (bSprite == NULL) {
+                    it1++;
+                    continue;
+                }
                 bSprite->deleteState = BlockSprite::kDeleteThree;
                 if (bSprite->getPartnerBlock()) {
-                    bSprite->m_blockLevel = 0;
+                    //bSprite->m_blockLevel = 0;
                 }
                 it1++;
             }
         } else if (4 == chainColorList.size()) {
             while (it1 != chainColorList.end()) {
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                if (bSprite == NULL) {
+                    it1++;
+                    continue;
+                }
                 bSprite->deleteState = BlockSprite::kDeleteFour;
-                bSprite->m_blockLevel = 0;
+                //bSprite->m_blockLevel = 0;
                 if (bSprite->getPartnerBlock() && !setLevelFlag) {
-                    bSprite->m_blockLevel = 1;
+                    //bSprite->m_blockLevel = 1;
+                    bSprite->m_isLevelUp = true;
                     bSprite->setPartnerBlock(NULL);
                     setLevelFlag = true;
                 }
@@ -661,15 +680,21 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                bSprite->m_blockLevel = 1;
+                //bSprite->m_blockLevel = 1;
+                bSprite->m_isLevelUp = true;
             }
         } else if (5 <= chainColorList.size()) {
             while (it1 != chainColorList.end()) {
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                if (bSprite == NULL) {
+                    it1++;
+                    continue;
+                }
                 bSprite->deleteState = BlockSprite::kDeleteFive;
-                bSprite->m_blockLevel = 0;
+                //bSprite->m_blockLevel = 0;
                 if (bSprite->getPartnerBlock() && !setLevelFlag) {
-                    bSprite->m_blockLevel = 2;
+                    //bSprite->m_blockLevel = 2;
+                    bSprite->m_isLevelUp = true;
                     bSprite->setPartnerBlock(NULL);
                     setLevelFlag = true;
                 }
@@ -679,7 +704,8 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                bSprite->m_blockLevel = 2;
+                //bSprite->m_blockLevel = 2;
+                bSprite->m_isLevelUp = true;
             }
         } else {
             while (it1 != chainColorList.end()) {
@@ -687,7 +713,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite != NULL) {
                     bSprite->m_blockState = BlockSprite::kStopping;
                     if (bSprite->getPartnerBlock()) {
-                        bSprite->m_blockLevel = 0;
+                        //bSprite->m_blockLevel = 0;
                     }
                 }
                 it1++;
@@ -1117,6 +1143,7 @@ void GameScene::showCombo()
     CCFadeOut *actionFadeOut = CCFadeOut::create(during);
     comboLabel->runAction(actionFadeOut);
     
+    comboLabel->unschedule(schedule_selector(CCLabelTTF::removeFromParent));
     comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
 }
 

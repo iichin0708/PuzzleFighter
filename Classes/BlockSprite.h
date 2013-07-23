@@ -88,6 +88,8 @@ public:
     
     int m_blockLevel;
     
+    int m_isLevelUp;
+    
     void moveBlock();
     
     void changePosition();
