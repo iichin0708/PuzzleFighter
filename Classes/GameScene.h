@@ -52,8 +52,7 @@ protected:
     // 画像の大きさ
     float m_blockSize;
     
-    // スコアを保持
-    int m_score;
+
     
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
@@ -88,7 +87,6 @@ protected:
     void setNewPosition();
     
     void setPreDrop();
-    
     
     /***** 以下ユーティリティ系メソッド *****/
     // タッチされたブロックのタグを取得
@@ -131,7 +129,10 @@ public:
         kTagScoreLabel,
         kTagGameOver,
         kTagBaseBlock = 10000,
-        kTagHintCircle = 20000
+        kTagHintCircle = 15000,
+        kTagComboNumber = 20000,
+        kTagComboText,
+        kTagScoreNumber = 25000,
     };
 
     enum kZOrder
@@ -139,6 +140,8 @@ public:
         kZOrderBackground,
         kZOrderLabel,
         kZOrderBlock,
+        kZOrderCombo,
+        kZOrderScore,
         kZOrderGameOver,
     };
     
@@ -202,6 +205,11 @@ public:
 
     // コンボ数の演出
     void showCombo();
+    
+    // スコアを保持
+    int m_score;
+    
+    void updateScore();
 
     
     std::list<int> seekChainRecursive(std::list<int> &tes, int baseTag, int up);

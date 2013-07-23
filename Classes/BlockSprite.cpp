@@ -58,41 +58,64 @@ bool BlockSprite::initWithBlockType(kBlock blockType)
 const char* BlockSprite::getBlockImageFileName(kBlock blockType)
 {
     switch (blockType) {
-        case kBlockRed:
+        case kBlockPig:
             if (m_blockLevel == 0) {
-                return "red.png";
+                return "block_1_1.png";
             } else if (m_blockLevel == 1) {
-                return "red_middle.png";
+                return "block_1_3.png";
             } else if (m_blockLevel == 2) {
-                return "red_large.png";
-            }
-
-        case kBlockBlue:
-            if (m_blockLevel == 0) {
-                return "blue.png";
-            } else if (m_blockLevel == 1) {
-                return "blue_middle.png";
-            } else if (m_blockLevel == 2) {
-                return "blue_large.png";
+                return "block_1_4.png";
             }
             
-        case kBlockYellow:
+        case kBlockHumanRed:
             if (m_blockLevel == 0) {
-                return "yellow.png";
+                return "block_2_1.png";
             } else if (m_blockLevel == 1) {
-                return "yellow_middle.png";
+                return "block_2_3.png";
             } else if (m_blockLevel == 2) {
-                return "yellow_large.png";
+                return "block_2_4.png";
+            }
+        case kBlockChick:
+            if (m_blockLevel == 0) {
+                return "block_3_1.png";
+            } else if (m_blockLevel == 1) {
+                return "block_3_3.png";
+            } else if (m_blockLevel == 2) {
+                return "block_3_4.png";
+            }
+        case kBlockHumanWhite:
+            if (m_blockLevel == 0) {
+                return "block_4_1.png";
+            } else if (m_blockLevel == 1) {
+                return "block_4_3.png";
+            } else if (m_blockLevel == 2) {
+                return "block_4_4.png";
+            }
+        case kBlockBearBrown:
+            if (m_blockLevel == 0) {
+                return "block_5_1.png";
+            } else if (m_blockLevel == 1) {
+                return "block_5_3.png";
+            } else if (m_blockLevel == 2) {
+                return "block_5_4.png";
+            }
+        case kBlockFlog:
+            if (m_blockLevel == 0) {
+                return "block_6_1.png";
+            } else if (m_blockLevel == 1) {
+                return "block_6_3.png";
+            } else if (m_blockLevel == 2) {
+                return "block_6_4.png";
+            }
+        case kBlockBearBlue:
+            if (m_blockLevel == 0) {
+                return "block_7_1.png";
+            } else if (m_blockLevel == 1) {
+                return "block_7_3.png";
+            } else if (m_blockLevel == 2) {
+                return "block_7_4.png";
             }
 
-        case kBlockGreen:
-            if (m_blockLevel == 0) {
-                return "green.png";
-            } else if (m_blockLevel == 1) {
-                return "green_middle.png";
-            } else if (m_blockLevel == 2) {
-                return "green_large.png";
-            }
         default:
             CCAssert(false, "invalid blockType");
             return "";
@@ -125,6 +148,7 @@ void BlockSprite::moveBlock()
 
         // 消せるなら状態遷移
         if (isMakeChain()) {
+        
             gameManager->allMoved = false;
 
             unschedule(schedule_selector(GameScene::showSwapChainPosition));
@@ -135,7 +159,6 @@ void BlockSprite::moveBlock()
                 circle->removeFromParentAndCleanup(true);
             }
         }
-        
         
         // 動かす前にタッチできないようにする
         m_isTouchFlag = false;
@@ -360,8 +383,9 @@ CCPoint BlockSprite::getBlockPosition(int indexX, int indexY)
 void BlockSprite::removeSelfAnimation()
 {
     if (deleteState == kDeleteThree) {
-
+        gameManager->m_score += 500;
     } else if (deleteState == kDeleteFour) {
+        gameManager->m_score += 1000;
         if (m_blockLevel == 1) {
             setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
             m_blockState = kStopping;
@@ -369,6 +393,7 @@ void BlockSprite::removeSelfAnimation()
         }
         
     } else if (deleteState == kDeleteFive) {
+        gameManager->m_score += 1500;
         if (m_blockLevel == 2) {
             setTexture(CCTextureCache::sharedTextureCache()->addImage(getBlockImageFileName(m_blockType)));
             m_blockState = kStopping;
@@ -376,10 +401,47 @@ void BlockSprite::removeSelfAnimation()
         }
     }
     
-    animExplosion(REMOVING_TIME);
+    changeImageToRemove();
+    
+    
+    CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(BlockSprite::removeSelf));
+    CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(BlockSprite::animExplosion));
+    CCDelayTime *delay = CCDelayTime::create(REMOVING_TIME/2);
+//    animExplosion(REMOVING_TIME);
+    
+    CCFiniteTimeAction *action = CCSequence::create(delay, func2, delay, func1, NULL);
+    runAction(action);
     
     // 参照を消す
-    scheduleOnce(schedule_selector(BlockSprite::removeSelf), REMOVING_TIME);
+//    scheduleOnce(schedule_selector(BlockSprite::removeSelf), REMOVING_TIME);
+}
+
+void BlockSprite::changeImageToRemove() {
+    switch (m_blockType) {
+        case kBlockPig:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_1_2.png"));
+            break;
+        case kBlockHumanRed:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_2_2.png"));
+            break;
+        case kBlockChick:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_3_2.png"));
+            break;
+        case kBlockHumanWhite:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_4_2.png"));
+            break;
+        case kBlockBearBrown:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_5_2.png"));
+            break;
+        case kBlockFlog:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_6_2.png"));
+            break;
+        case kBlockBearBlue:
+            setTexture(CCTextureCache::sharedTextureCache()->addImage("block_7_2.png"));
+            break;
+        default:
+            break;
+    }
 }
 
 void BlockSprite::removeSelf() {
@@ -412,7 +474,7 @@ void BlockSprite::dropFinished() {
     gameManager->recursiveCheck();
 }
 
-void BlockSprite::animExplosion(float animTime)
+void BlockSprite::animExplosion(float animTime = REMOVING_TIME)
 {
     CCScaleTo* scale = CCScaleTo::create(animTime, 0);
     CCFadeOut* fadeOut = CCFadeOut::create(animTime);

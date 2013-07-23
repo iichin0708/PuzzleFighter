@@ -77,7 +77,7 @@ void GameScene::initForVariables()
     
 #pragma mark BlockSpriteクラス変更に伴う微調整
     // ブロックの一辺の長さを取得
-    BlockSprite* pBlock = BlockSprite::createWithBlockType(kBlockRed, 0, 0);
+    BlockSprite* pBlock = BlockSprite::createWithBlockType(kBlockPig, 0, 0);
     m_blockSize = pBlock->getContentSize().height;
     
     m_score = 0;
@@ -98,10 +98,17 @@ void GameScene::showBackground()
                                   m_background->getContentSize().height / 2));
     
     CCSprite *backFrame = CCSprite::create("frame.png");
-    m_background->addChild(backFrame, 30000);
+    m_background->addChild(backFrame, kZOrderBackground);
 
     backFrame->setPosition(ccp(m_background->getContentSize().width / 2,
                                m_background->getContentSize().height / 2));
+    
+    const char *score = CCString::createWithFormat("%d", m_score)->getCString();
+    CCLabelBMFont *scoreLabel;
+    scoreLabel = CCLabelBMFont::create(score, "ui_score_number.fnt");
+    scoreLabel->setPosition(ccp(m_background->getContentSize().width - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height));
+    m_background->addChild(scoreLabel, kZOrderScore, kTagScoreNumber);
+    
 }
 
 // ブロック表示
@@ -756,6 +763,20 @@ list<int> GameScene::seekChainRecursive(list<int> &removeBlockColorTags, int bas
     return seek;
 }
 
+void GameScene::updateScore() {
+    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+    const char *score = CCString::createWithFormat("%d", m_score)->getCString();
+    CCLabelBMFont *scoreLabel = (CCLabelBMFont*)m_background->getChildByTag(kTagScoreNumber);
+    scoreLabel->setCString(score);
+    scoreLabel->setPosition(ccp(m_background->getContentSize().width - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height));
+    
+    //scoreLabel = CCLabelBMFont::create(score, "ui_score_number.fnt");
+    /*
+    scoreLabel->setPosition(ccp(winSize.width - 30, winSize.height - 50));
+    m_background->addChild(scoreLabel, kZOrderScore, kTagScoreNumber);
+    */
+}
+
 void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
 {
     list<int>::iterator tes = removeBlockTags.begin();
@@ -764,27 +785,27 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
     }
     
     //各色のタグを格納するリスト
-    list<int>redColorTags;
-    list<int>blueColorTags;
-    list<int>greenColorTags;
-    list<int>yellowColorTags;
+    list<int>pigTags;
+    list<int>humanRedTags;
+    list<int>chickTags;
+    list<int>humanWhiteTags;
     
     // 走査
     list<int>::iterator it = removeBlockTags.begin();
     while (it != removeBlockTags.end()) {
         BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
         switch (bSprite->getBlockType()) {
-            case kBlockRed:
-                redColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+            case kBlockPig:
+                pigTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
-            case kBlockBlue:
-                blueColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+            case kBlockHumanRed:
+                humanRedTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
-            case kBlockGreen:
-                greenColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+            case kBlockChick:
+                chickTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                 break;
-            case kBlockYellow:
-                yellowColorTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
+            case kBlockHumanWhite:
+                humanWhiteTags.push_back(getTag(bSprite->m_positionIndex.x, bSprite->m_positionIndex.y));
                break;
             default:
                 break;
@@ -793,37 +814,37 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
     }
 
     
-    if (3 <= redColorTags.size()) {
-        list<int>::iterator it = redColorTags.begin();
-        while (it != redColorTags.end()) {
+    if (3 <= pigTags.size()) {
+        list<int>::iterator it = pigTags.begin();
+        while (it != pigTags.end()) {
             it++;
         }
-        setDeleteType(redColorTags);
+        setDeleteType(pigTags);
     }
     
-    if (3 <= blueColorTags.size()) {
-        list<int>::iterator it = redColorTags.begin();
-        while (it != redColorTags.end()) {
+    if (3 <= humanRedTags.size()) {
+        list<int>::iterator it = humanRedTags.begin();
+        while (it != humanRedTags.end()) {
             it++;
         }
 
-        setDeleteType(blueColorTags);
+        setDeleteType(humanRedTags);
     }
     
-    if (3 <= greenColorTags.size()) {
-        list<int>::iterator it = redColorTags.begin();
-        while (it != redColorTags.end()) {
+    if (3 <= chickTags.size()) {
+        list<int>::iterator it = chickTags.begin();
+        while (it != chickTags.end()) {
             it++;
         }
-        setDeleteType(greenColorTags);
+        setDeleteType(chickTags);
     }
     
-    if (3 <= yellowColorTags.size()) {
-        list<int>::iterator it = redColorTags.begin();
-        while (it != redColorTags.end()) {
+    if (3 <= humanWhiteTags.size()) {
+        list<int>::iterator it = humanWhiteTags.begin();
+        while (it != humanWhiteTags.end()) {
             it++;
         }
-        setDeleteType(yellowColorTags);
+        setDeleteType(humanWhiteTags);
     }
     
 }
@@ -832,6 +853,7 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
 // 盤面全体を走査し、ブロックの新しいポジションを設定
 void GameScene::setNewPosition()
 {
+    updateScore();
     for (int x = 0; x < MAX_BLOCK_X; x++) {
         int yChain = 0;
         
@@ -1098,6 +1120,29 @@ list<GameScene::BlockTagPair> GameScene::getSwapChainPositions()
 // コンボ数の演出
 void GameScene::showCombo()
 {
+    CCDirector* pDirector = CCDirector::sharedDirector();
+    CCPoint origin = pDirector->getVisibleOrigin();
+    CCSize visibleSize = pDirector->getVisibleSize();
+    
+    const char *combo = CCString::createWithFormat("%d", m_combo)->getCString();
+    CCLabelBMFont *comboLabel;
+    comboLabel = CCLabelBMFont::create(combo, "ui_combo_number.fnt");
+    comboLabel->setPosition(ccp(origin.x + comboLabel->getContentSize().width / 2 + m_background->getContentSize().width / 2, origin.y + visibleSize.height / 2 + 100));
+    addChild(comboLabel);
+    
+    CCSprite *comboSprite = CCSprite::create("ui_combo_text.png");
+    comboSprite->setPosition(ccp(origin.x - comboLabel->getContentSize().width / 2 + m_background->getContentSize().width / 2 - comboSprite->getContentSize().width / 2 + 15, origin.y + visibleSize.height / 2 + 100));
+    m_background->addChild(comboSprite, kZOrderCombo, kTagComboText);
+    
+    float during = COMBO_TIME;
+    CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+    CCFadeOut *actionFadeOut1 = CCFadeOut::create(during);
+    comboLabel->runAction(actionFadeOut);
+    comboSprite->runAction(actionFadeOut1);
+    
+    comboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+    comboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+    /*
     char comboText[10];
     sprintf(comboText, "%d COMBO!", m_combo);
     CCLabelTTF *comboLabel = CCLabelTTF::create(comboText, "arial", 60);
@@ -1118,6 +1163,7 @@ void GameScene::showCombo()
     comboLabel->runAction(actionFadeOut);
     
     comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
+    */
 }
 
 // コンボ数のリセット

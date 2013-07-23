@@ -110,6 +110,8 @@ public:
     
     void animExplosion(float animTime);
     
+    void changeImageToRemove();
+    
     static bool doubleDelete;
 };
 

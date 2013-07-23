@@ -1,6 +1,7 @@
 #ifndef __CONFIG__H__
 #define __CONFIG__H__
 
+/*
 enum kBlock
 {
     kBlockRed,
@@ -8,6 +9,18 @@ enum kBlock
     kBlockYellow,
     kBlockGreen,
     kBlockCount,
+};
+*/
+
+enum kBlock {
+    kBlockPig,
+    kBlockHumanRed,
+    kBlockChick,
+    kBlockHumanWhite,
+    kBlockCount,
+    kBlockBearBrown,
+    kBlockFlog,
+    kBlockBearBlue,
 };
 
 #define ccsf(...) CCString::createWithFormat(__VA_ARGS__)->getCString()
