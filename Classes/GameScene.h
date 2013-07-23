@@ -29,20 +29,6 @@
 class GameScene : public cocos2d::CCLayer
 {
 protected:
-    /*
-    struct PositionIndex
-    {
-        PositionIndex(int x1, int y1)
-        {
-            x = x1;
-            y = y1;
-        }
-        
-        int x;
-        int y;
-    };
-     */
- 
     // ブロックタグを2つセットで扱う
     struct BlockTagPair
     {
@@ -102,6 +88,8 @@ protected:
     void setNewPosition();
     
     void setPreDrop();
+    
+    
     /***** 以下ユーティリティ系メソッド *****/
     // タッチされたブロックのタグを取得
     void getTouchBlockTag(cocos2d::CCPoint touchPoint, int &tag, kBlock &blockType);

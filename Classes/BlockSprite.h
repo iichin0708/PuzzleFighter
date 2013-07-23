@@ -6,7 +6,6 @@
 
 #define BLOCK_BASE_TAG 10000
 
-//#include "GameScene.h"
 class GameScene;
 
 class BlockSprite : public cocos2d::CCSprite
@@ -81,7 +80,7 @@ public:
     static void setGameManager(GameScene *gameInstance);
 
     void setPositionIndex(int indexX, int indexY);
-//    PositionIndex getPositionIndex();
+
     cocos2d::CCPoint getBlockPosition(int indexX, int indexY);
     int getTag(int posIndexX, int posIndexY);
     
@@ -110,24 +109,6 @@ public:
     void setNewPosition();
     
     void animExplosion(float animTime);
-    
-    void animSplash(float animTime);
-    
-    void animJump(float animTime);
-    
-    void animFloat(float animTime);
-    
-    void animHopSplash(float animTime);
-    
-    void animDrop(float animTime);
-    
-    void animLowJumpAndDrop(float animTime);
-
-    void animSlash(float animTime);
-    
-    void animImage(float animTime);
-    
-    void animPress(float animTime);
     
     static bool doubleDelete;
 };
