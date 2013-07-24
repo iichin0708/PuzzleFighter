@@ -3,11 +3,11 @@
 
 Player::Player(int maxHitPoint, int maxMagicPoint, int offencePower, int healingPower, int magicChargePower)
 {
-    // 体力
-    hpGauge = Gauge::create(maxHitPoint);
+    // 体力2
+    hpGauge = Gauge::create(maxHitPoint, "gauge.png");
     
     // スキルポイント
-    magicGauge = Gauge::create(maxMagicPoint);
+    magicGauge = Gauge::create(maxMagicPoint, "gauge.png");
     magicGauge->decrease(maxMagicPoint);
     
     // 攻撃力

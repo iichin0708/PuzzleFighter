@@ -13,6 +13,8 @@
 #define MOVING_TIME 0.3f
 #define HINT_TIME 4.0f
 #define COMBO_TIME 1.5f
+#define FEVER_COUNT 10
+#define DEFAULT_PLAY_TIME 60
 
 #define KEY_HIGHSCORE "HighScore"
 
@@ -23,7 +25,7 @@
 //#define PNG_RESET "pause_button.png"
 #define PNG_RESET "pause_button_reverse.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
-
+#include "Timer.h"
 
 
 class GameScene : public cocos2d::CCLayer
@@ -52,13 +54,17 @@ protected:
     // 画像の大きさ
     float m_blockSize;
     
-
+    // タイマー
+    Timer *timer;
     
     // プレイヤーのパラメータを扱うオブジェクト
     Player *player;
     
     // 獲得コイン数
     int coin;
+    
+    // 前回のコンボ数
+    int preCombo;
     
     // コイン数表示ラベル
     CCLabelTTF *coinCount;
@@ -109,12 +115,8 @@ protected:
 
     // アニメーションの登録
     void signUpAnimation();
-    
+
     /*********************************/
-
-
-    
-
 
 
 public:
@@ -127,11 +129,16 @@ public:
         kTagGreenLabel,
         kTagGrayLabel,
         kTagScoreLabel,
+        kTagTimer,
+        kTagTimerGauge,
+        kTagTimerNumber,
         kTagGameOver,
         kTagBaseBlock = 10000,
         kTagHintCircle = 15000,
         kTagComboNumber = 20000,
         kTagComboText,
+        kTagComboGauge,
+        kTagComboFrame,
         kTagScoreNumber = 25000,
     };
 
@@ -142,6 +149,8 @@ public:
         kZOrderBlock,
         kZOrderCombo,
         kZOrderScore,
+        kZOrderTimer,
+        kZOrderTimerLabel,
         kZOrderGameOver,
     };
     

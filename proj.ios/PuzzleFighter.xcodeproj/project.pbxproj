@@ -263,6 +263,12 @@
 		D34FC3D1179E72FA008A68D8 /* ui_combo_meter.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3CC179E72F9008A68D8 /* ui_combo_meter.png */; };
 		D34FC3D2179E72FA008A68D8 /* ui_combo_star.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3CD179E72FA008A68D8 /* ui_combo_star.png */; };
 		D34FC3D3179E72FA008A68D8 /* ui_combo_number.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3CE179E72FA008A68D8 /* ui_combo_number.fnt */; };
+		D34FC3D8179EBAD0008A68D8 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34FC3D6179EBACF008A68D8 /* Timer.cpp */; };
+		D34FC3E5179EF15A008A68D8 /* ui_bottom.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3E4179EF159008A68D8 /* ui_bottom.png */; };
+		D34FC3E9179EFBB4008A68D8 /* ui_time_meter.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3E8179EFBB3008A68D8 /* ui_time_meter.png */; };
+		D34FC3ED179F0651008A68D8 /* ui_time_number.fnt in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3EC179F0650008A68D8 /* ui_time_number.fnt */; };
+		D34FC3EF179F0757008A68D8 /* ui_time_number.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3EE179F0756008A68D8 /* ui_time_number.png */; };
+		D34FC3F1179F5BEB008A68D8 /* ui_header.png in Resources */ = {isa = PBXBuildFile; fileRef = D34FC3F0179F5BE8008A68D8 /* ui_header.png */; };
 		D3520267178C092600A17F1A /* circle.png in Resources */ = {isa = PBXBuildFile; fileRef = D3520266178C092600A17F1A /* circle.png */; };
 		D3A50C98179543E3004736E7 /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = D3A50C96179543E3004736E7 /* back.png */; };
 		D3A50C99179543E3004736E7 /* frame.png in Resources */ = {isa = PBXBuildFile; fileRef = D3A50C97179543E3004736E7 /* frame.png */; };
@@ -796,6 +802,13 @@
 		D34FC3CC179E72F9008A68D8 /* ui_combo_meter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_combo_meter.png; sourceTree = "<group>"; };
 		D34FC3CD179E72FA008A68D8 /* ui_combo_star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_combo_star.png; sourceTree = "<group>"; };
 		D34FC3CE179E72FA008A68D8 /* ui_combo_number.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ui_combo_number.fnt; sourceTree = "<group>"; };
+		D34FC3D6179EBACF008A68D8 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = ../Classes/Timer.cpp; sourceTree = "<group>"; };
+		D34FC3D7179EBACF008A68D8 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../Classes/Timer.h; sourceTree = "<group>"; };
+		D34FC3E4179EF159008A68D8 /* ui_bottom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_bottom.png; sourceTree = "<group>"; };
+		D34FC3E8179EFBB3008A68D8 /* ui_time_meter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_time_meter.png; sourceTree = "<group>"; };
+		D34FC3EC179F0650008A68D8 /* ui_time_number.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ui_time_number.fnt; sourceTree = "<group>"; };
+		D34FC3EE179F0756008A68D8 /* ui_time_number.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_time_number.png; sourceTree = "<group>"; };
+		D34FC3F0179F5BE8008A68D8 /* ui_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_header.png; sourceTree = "<group>"; };
 		D3520266178C092600A17F1A /* circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = circle.png; sourceTree = "<group>"; };
 		D3A50C96179543E3004736E7 /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
 		D3A50C97179543E3004736E7 /* frame.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frame.png; sourceTree = "<group>"; };
@@ -1385,6 +1398,8 @@
 				D3BE02A61785039E00AB7B3B /* GameScene.h */,
 				D311B30F178D50CE0052034E /* Player.cpp */,
 				D311B310178D50CE0052034E /* Player.h */,
+				D34FC3D6179EBACF008A68D8 /* Timer.cpp */,
+				D34FC3D7179EBACF008A68D8 /* Timer.h */,
 			);
 			name = Classes;
 			path = ../classes;
@@ -1682,11 +1697,18 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				D34FC3CA179E72F8008A68D8 /* ui_combo_text.png */,
-				D34FC3CB179E72F9008A68D8 /* ui_combo_number.png */,
-				D34FC3CC179E72F9008A68D8 /* ui_combo_meter.png */,
+				D34FC3F0179F5BE8008A68D8 /* ui_header.png */,
+				D34FC3E4179EF159008A68D8 /* ui_bottom.png */,
 				D34FC3CD179E72FA008A68D8 /* ui_combo_star.png */,
+				D34FC3CA179E72F8008A68D8 /* ui_combo_text.png */,
+				D34FC3CC179E72F9008A68D8 /* ui_combo_meter.png */,
+				D34FC3CB179E72F9008A68D8 /* ui_combo_number.png */,
+				D34FC3CE179E72FA008A68D8 /* ui_combo_number.fnt */,
+				D34FC3E8179EFBB3008A68D8 /* ui_time_meter.png */,
+				D34FC3EE179F0756008A68D8 /* ui_time_number.png */,
+				D34FC3EC179F0650008A68D8 /* ui_time_number.fnt */,
 				D34FC3C7179E69B3008A68D8 /* ui_score_number.png */,
+				D34FC3C6179E69B3008A68D8 /* ui_score_number.fnt */,
 				D34FBFF8179E18CC008A68D8 /* block_1_1.png */,
 				D34FBFF9179E18CC008A68D8 /* block_1_2.png */,
 				D34FBFFA179E18CC008A68D8 /* block_1_3.png */,
@@ -1715,8 +1737,6 @@
 				D34FC011179E18CC008A68D8 /* block_7_2.png */,
 				D34FC012179E18CC008A68D8 /* block_7_3.png */,
 				D34FC013179E18CC008A68D8 /* block_7_4.png */,
-				D34FC3CE179E72FA008A68D8 /* ui_combo_number.fnt */,
-				D34FC3C6179E69B3008A68D8 /* ui_score_number.fnt */,
 				D34FBFD51796AC12008A68D8 /* blue_large.png */,
 				D34FBFD61796AC12008A68D8 /* blue_middle.png */,
 				D34FBFD71796AC12008A68D8 /* green_large.png */,
@@ -1965,6 +1985,11 @@
 				D34FC3D1179E72FA008A68D8 /* ui_combo_meter.png in Resources */,
 				D34FC3D2179E72FA008A68D8 /* ui_combo_star.png in Resources */,
 				D34FC3D3179E72FA008A68D8 /* ui_combo_number.fnt in Resources */,
+				D34FC3E5179EF15A008A68D8 /* ui_bottom.png in Resources */,
+				D34FC3E9179EFBB4008A68D8 /* ui_time_meter.png in Resources */,
+				D34FC3ED179F0651008A68D8 /* ui_time_number.fnt in Resources */,
+				D34FC3EF179F0757008A68D8 /* ui_time_number.png in Resources */,
+				D34FC3F1179F5BEB008A68D8 /* ui_header.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2162,6 +2187,7 @@
 				D3BE02AA1785039E00AB7B3B /* GameScene.cpp in Sources */,
 				D311B311178D50CE0052034E /* Player.cpp in Sources */,
 				D311B31A178D6DFE0052034E /* Gauge.cpp in Sources */,
+				D34FC3D8179EBAD0008A68D8 /* Timer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

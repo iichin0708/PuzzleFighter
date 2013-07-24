@@ -13,8 +13,9 @@ Gauge* Gauge::spriteWithSpriteFrame(CCSpriteFrame *pSpriteFrame)
 
 
 // 初期化
-void Gauge::init(float maxValue)
+void Gauge::init(float maxValue, const char *imgName)
 {
+    /*
     this->maxValue = maxValue;
     value = maxValue;
     
@@ -29,22 +30,53 @@ void Gauge::init(float maxValue)
     frame->setPosition(ccp(getContentSize().width / 2,
                            getContentSize().height / 2));
     addChild(frame);
+    */
+    this->maxValue = maxValue;
+    value = (int)maxValue;
+    
+    CCLog("gauge width = %f, height = %f", getContentSize().width, getContentSize().height);
+    if (strcmp(imgName, "ui_bottom.png") == 0) {
+        this->setPosition(ccp(this->getContentSize().width / 2, 600));
+        this->setTag(kTimeFrame);
+        
+        bar = CCSprite::create("ui_time_meter.png");
+        bar->setPosition(ccp(35, 2 * getContentSize().height / 3 - 2));
+        bar->setAnchorPoint(ccp(0.0, 0.5));
+        bar->setTag(kTimeBar);
+        this->addChild(bar);
+    } else if (strcmp(imgName, "ui_header.png") == 0) {
+        this->setPosition(ccp(this->getContentSize().width / 2, 600 + getContentSize().height / 2));
+        
+        bar = CCSprite::create("ui_combo_meter.png");
+        bar->setPosition(ccp(this->getContentSize().width - bar->getContentSize().width - 18, getContentSize().height / 2 - 2));
+        bar->setAnchorPoint(ccp(0.0, 0.5));
+        value = 0;
+        bar->setScaleX(value / maxValue);
+        this->addChild(bar);
+    }
 }
 
+/*
 void Gauge::init(float maxValue, ccColor3B color)
 {
     init(maxValue);
     bar->setColor (color);
 }
-
+*/
 
 // 初期化したインスタンスを取得する
-Gauge* Gauge::create(float maxValue)
+Gauge* Gauge::create(float maxValue, const char *gaugeImgName)
 {
-    Gauge* Gauge = spriteWithSpriteFrame(CCSpriteFrame::create("gauge.png",
-                                                               CCRectMake(0, 0, 480, 80)));
-    Gauge->init(maxValue);
-    return Gauge;
+    Gauge *gauge;
+    if (strcmp(gaugeImgName, "ui_bottom.png") == 0) {
+        gauge = spriteWithSpriteFrame(CCSpriteFrame::create(gaugeImgName,
+                                                                CCRectMake(0, 0, 640, 106)));
+    } else if (strcmp(gaugeImgName, "ui_header.png") == 0) {
+        gauge = spriteWithSpriteFrame(CCSpriteFrame::create(gaugeImgName, CCRectMake(0, 0, 640, 242)));
+    }
+    gauge->init(maxValue, gaugeImgName);
+    
+    return gauge;
 }
 
 

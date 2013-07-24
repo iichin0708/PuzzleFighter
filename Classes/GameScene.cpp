@@ -2,6 +2,7 @@
 #include "SimpleAudioEngine.h"
 #include "CCPlaySE.h"
 
+
 using namespace cocos2d;
 using namespace CocosDenshion;
 using namespace std;
@@ -26,9 +27,6 @@ bool GameScene::init()
     
     BlockSprite::setGameManager(this);
 
-    // プレイヤーの用意（最大体力、最大スキルポイント、攻撃力、回復力、スキルポイントチャージ力）
-    player = new Player(1000, 100, 10, 10, 10);
-    
     // 獲得コイン数初期化
     coin = 0;
     
@@ -65,6 +63,26 @@ bool GameScene::init()
     scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
     
     BlockSprite::setGameManager(this);
+    
+    
+    // タイマーゲージ作成
+    Gauge *timerGauge = Gauge::create(DEFAULT_PLAY_TIME, "ui_bottom.png");
+    timerGauge->setTag(kTagTimerGauge);
+    m_background->addChild(timerGauge, kZOrderTimer, kTagTimerGauge);
+    
+    // コンボゲージ作成
+    
+    Gauge *comboGauge = Gauge::create(FEVER_COUNT, "ui_header.png");
+    comboGauge->setTag(kTagComboFrame);
+    m_background->addChild(comboGauge, kZOrderCombo, kTagComboFrame);
+    
+    
+    Timer::setGameManager(this);
+    // タイマー計測開始
+    timer = Timer::createTimer(60);
+    addChild(timer);
+    timer->setTag(kTagTimer);
+    timer->startTimer();
     
     return true;
 }
@@ -107,9 +125,9 @@ void GameScene::showBackground()
     const char *score = CCString::createWithFormat("%d", m_score)->getCString();
     CCLabelBMFont *scoreLabel;
     scoreLabel = CCLabelBMFont::create(score, "ui_score_number.fnt");
-    scoreLabel->setPosition(ccp(m_background->getContentSize().width - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height));
+    scoreLabel->setPosition(ccp(m_background->getContentSize().width - 100 - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height - 100));
     m_background->addChild(scoreLabel, kZOrderScore, kTagScoreNumber);
-    
+        
 }
 
 // ブロック表示
@@ -243,7 +261,14 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     int tag = 0;
     kBlock blockType;
     getTouchBlockTag(touchPoint, tag, blockType);
-        
+
+    /*
+    Gauge *gauge = (Gauge*)getChildByTag(kTagTimerGauge);
+    gauge->decrease(1);
+    */
+    
+    CCLog("%f", timer->getTime());
+    
     //触った場所にブロックがあった場合
     if (tag != 0) {
         BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
@@ -794,7 +819,7 @@ void GameScene::updateScore() {
     const char *score = CCString::createWithFormat("%d", m_score)->getCString();
     CCLabelBMFont *scoreLabel = (CCLabelBMFont*)m_background->getChildByTag(kTagScoreNumber);
     scoreLabel->setCString(score);
-    scoreLabel->setPosition(ccp(m_background->getContentSize().width - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height));
+    scoreLabel->setPosition(ccp(m_background->getContentSize().width - 100 - scoreLabel->getContentSize().width / 2, winSize.height - scoreLabel->getContentSize().height - 100));
     
     //scoreLabel = CCLabelBMFont::create(score, "ui_score_number.fnt");
     /*
@@ -1150,6 +1175,9 @@ void GameScene::showCombo()
     CCPoint origin = pDirector->getVisibleOrigin();
     CCSize visibleSize = pDirector->getVisibleSize();
     
+    Gauge *comboGauge = (Gauge*)m_background->getChildByTag(kTagComboFrame);
+    comboGauge->increase(m_combo - preCombo);
+    
     const char *combo = CCString::createWithFormat("%d", m_combo)->getCString();
     CCLabelBMFont *comboLabel;
     comboLabel = CCLabelBMFont::create(combo, "ui_combo_number.fnt");
@@ -1191,12 +1219,16 @@ void GameScene::showCombo()
     comboLabel->unschedule(schedule_selector(CCLabelTTF::removeFromParent));
     comboLabel->scheduleOnce(schedule_selector(CCLabelTTF::removeFromParent), during);
     */
+    preCombo = m_combo;
 }
 
 // コンボ数のリセット
 void GameScene::resetCombo()
 {
+    preCombo = 0;
     m_combo = 0;
+    Gauge *comboGauge = (Gauge*)m_background->getChildByTag(kTagComboFrame);
+    comboGauge->decrease(FEVER_COUNT);
 }
 
 // ブロックのインデックス取得

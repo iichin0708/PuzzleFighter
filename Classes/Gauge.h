@@ -8,6 +8,11 @@ using namespace cocos2d;
 class Gauge : public CCSprite
 {
 private:
+    enum kGaugeTag {
+        kTimeBar,
+        kTimeFrame,
+    };
+    
     // インスタンスを作る
     static Gauge* spriteWithSpriteFrame(CCSpriteFrame *pSpriteFrame);
     
@@ -21,14 +26,14 @@ private:
     float maxValue;
     
     // インスタンスの初期化
-    void init(float maxValue);
+    void init(float maxValue, const char* imgName);
     
     // インスタンスの初期化（色の設定付き）
     void init(float maxValue, ccColor3B color);
     
 public:
     // 初期化したインスタンスを作る
-    static Gauge* create(float maxValue);
+    static Gauge* create(float maxValue, const char *gaugeImgName);
     
     // 数値を減らす
     void decrease(float decreaseValue);
