@@ -8,15 +8,29 @@
 
 #define MAX_BLOCK_X 7
 #define MAX_BLOCK_Y 6
-#define SWAPPING_TIME 0.1f
+#define SWAPPING_TIME 0.2f
 #define REMOVING_TIME 0.1f
-#define MOVING_TIME 0.3f
+#define MOVING_TIME 0.2f
 #define HINT_TIME 4.0f
 #define COMBO_TIME 1.5f
 #define FEVER_COUNT 10
-#define DEFAULT_PLAY_TIME 60
+#define DEFAULT_PLAY_TIME 3600
 
 #define KEY_HIGHSCORE "HighScore"
+
+#define LABEL_READY_IN_TIME 1.0f
+#define LABEL_READY_OUT_TIME 0.5f
+
+#define LABEL_GO_IN_TIME 0.2f
+#define LABEL_GO_OUT_TIME 0.3f
+
+#define LABEL_TIMEUP_IN_TIME 2.0f
+#define LABEL_TIMEUP_OUT_TIME 0.5f
+
+#define LABEL_FEVER_IN_TIME 0.5f
+#define LABEL_FEVER_OUT_TIME 0.7f
+
+#define DELETE_LINE_TIME 0.5f
 
 //#define PNG_BACKGROUND "back_ground.png"
 #define PNG_BACKGROUND "back.png"
@@ -26,6 +40,7 @@
 #define PNG_RESET "pause_button_reverse.png"
 #define MP3_REMOVE_BLOCK "removeBlock.mp3"
 #include "Timer.h"
+#include "PowerUpSprite.h"
 
 
 class GameScene : public cocos2d::CCLayer
@@ -50,6 +65,12 @@ protected:
     
     // ブロックをスワップしたかどうか
     bool m_isSwappedBlocks;
+    
+    // アラートフラグ
+    bool isShowedAlert;
+    
+    // フィーバーフラグ
+    bool isStartFever;
     
     // 画像の大きさ
     float m_blockSize;
@@ -116,6 +137,13 @@ protected:
     // アニメーションの登録
     void signUpAnimation();
 
+    void showGameIntroReady();
+    
+    void showGameIntroGo();
+    
+    void showGameIntroFinished();
+    
+    void setGameOver();
     /*********************************/
 
 
@@ -140,6 +168,8 @@ public:
         kTagComboGauge,
         kTagComboFrame,
         kTagScoreNumber = 25000,
+        kTagAlert,
+        kTagFever,
     };
 
     enum kZOrder
@@ -151,6 +181,9 @@ public:
         kZOrderScore,
         kZOrderTimer,
         kZOrderTimerLabel,
+        kZOrderAlert,
+        kZOrderFever,
+        kZOrderGameSectionLabel,
         kZOrderGameOver,
     };
     
@@ -205,6 +238,8 @@ public:
     // コンボ数
     int m_combo;
     
+    std::list<PowerUpSprite*> managePowerList;
+    
     // コンボ数のリセット
     void resetCombo();
     
@@ -218,10 +253,30 @@ public:
     // スコアを保持
     int m_score;
     
+    // スコアを更新する.
     void updateScore();
 
+    // ゲーム終了
+    void timeUp();
+    
+    // 残り時間が5秒以内を警告する
+    void showAlert();
+    
+    // フィーバーをスタートする
+    void startFever();
+    
+    // 引数の場所を中心に行列を消すアニメーション
+    void lineDeleteAnimation(int indexX, int indexY);
     
     std::list<int> seekChainRecursive(std::list<int> &tes, int baseTag, int up);
+    
+#pragma mark アニメーションと同時に消すほうがいいかもね
+    // 行列を削除する.
+    void linearDelete(int indexX, int indexY);
+    
+    // 周囲を削除する.
+    void aroundDelete(int indexX, int indexY);
+    
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__

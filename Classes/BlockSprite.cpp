@@ -1,5 +1,6 @@
 #include "BlockSprite.h"
 #include "GameScene.h"
+#include "PowerUpSprite.h"
 
 GameScene* BlockSprite::gameManager = NULL;
 bool BlockSprite::doubleDelete = false;
@@ -13,6 +14,8 @@ BlockSprite::BlockSprite()
     m_isTouchFlag = true;
     m_blockLevel = 0;
     m_isLevelUp = false;
+    starTag = 1000;
+    collectSprite = NULL;
 }
 
 BlockSprite::~BlockSprite()
@@ -383,7 +386,13 @@ CCPoint BlockSprite::getBlockPosition(int indexX, int indexY)
 
 void BlockSprite::removeSelfAnimation()
 {
+    CCLog("tag = %d, level = %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y), m_blockLevel);
     if (m_blockLevel == 2) {
+        CCLog("level2");
+        m_blockLevel = 0;
+        gameManager->lineDeleteAnimation(m_positionIndex.x, m_positionIndex.y);
+        gameManager->linearDelete(m_positionIndex.x, m_positionIndex.y);
+/*
     // レベル2のブロックが消えるとき、上下左右いっぱいのブロックを消す
         // 横方向
         for (int x = 0; x < MAX_BLOCK_X; x++) {
@@ -406,10 +415,13 @@ void BlockSprite::removeSelfAnimation()
             target->m_blockState = BlockSprite::kDeleting;
             target->removeSelfAnimation();
         }
-        
+*/
     } else if (m_blockLevel == 1) {
+        CCLog("b");
+        m_blockLevel = 0;
+        gameManager->aroundDelete(m_positionIndex.x, m_positionIndex.y);
+/*
     // レベル1のブロックが消えるとき、周囲8方向のブロックを消す
-        
         int tags[] = {
             1,      // 上
             -1,     // 下
@@ -430,6 +442,7 @@ void BlockSprite::removeSelfAnimation()
             target->m_blockState = BlockSprite::kDeleting;
             target->removeSelfAnimation();
         }
+*/
     }
     
     if (m_isLevelUp) {
@@ -448,6 +461,7 @@ void BlockSprite::removeSelfAnimation()
             m_blockState = kStopping;
             return;
         }
+#pragma mark スコアアップ
     } else {
         if (deleteState == kDeleteThree) {
             gameManager->m_score += 500;
@@ -502,6 +516,15 @@ void BlockSprite::changeImageToRemove() {
 }
 
 void BlockSprite::removeSelf() {
+#pragma mark その場に光の物体を出す処理
+    if (collectSprite != NULL) {
+#pragma mark powerSpriteの登録
+        PowerUpSprite *powerSprite = PowerUpSprite::createPowerUpSprite("ui_star.png", m_positionIndex.x, m_positionIndex.y);
+        powerSprite->toSprite = collectSprite;
+        gameManager->addChild(powerSprite);
+        gameManager->managePowerList.push_back(powerSprite);
+    }
+    
     removeFromParentAndCleanup(true);
 }
 

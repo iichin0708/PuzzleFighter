@@ -22,6 +22,8 @@ private:
     
     void countTimer(float time);
     
+    bool showAlertFlag;
+    
 public:
     CC_SYNTHESIZE_READONLY(float, m_timer, Time);
     CC_SYNTHESIZE(float, m_maxTime, MaxTime);

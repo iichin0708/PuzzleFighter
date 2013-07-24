@@ -2,7 +2,6 @@
 #include "SimpleAudioEngine.h"
 #include "CCPlaySE.h"
 
-
 using namespace cocos2d;
 using namespace CocosDenshion;
 using namespace std;
@@ -57,18 +56,14 @@ bool GameScene::init()
     
     // 効果音の事前読み込み
     SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
-    
-    // 4秒後にヒントが出る設定
-    unschedule(schedule_selector(GameScene::showSwapChainPosition));
-    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
-    
+        
     BlockSprite::setGameManager(this);
-    
     
     // タイマーゲージ作成
     Gauge *timerGauge = Gauge::create(DEFAULT_PLAY_TIME, "ui_bottom.png");
     timerGauge->setTag(kTagTimerGauge);
     m_background->addChild(timerGauge, kZOrderTimer, kTagTimerGauge);
+    Gauge::setGameManager(this);
     
     // コンボゲージ作成
     
@@ -76,13 +71,9 @@ bool GameScene::init()
     comboGauge->setTag(kTagComboFrame);
     m_background->addChild(comboGauge, kZOrderCombo, kTagComboFrame);
     
-    
-    Timer::setGameManager(this);
-    // タイマー計測開始
-    timer = Timer::createTimer(60);
-    addChild(timer);
-    timer->setTag(kTagTimer);
-    timer->startTimer();
+    isShowedAlert = false;
+    isStartFever = false;
+    showGameIntroReady();
     
     return true;
 }
@@ -204,6 +195,64 @@ void GameScene::showBlock()
     } while (getSwapChainCount() <= 0);
 }
 
+// READYを表示する.
+void GameScene::showGameIntroReady() {
+    // 全てのブロックをタッチ不可にする.
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+            // 本来ならタッチ無効でOK リセットボタンを押したいためkTimeOverを用意した.
+            bSprite->m_blockState = BlockSprite::kGameStart;
+        }
+    }
+    
+    CCSprite *readySprite = CCSprite::create("ui_ready_1.png");
+    readySprite->setPosition(CCDirector::sharedDirector()->getWinSize()/2);
+    CCActionInterval *action1 = CCFadeIn::create(LABEL_READY_IN_TIME);
+    CCActionInterval *action2 = CCFadeOut::create(LABEL_READY_OUT_TIME);
+    CCCallFunc *func1 = CCCallFunc::create(this, callfunc_selector(GameScene::showGameIntroGo));
+    CCCallFunc *func2 = CCCallFunc::create(readySprite, callfunc_selector(CCSprite::removeFromParent));
+    
+    readySprite->runAction(CCSequence::create(action1, action2, func1, func2, NULL));
+    addChild(readySprite);
+}
+
+void GameScene::showGameIntroGo() {
+    // ラインポップ風ならこの時点でタッチ可
+    // 全てのブロックをタッチ可にする.
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+            // 本来ならタッチ無効でOK リセットボタンを押したいためkTimeOverを用意した.
+            bSprite->m_blockState = BlockSprite::kStopping;
+        }
+    }
+    
+    CCSprite *goSprite = CCSprite::create("ui_go.png");
+    goSprite->setPosition(CCDirector::sharedDirector()->getWinSize()/2);
+    CCActionInterval *action1 = CCFadeIn::create(LABEL_GO_IN_TIME);
+    CCActionInterval *action2 = CCFadeOut::create(LABEL_GO_OUT_TIME);
+    CCCallFunc *func1 = CCCallFunc::create(goSprite, callfunc_selector(CCSprite::removeFromParent));
+    CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(GameScene::showGameIntroFinished));
+    
+    goSprite->runAction(CCSequence::create(action1, action2, func1, func2, NULL));
+    addChild(goSprite);
+}
+
+// GOが表示された後の処理(ここからゲームを開始する)
+void GameScene::showGameIntroFinished() {    
+    // ゲーム開始
+    Timer::setGameManager(this);
+    // タイマー計測開始
+    timer = Timer::createTimer(60);
+    addChild(timer);
+    timer->setTag(kTagTimer);
+    timer->startTimer();
+    
+    // 4秒後にヒントが出る設定
+    unschedule(schedule_selector(GameScene::showSwapChainPosition));
+    scheduleOnce(schedule_selector(GameScene::showSwapChainPosition), HINT_TIME);
+}
 
 // ヒントをランダムに1つ表示
 void GameScene::showSwapChainPosition()
@@ -266,9 +315,7 @@ bool GameScene::ccTouchBegan(CCTouch* pTouch, CCEvent* pEvent)
     Gauge *gauge = (Gauge*)getChildByTag(kTagTimerGauge);
     gauge->decrease(1);
     */
-    
-    CCLog("%f", timer->getTime());
-    
+        
     //触った場所にブロックがあった場合
     if (tag != 0) {
         BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(tag);
@@ -551,6 +598,10 @@ int GameScene::getRemoveColors(std::list<int> removeBlockTags) {
 // 指定されたブロックリストを削除する
 void GameScene::removeBlocks(list<int> removeBlockTags)
 {
+    /*
+    CCLog("");
+    CCLog("removeBlocks");
+    */
     list<int>::iterator it = removeBlockTags.begin();
     while(it != removeBlockTags.end()) {
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
@@ -558,6 +609,8 @@ void GameScene::removeBlocks(list<int> removeBlockTags)
             it++;
             continue;
         }
+        
+    //CCLog("*it = %d", *it);
         
         removeSprite->m_blockState = BlockSprite::kDeleting;
         removeSprite->removeSelfAnimation();
@@ -647,17 +700,12 @@ list<int> GameScene::checkChain(BlockSprite *bSprite) {
     removeBlockTags.unique();
     removeBlockTags.reverse();
     
-    
-    list<int>::iterator it = removeBlockTags.begin();
-    while (it != removeBlockTags.end()) {
-        BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it);
-        it++;
-    }
-    
     return removeBlockTags;
 }
 
 void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
+    int collectTag = -1;
+    
     // 一時的に保存するためのリスト
     list<int> chainColorList;
     
@@ -684,49 +732,20 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite == NULL) {
                     it1++;
                     continue;
+                } else if(bSprite->m_isLevelUp) {
+                    it1++;
+                    continue;
                 }
                 bSprite->deleteState = BlockSprite::kDeleteThree;
-                if (bSprite->getPartnerBlock()) {
-                    //bSprite->m_blockLevel = 0;
-                }
-                it1++;
-            }
-        } else if (4 == chainColorList.size()) {
-            while (it1 != chainColorList.end()) {
-                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                if (bSprite == NULL) {
-                    it1++;
-                    continue;
-                }
-                bSprite->deleteState = BlockSprite::kDeleteFour;
-                //bSprite->m_blockLevel = 0;
                 if (bSprite->getPartnerBlock() && !setLevelFlag) {
-                    //bSprite->m_blockLevel = 1;
-                    bSprite->m_isLevelUp = true;
-                    bSprite->setPartnerBlock(NULL);
-                    setLevelFlag = true;
-                }
-                it1++;
-            }
-
-            if (!setLevelFlag) {
-                it1 = chainColorList.begin();
-                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                //bSprite->m_blockLevel = 1;
-                bSprite->m_isLevelUp = true;
-            }
-        } else if (5 <= chainColorList.size()) {
-            while (it1 != chainColorList.end()) {
-                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                if (bSprite == NULL) {
-                    it1++;
-                    continue;
-                }
-                bSprite->deleteState = BlockSprite::kDeleteFive;
-                //bSprite->m_blockLevel = 0;
-                if (bSprite->getPartnerBlock() && !setLevelFlag) {
-                    //bSprite->m_blockLevel = 2;
-                    bSprite->m_isLevelUp = true;
+                    if (isStartFever) {
+                        bSprite->deleteState = BlockSprite::kDeleteFour;
+                        if (bSprite->m_blockLevel != 2) {
+                            bSprite->m_blockLevel = 1;
+                        }
+                    } else {
+                        bSprite->m_blockLevel = 0;
+                    }
                     bSprite->setPartnerBlock(NULL);
                     setLevelFlag = true;
                 }
@@ -736,8 +755,63 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                bSprite->m_isLevelUp = true;
+            }
+        } else if (4 == chainColorList.size()) {
+            while (it1 != chainColorList.end()) {
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                if (bSprite == NULL) {
+                    it1++;
+                    continue;
+                } else if(bSprite->m_isLevelUp) {
+                    continue;
+                }
+                bSprite->deleteState = BlockSprite::kDeleteFour;
+                //bSprite->m_blockLevel = 0;
+                if (bSprite->getPartnerBlock() && !setLevelFlag) {
+                    //bSprite->m_blockLevel = 1;
+                    bSprite->m_isLevelUp = true;
+                    bSprite->setPartnerBlock(NULL);
+                    setLevelFlag = true;
+                    collectTag = *it1;
+                }
+                it1++;
+            }
+
+            if (!setLevelFlag) {
+                it1 = chainColorList.begin();
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                //bSprite->m_blockLevel = 1;
+                bSprite->m_isLevelUp = true;
+                collectTag = *it1;
+            }
+        } else if (5 <= chainColorList.size()) {
+            while (it1 != chainColorList.end()) {
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
+                if (bSprite == NULL) {
+                    it1++;
+                    continue;
+                } else if(bSprite->m_isLevelUp) {
+                    continue;
+                }
+                bSprite->deleteState = BlockSprite::kDeleteFive;
+                //bSprite->m_blockLevel = 0;
+                if (bSprite->getPartnerBlock() && !setLevelFlag) {
+                    //bSprite->m_blockLevel = 2;
+                    bSprite->m_isLevelUp = true;
+                    bSprite->setPartnerBlock(NULL);
+                    setLevelFlag = true;
+                    collectTag = *it1;
+                }
+                it1++;
+            }
+            
+            if (!setLevelFlag) {
+                it1 = chainColorList.begin();
+                BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 //bSprite->m_blockLevel = 2;
                 bSprite->m_isLevelUp = true;
+                collectTag = *it1;
             }
         } else {
             while (it1 != chainColorList.end()) {
@@ -755,12 +829,22 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             chainColorList.clear();
             break;
         }
-        
+    
+#pragma mark 集めるブロックに関する登録処理
         list<int>::iterator itt = chainColorList.begin();
         while (itt != chainColorList.end()) {
+           // CCLog("colectTag = %d", collectTag);
+            // 集めるブロックを登録
+            BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(*itt);
+            if (!bSprite->m_isLevelUp && collectTag != -1) {
+                BlockSprite *target = (BlockSprite*)m_background->getChildByTag(collectTag);
+                bSprite->collectSprite = target;
+            }
             removeBlockColorTags.remove(*itt);
             itt++;
         }
+        
+        collectTag = -1;
 
         removeBlockColorTags.clear();
     }
@@ -948,6 +1032,32 @@ void GameScene::setNewPosition()
                 yChain++;
             } 
         }
+    }
+    
+#pragma mark 星の移動
+    // パワーアップの星を指定の場所へ移動する
+    list<PowerUpSprite*>::iterator it = managePowerList.begin();
+    while (it != managePowerList.end()) {
+        PowerUpSprite *movePowerSprite = *it;
+        CCPoint powerPoint = getPosition(movePowerSprite->m_positionIndex.x, movePowerSprite->m_positionIndex.y);
+        CCPoint targetPoint = getPosition(movePowerSprite->toSprite->m_postPositionIndex.x, movePowerSprite->toSprite->m_postPositionIndex.y);
+        if (targetPoint.x == -1 || targetPoint.y == -1) {
+            targetPoint = getPosition(movePowerSprite->toSprite->m_positionIndex.x, movePowerSprite->toSprite->m_positionIndex.y);
+        }
+        /*
+        CCLog("powerPoint.x = %d, powerPoint.y = %d", movePowerSprite->m_positionIndex.x, movePowerSprite->m_positionIndex.y);
+        CCLog("targetPoint.x = %d, targetPoint.y = %d", movePowerSprite->toSprite->m_positionIndex.x, movePowerSprite->toSprite->m_positionIndex.y);
+        CCLog("post_targetPoint.x = %d, post_targetPoint.y = %d", movePowerSprite->toSprite->m_postPositionIndex.x, movePowerSprite->toSprite->m_postPositionIndex.y);
+        CCLog("point.x = %f, point.y = %f", targetPoint.x - powerPoint.x, targetPoint.y - powerPoint.y);
+        */
+        CCMoveBy *move = CCMoveBy::create(0.3f, CCPointMake(targetPoint.x - powerPoint.x, targetPoint.y - powerPoint.y));
+        CCCallFunc *func = CCCallFunc::create(movePowerSprite, callfunc_selector(CCSprite::removeFromParent));
+        movePowerSprite->runAction(CCSequence::create(move, func, NULL));
+        
+        // 移動した要素は削除する.
+        managePowerList.remove(*it);
+        // 次の要素を参照
+        *it++;
     }
 
     for (int x = 0; x < MAX_BLOCK_X; x++) {
@@ -1177,6 +1287,14 @@ void GameScene::showCombo()
     
     Gauge *comboGauge = (Gauge*)m_background->getChildByTag(kTagComboFrame);
     comboGauge->increase(m_combo - preCombo);
+    // コンボボーナスの計算 (コンボ数×220がボーナス点) 100コンボ以上は一律
+    if (100 <= preCombo) {
+        m_score += 20000;
+    } else {
+        for (int x = preCombo; x < m_combo; x++) {
+            m_score += preCombo * 220;
+        }
+    }
     
     const char *combo = CCString::createWithFormat("%d", m_combo)->getCString();
     CCLabelBMFont *comboLabel;
@@ -1229,6 +1347,14 @@ void GameScene::resetCombo()
     m_combo = 0;
     Gauge *comboGauge = (Gauge*)m_background->getChildByTag(kTagComboFrame);
     comboGauge->decrease(FEVER_COUNT);
+
+    CCSprite *feverSprite = (CCSprite*)m_background->getChildByTag(kTagFever);
+    if (feverSprite) {
+        unschedule(schedule_selector(GameScene::startFever));
+        feverSprite->removeFromParent();
+        comboGauge->fever = false;
+        isStartFever = false;
+    }
 }
 
 // ブロックのインデックス取得
@@ -1291,6 +1417,88 @@ void GameScene::addAnimationCache(const char *fileName, const char *cacheName, i
     animationCache->addAnimation(animation, cacheName);
 }
 
+void GameScene::lineDeleteAnimation(int indexX, int indexY) {
+    CCPoint blockPoint = getPosition(indexX, indexY);
+
+    // 左方向
+    CCSprite *bullet1 = CCSprite::create("bullet.png");
+    bullet1->setPosition(blockPoint);
+    bullet1->setScale(2);
+    
+    // 上方向
+    CCSprite *bullet2 = CCSprite::create("bullet.png");
+    bullet2->setPosition(blockPoint);
+    bullet2->setRotation(90);
+    bullet2->setScale(2);
+    
+    // 右方向
+    CCSprite *bullet3 = CCSprite::create("bullet.png");
+    bullet3->setPosition(blockPoint);
+    bullet3->setRotation(180);
+    bullet3->setScale(2);
+    
+    // 下方向
+    CCSprite *bullet4 = CCSprite::create("bullet.png");
+    bullet4->setPosition(blockPoint);
+    bullet4->setRotation(270);
+    bullet4->setScale(2);
+    
+    CCPoint posBullet1 = CCPointMake(-bullet1->getContentSize().width, blockPoint.y);
+    CCActionInterval *action1 = CCMoveTo::create(DELETE_LINE_TIME, posBullet1);
+    CCCallFunc *func1 = CCCallFunc::create(bullet1, callfunc_selector(CCSprite::removeFromParent));
+    bullet1->runAction(CCSequence::create(action1, func1, NULL));
+
+    CCPoint posBullet2 = CCPointMake(blockPoint.x, CCDirector::sharedDirector()->getWinSize().height + bullet2->getContentSize().height);
+    CCActionInterval *action2 = CCMoveTo::create(DELETE_LINE_TIME, posBullet2);
+    CCCallFunc *func2 = CCCallFunc::create(bullet2, callfunc_selector(CCSprite::removeFromParent));
+    bullet2->runAction(CCSequence::create(action2, func2, NULL));
+    
+    CCPoint posBullet3 = CCPointMake(CCDirector::sharedDirector()->getWinSize().width + bullet2->getContentSize().width, blockPoint.y);
+    CCActionInterval *action3 = CCMoveTo::create(DELETE_LINE_TIME, posBullet3);
+    CCCallFunc *func3 = CCCallFunc::create(bullet3, callfunc_selector(CCSprite::removeFromParent));
+    bullet3->runAction(CCSequence::create(action3, func3, NULL));
+    
+    CCPoint posBullet4 = CCPointMake(blockPoint.x, -bullet2->getContentSize().height);
+    CCActionInterval *action4 = CCMoveTo::create(DELETE_LINE_TIME, posBullet4);
+    CCCallFunc *func4 = CCCallFunc::create(bullet4, callfunc_selector(CCSprite::removeFromParent));
+    bullet4->runAction(CCSequence::create(action4, func4, NULL));
+
+    addChild(bullet1);
+    addChild(bullet2);
+    addChild(bullet3);
+    addChild(bullet4);
+}
+
+void GameScene::startFever() {
+    CCSprite *feverSprite = (CCSprite*)m_background->getChildByTag(kTagFever);
+    if (feverSprite == NULL) {
+        feverSprite = CCSprite::create("ui_alert_frame.png");
+        feverSprite->setColor(ccc3(200, 255, 0));
+        feverSprite->setPosition(CCDirector::sharedDirector()->getWinSize() / 2);
+        m_background->addChild(feverSprite, kZOrderFever, kTagFever);
+    }
+    
+    CCActionInterval *action1 = CCScaleTo::create(0.5f, 1.1f);
+    CCActionInterval *action2 = CCScaleTo::create(0.5f, 0.9f);
+    
+    feverSprite->runAction(CCSequence::create(action1, action2, NULL));
+    
+    
+    if (!isStartFever) {
+        this->schedule(schedule_selector(GameScene::startFever), 1.0);
+        isStartFever = true;
+        CCSprite *feverSprite = CCSprite::create("ui_fever.png");
+#pragma mark 大きさ調整したほうが良い
+        feverSprite->setScale(2);
+        feverSprite->setPosition(CCDirector::sharedDirector()->getWinSize() / 2);
+        CCActionInterval *action3 = CCFadeIn::create(LABEL_FEVER_IN_TIME);
+        CCActionInterval *action4 = CCFadeOut::create(LABEL_FEVER_OUT_TIME);
+        CCCallFunc *func = CCCallFunc::create(feverSprite, callfunc_selector(CCSprite::removeFromParent));
+        feverSprite->runAction(CCSequence::create(action3, action4, func, NULL));
+        addChild(feverSprite);
+    }
+
+}
 
 // アニメーションの登録
 void GameScene::signUpAnimation()
@@ -1316,6 +1524,57 @@ CCSprite* GameScene::getAnimation(char* animName)
     return sprite;
 }
 
+void GameScene::aroundDelete(int indexX, int indexY) {
+    int aroundTags[] = {
+        1,      // 上
+        -1,     // 下
+        -100,   // 左
+        100,    // 右
+        -99,     // 左上
+        -101,   // 左下
+        101,    // 右上
+        99,     // 右下
+    };
+        
+    for (int i = 0; i < sizeof(aroundTags) / sizeof(aroundTags[0]); i++) {
+        int targetTag = getTag(indexX, indexY) + aroundTags[i];
+        BlockSprite *target = (BlockSprite *)m_background->getChildByTag(targetTag);
+        if (target == NULL) {
+            continue;
+        }
+        target->m_blockState = BlockSprite::kDeleting;
+        target->removeSelfAnimation();
+    }
+}
+
+void GameScene::linearDelete(int indexX, int indexY) {
+    list<int> deleteTagList;
+    
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        if (indexX == x) {
+            continue;
+        }
+        deleteTagList.push_back(getTag(x, indexY));
+    }
+    
+    for (int y = 0; y < MAX_BLOCK_Y; y++) {
+        if (indexY == y) {
+            continue;
+        }
+        deleteTagList.push_back(getTag(indexX, y));
+    }
+    
+    list<int>::iterator it = deleteTagList.begin();
+    while (it != deleteTagList.end()) {
+        BlockSprite *deleteSprite = (BlockSprite*)m_background->getChildByTag(*it);
+        if (deleteSprite != NULL) {
+            deleteSprite->m_blockState = BlockSprite::kDeleting;
+            deleteSprite->removeSelfAnimation();
+        }
+        it++;
+    }
+    
+}
 
 // 指定したブロックに潜在的な連結があるかどうか
 int GameScene::getSwapChainBlockCount(int blockTag)
@@ -1509,6 +1768,68 @@ void GameScene::getTouchBlockTag(CCPoint touchPoint, int &tag, kBlock &blockType
     }
 }
 
+// アラートの表示
+void GameScene::showAlert() {
+    CCSprite *alertSprite = (CCSprite*)m_background->getChildByTag(kTagAlert);
+    if (alertSprite == NULL) {
+        alertSprite = CCSprite::create("ui_alert_frame.png");
+        alertSprite->setPosition(CCDirector::sharedDirector()->getWinSize()/2);
+        m_background->addChild(alertSprite, kZOrderAlert, kTagAlert);
+    }
+    CCActionInterval *action1 = CCScaleTo::create(0.5f, 1.1f);
+    CCActionInterval *action2 = CCScaleTo::create(0.5f, 0.95f);
+    
+    alertSprite->runAction(CCSequence::create(action1, action2, NULL));
+    
+    if (!isShowedAlert) {
+        this->schedule(schedule_selector(GameScene::showAlert), 1.0);
+        isShowedAlert = true;
+    }
+}
+
+// 制限時間経過後
+void GameScene::timeUp() {
+    unschedule(schedule_selector(GameScene::showSwapChainPosition));
+    unschedule(schedule_selector(GameScene::showAlert));
+    //アラートの消去
+    CCSprite *alertSprite = (CCSprite*)m_background->getChildByTag(kTagAlert);
+    alertSprite->removeFromParent();
+    
+    // ヒントサークルが表示されていれば消去
+    CCNode *circle = m_background->getChildByTag(GameScene::kTagHintCircle);
+    if(circle != NULL) {
+        circle->removeFromParentAndCleanup(true);
+    }
+    
+    // TIME UPの表示
+    CCSprite *timeUpSprite = CCSprite::create("ui_timeup.png");
+    timeUpSprite->setPosition(CCDirector::sharedDirector()->getWinSize()/2);
+    CCActionInterval *action1 = CCFadeIn::create(LABEL_TIMEUP_IN_TIME);
+    CCActionInterval *action2 = CCFadeOut::create(LABEL_TIMEUP_OUT_TIME);
+    CCCallFunc *func2 = CCCallFunc::create(timeUpSprite, callfunc_selector(CCSprite::removeFromParentAndCleanup));
+    CCCallFunc *func3 = CCCallFunc::create(this, callfunc_selector(GameScene::setGameOver));
+    timeUpSprite->runAction(CCSequence::create(action1, action2, func2, func3, NULL));
+    
+    m_background->addChild(timeUpSprite, kZOrderGameSectionLabel);
+    
+    this->setTouchEnabled(false);
+    
+}
+
+void GameScene::setGameOver() {
+    // 全てのブロックをタッチ不可にする.
+    for (int x = 0; x < MAX_BLOCK_X; x++) {
+        for (int y = 0; y < MAX_BLOCK_Y; y++) {
+            BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(getTag(x, y));
+            if (bSprite) {
+                // 本来ならタッチ無効でOK リセットボタンを押したいためkTimeOverを用意した.
+                bSprite->m_blockState = BlockSprite::kGameOver;
+            }
+        }
+    }
+
+    this->setTouchEnabled(true);
+}
 
 // リセットボタンタップ時の処理
 void GameScene::menuResetCallback(cocos2d::CCObject* pSender)

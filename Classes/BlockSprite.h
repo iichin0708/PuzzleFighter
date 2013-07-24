@@ -35,6 +35,8 @@ public:
         kPreDropping,
         kDropping,
         kDeleting,
+        kGameStart,
+        kGameOver,
     };
     
     enum kDeleteState
@@ -90,6 +92,8 @@ public:
     
     int m_isLevelUp;
     
+    int starTag;
+    
     void moveBlock();
     
     void changePosition();
@@ -115,6 +119,8 @@ public:
     void changeImageToRemove();
     
     static bool doubleDelete;
+    
+    BlockSprite *collectSprite;
 };
 
 #endif // __BLOCKSPRITE__H__

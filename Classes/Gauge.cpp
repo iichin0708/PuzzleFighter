@@ -1,4 +1,7 @@
 #include "Gauge.h"
+#include "GameScene.h"
+
+GameScene* Gauge::gameManager = NULL;
 
 // インスタンスを作る
 Gauge* Gauge::spriteWithSpriteFrame(CCSpriteFrame *pSpriteFrame)
@@ -31,10 +34,11 @@ void Gauge::init(float maxValue, const char *imgName)
                            getContentSize().height / 2));
     addChild(frame);
     */
+    fever = false;
+    
     this->maxValue = maxValue;
     value = (int)maxValue;
     
-    CCLog("gauge width = %f, height = %f", getContentSize().width, getContentSize().height);
     if (strcmp(imgName, "ui_bottom.png") == 0) {
         this->setPosition(ccp(this->getContentSize().width / 2, 600));
         this->setTag(kTimeFrame);
@@ -97,6 +101,15 @@ void Gauge::increase(float increaseValue)
     value += increaseValue;
     if (value > maxValue) {
         value = maxValue;
+        if (!fever) {
+            CCLog("fever");
+            gameManager->startFever();
+            fever = true;
+        }
     }
     bar->setScaleX(value / maxValue);
+}
+
+void Gauge::setGameManager(GameScene *gameInstance) {
+    gameManager = gameInstance;
 }

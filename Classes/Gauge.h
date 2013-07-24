@@ -3,6 +3,8 @@
 
 #include "cocos2d.h"
 
+class GameScene;
+
 using namespace cocos2d;
 
 class Gauge : public CCSprite
@@ -32,8 +34,14 @@ private:
     void init(float maxValue, ccColor3B color);
     
 public:
+    static GameScene* gameManager;
+    
+    static void setGameManager(GameScene *gameInstance);
+    
     // 初期化したインスタンスを作る
     static Gauge* create(float maxValue, const char *gaugeImgName);
+    
+    bool fever;
     
     // 数値を減らす
     void decrease(float decreaseValue);
