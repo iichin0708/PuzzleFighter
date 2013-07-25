@@ -55,8 +55,17 @@ bool GameScene::init()
     showResetButton();
     
     // 効果音の事前読み込み
-    SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
-        
+    SimpleAudioEngine::sharedEngine()->setEffectsVolume(1.0);
+    //SimpleAudioEngine::sharedEngine()->preloadEffect(MP3_REMOVE_BLOCK);
+    SimpleAudioEngine::sharedEngine()->preloadEffect("kira.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("pui.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("SE_fever_combo_c.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("SE_ready.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("timeup3.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("go_t1.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("SE_hyper4.mp3");
+    SimpleAudioEngine::sharedEngine()->preloadEffect("SE_refulesh_2.mp3");
+    
     BlockSprite::setGameManager(this);
     
     // タイマーゲージ作成
@@ -74,6 +83,8 @@ bool GameScene::init()
     isShowedAlert = false;
     isStartFever = false;
     showGameIntroReady();
+    
+
     
     return true;
 }
@@ -93,6 +104,8 @@ void GameScene::initForVariables()
     m_score = 0;
     
     allMoved = true;
+    
+    m_feverCombo = 0;
 }
 
 
@@ -205,7 +218,7 @@ void GameScene::showGameIntroReady() {
             bSprite->m_blockState = BlockSprite::kGameStart;
         }
     }
-    
+    SimpleAudioEngine::sharedEngine()->playEffect("SE_ready.mp3");
     CCSprite *readySprite = CCSprite::create("ui_ready_1.png");
     readySprite->setPosition(CCDirector::sharedDirector()->getWinSize()/2);
     CCActionInterval *action1 = CCFadeIn::create(LABEL_READY_IN_TIME);
@@ -218,6 +231,7 @@ void GameScene::showGameIntroReady() {
 }
 
 void GameScene::showGameIntroGo() {
+    SimpleAudioEngine::sharedEngine()->playEffect("go_t1.mp3");
     // ラインポップ風ならこの時点でタッチ可
     // 全てのブロックをタッチ可にする.
     for (int x = 0; x < MAX_BLOCK_X; x++) {
@@ -553,10 +567,16 @@ void GameScene::recursiveCheck() {
                 }
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
+                if (isStartFever) {
+                    m_feverCombo += getRemoveColors(removeList);
+                }
                 allMoved = true;
             } else {
                 addBlocks();
                 m_combo += getRemoveColors(removeList);
+                if (isStartFever) {
+                    m_feverCombo += getRemoveColors(removeList);
+                }
                 allMoved = true;
             }
         }
@@ -566,6 +586,10 @@ void GameScene::recursiveCheck() {
             showCombo();
         }
 
+        if (2 <= m_feverCombo) {
+            showFeverCombo();
+        }
+        
         unschedule(schedule_selector(GameScene::resetCombo));
         scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
         
@@ -602,6 +626,8 @@ void GameScene::removeBlocks(list<int> removeBlockTags)
     CCLog("");
     CCLog("removeBlocks");
     */
+    SimpleAudioEngine::sharedEngine()->playEffect("kira.mp3");
+
     list<int>::iterator it = removeBlockTags.begin();
     while(it != removeBlockTags.end()) {
         BlockSprite *removeSprite = (BlockSprite*)m_background->getChildByTag(*it);
@@ -609,6 +635,7 @@ void GameScene::removeBlocks(list<int> removeBlockTags)
             it++;
             continue;
         }
+        
         
     //CCLog("*it = %d", *it);
         
@@ -732,7 +759,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite == NULL) {
                     it1++;
                     continue;
-                } else if(bSprite->m_isLevelUp) {
+                } else if(bSprite->m_blockLevel != 0) {
                     it1++;
                     continue;
                 }
@@ -740,9 +767,10 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite->getPartnerBlock() && !setLevelFlag) {
                     if (isStartFever) {
                         bSprite->deleteState = BlockSprite::kDeleteFour;
-                        if (bSprite->m_blockLevel != 2) {
-                            bSprite->m_blockLevel = 1;
+                        if (bSprite->m_blockLevel == 2) {
+                            continue;
                         }
+                        bSprite->m_blockLevel = 1;
                     } else {
                         bSprite->m_blockLevel = 0;
                     }
@@ -755,7 +783,7 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
             if (!setLevelFlag) {
                 it1 = chainColorList.begin();
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
-                bSprite->m_isLevelUp = true;
+                //bSprite->m_isLevelUp = true;
             }
         } else if (4 == chainColorList.size()) {
             while (it1 != chainColorList.end()) {
@@ -763,7 +791,8 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite == NULL) {
                     it1++;
                     continue;
-                } else if(bSprite->m_isLevelUp) {
+                } else if(bSprite->m_blockLevel == 2) {
+                    it1++;
                     continue;
                 }
                 bSprite->deleteState = BlockSprite::kDeleteFour;
@@ -782,8 +811,10 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 it1 = chainColorList.begin();
                 BlockSprite *bSprite = (BlockSprite*)m_background->getChildByTag(*it1);
                 //bSprite->m_blockLevel = 1;
-                bSprite->m_isLevelUp = true;
-                collectTag = *it1;
+                if (bSprite != NULL) {
+                    bSprite->m_isLevelUp = true;
+                    collectTag = *it1;
+                }
             }
         } else if (5 <= chainColorList.size()) {
             while (it1 != chainColorList.end()) {
@@ -791,7 +822,8 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
                 if (bSprite == NULL) {
                     it1++;
                     continue;
-                } else if(bSprite->m_isLevelUp) {
+                } else if(bSprite->m_blockLevel == 2) {
+                    it1++;
                     continue;
                 }
                 bSprite->deleteState = BlockSprite::kDeleteFive;
@@ -831,12 +863,13 @@ void GameScene::setDeleteType(std::list<int> removeBlockColorTags) {
         }
     
 #pragma mark 集めるブロックに関する登録処理
+        // removeBlockColorTagsからチェインのあるブロックカラーのタグを削除
         list<int>::iterator itt = chainColorList.begin();
         while (itt != chainColorList.end()) {
            // CCLog("colectTag = %d", collectTag);
             // 集めるブロックを登録
             BlockSprite *bSprite = (BlockSprite *)m_background->getChildByTag(*itt);
-            if (!bSprite->m_isLevelUp && collectTag != -1) {
+            if (bSprite != NULL && !bSprite->m_isLevelUp && collectTag != -1) {
                 BlockSprite *target = (BlockSprite*)m_background->getChildByTag(collectTag);
                 bSprite->collectSprite = target;
             }
@@ -962,7 +995,6 @@ void GameScene::searchAndSetDeleteType(std::list<int> removeBlockTags)
         while (it != humanRedTags.end()) {
             it++;
         }
-
         setDeleteType(humanRedTags);
     }
     
@@ -1296,15 +1328,16 @@ void GameScene::showCombo()
         }
     }
     
+    // 純粋なコンボカウントを表示
     const char *combo = CCString::createWithFormat("%d", m_combo)->getCString();
     CCLabelBMFont *comboLabel;
     comboLabel = CCLabelBMFont::create(combo, "ui_combo_number.fnt");
-    comboLabel->setPosition(ccp(origin.x + comboLabel->getContentSize().width / 2 + m_background->getContentSize().width / 2, origin.y + visibleSize.height / 2 + 100));
+    comboLabel->setPosition(ccp(origin.x + m_background->getContentSize().width / 2, origin.y + visibleSize.height / 2 + 100));
     addChild(comboLabel);
     
     CCSprite *comboSprite = CCSprite::create("ui_combo_text.png");
-    comboSprite->setPosition(ccp(origin.x - comboLabel->getContentSize().width / 2 + m_background->getContentSize().width / 2 - comboSprite->getContentSize().width / 2 + 15, origin.y + visibleSize.height / 2 + 100));
-    m_background->addChild(comboSprite, kZOrderCombo, kTagComboText);
+    comboSprite->setPosition(ccp(origin.x + m_background->getContentSize().width / 2 + comboLabel->getContentSize().width / 2 + comboSprite->getContentSize().width / 2, origin.y + visibleSize.height / 2 + 100));
+    addChild(comboSprite);
     
     float during = COMBO_TIME;
     CCFadeOut *actionFadeOut = CCFadeOut::create(during);
@@ -1314,6 +1347,7 @@ void GameScene::showCombo()
     
     comboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
     comboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+    
     /*
     char comboText[10];
     sprintf(comboText, "%d COMBO!", m_combo);
@@ -1340,11 +1374,124 @@ void GameScene::showCombo()
     preCombo = m_combo;
 }
 
+void GameScene::showFeverCombo() {    
+    CCDirector* pDirector = CCDirector::sharedDirector();
+    CCPoint origin = pDirector->getVisibleOrigin();
+    CCSize visibleSize = pDirector->getVisibleSize();
+
+    if (m_feverCombo < 20) {
+        const char *feverCombo = CCString::createWithFormat("%d", m_feverCombo)->getCString();
+        CCLabelBMFont *feverComboLabel;
+        feverComboLabel = CCLabelBMFont::create(feverCombo, "ui_combo_number.fnt");
+        feverComboLabel->setPosition(ccp(origin.x + m_background->getContentSize().width / 2, origin.y + visibleSize.height - feverComboLabel->getContentSize().height / 2));
+        addChild(feverComboLabel);
+        
+        CCSprite *feverComboSprite = CCSprite::create("ui_combo_text.png");
+        feverComboSprite->setPosition(ccp(origin.x + m_background->getContentSize().width / 2 + feverComboLabel->getContentSize().width / 2 + feverComboSprite->getContentSize().width / 2, origin.y + visibleSize.height - feverComboSprite->getContentSize().height / 2));
+        addChild(feverComboSprite);
+        
+        float during = COMBO_TIME;
+        CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+        CCFadeOut *actionFadeOut1 = CCFadeOut::create(during);
+        feverComboLabel->runAction(actionFadeOut);
+        feverComboSprite->runAction(actionFadeOut1);
+        
+        feverComboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+        feverComboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+        
+    } else {
+        CCSprite *burstSprite = CCSprite::create("burst_combo.png");
+        burstSprite->setColor(ccc3(255, 0, 0));
+        burstSprite->setScale(2.5);
+        burstSprite->setPosition(ccp(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+        addChild(burstSprite);
+        
+        float during = COMBO_TIME;
+        CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+        burstSprite->runAction(actionFadeOut);
+        
+        burstSprite->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+        
+        /*
+        const char *feverCombo = CCString::createWithFormat("20")->getCString();
+        CCLabelBMFont *feverComboLabel;
+        feverComboLabel = CCLabelBMFont::create(feverCombo, "ui_combo_number.fnt");
+        feverComboLabel->setPosition(ccp(origin.x + m_background->getContentSize().width / 2, origin.y + visibleSize.height - feverComboLabel->getContentSize().height / 2));
+        addChild(feverComboLabel);
+        
+        CCSprite *feverComboSprite = CCSprite::create("ui_combo_text.png");
+        feverComboSprite->setPosition(ccp(origin.x + m_background->getContentSize().width / 2 + feverComboLabel->getContentSize().width / 2 + feverComboSprite->getContentSize().width / 2, origin.y + visibleSize.height - feverComboSprite->getContentSize().height / 2));
+        addChild(feverComboSprite);
+        
+        float during = COMBO_TIME;
+        CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+        CCFadeOut *actionFadeOut1 = CCFadeOut::create(during);
+        feverComboLabel->runAction(actionFadeOut);
+        feverComboSprite->runAction(actionFadeOut1);
+        
+        feverComboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+        feverComboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+        */
+        
+        /*
+        const char *feverComboStr = CCString::createWithFormat("[20]")->getCString();
+        CCLabelBMFont *feverComboLabel;
+        feverComboLabel = CCLabelBMFont::create(feverComboStr, "ui_combo_number.fnt", 2);
+        feverComboLabel->setPosition(ccp(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2));
+        addChild(feverComboLabel);
+        
+        
+        CCSprite *feverComboSprite = CCSprite::create("ui_combo_text.png");
+        feverComboSprite->setPosition(ccp(origin.x + visibleSize.width / 2 + feverComboLabel->getContentSize().width / 2 + feverComboSprite->getContentSize().width / 2, origin.y + visibleSize.height / 2));
+        addChild(feverComboSprite);
+        
+        float during = COMBO_TIME;
+        CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+        CCFadeOut *actionFadeOut1 = CCFadeOut::create(during);
+        feverComboLabel->runAction(actionFadeOut);
+        feverComboSprite->runAction(actionFadeOut1);
+        
+        feverComboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+        feverComboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+        */
+        
+        
+         
+        // バースト初期化
+        m_feverCombo = 0;
+    }
+    
+    /*
+    // 純粋なコンボカウントを表示
+    const char *feverCombo = CCString::createWithFormat("%d", m_feverCombo)->getCString();
+    CCLabelBMFont *feverComboLabel;
+    feverComboLabel->setColor(ccc3(0, 0, 255));
+    feverComboLabel = CCLabelBMFont::create(feverCombo, "ui_combo_number.fnt");
+    feverComboLabel->setPosition(ccp(origin.x + m_background->getContentSize().width / 2, origin.y + visibleSize.height / 2 - feverComboLabel->getContentSize().height / 2));
+    addChild(feverComboLabel);
+    
+    CCSprite *feverComboSprite = CCSprite::create("ui_combo_text.png");
+    feverComboSprite->setColor(ccc3(0, 0, 255));
+    feverComboSprite->setPosition(ccp(origin.x + m_background->getContentSize().width / 2 + feverComboLabel->getContentSize().width / 2 + feverComboSprite->getContentSize().width / 2, origin.y + visibleSize.height / 2 - feverComboSprite->getContentSize().height / 2));
+    addChild(feverComboSprite);
+    
+    float during = COMBO_TIME;
+    CCFadeOut *actionFadeOut = CCFadeOut::create(during);
+    CCFadeOut *actionFadeOut1 = CCFadeOut::create(during);
+    feverComboLabel->runAction(actionFadeOut);
+    feverComboSprite->runAction(actionFadeOut1);
+    
+    feverComboLabel->scheduleOnce(schedule_selector(CCLabelBMFont::removeFromParent), during);
+    feverComboSprite->scheduleOnce(schedule_selector(CCSprite::removeFromParent), during);
+    */
+}
+
 // コンボ数のリセット
 void GameScene::resetCombo()
 {
     preCombo = 0;
     m_combo = 0;
+    m_feverCombo = 0;
     Gauge *comboGauge = (Gauge*)m_background->getChildByTag(kTagComboFrame);
     comboGauge->decrease(FEVER_COUNT);
 
@@ -1470,6 +1617,7 @@ void GameScene::lineDeleteAnimation(int indexX, int indexY) {
 }
 
 void GameScene::startFever() {
+    
     CCSprite *feverSprite = (CCSprite*)m_background->getChildByTag(kTagFever);
     if (feverSprite == NULL) {
         feverSprite = CCSprite::create("ui_alert_frame.png");
@@ -1485,6 +1633,9 @@ void GameScene::startFever() {
     
     
     if (!isStartFever) {
+        SimpleAudioEngine::sharedEngine()->playEffect("SE_fever_combo_c.mp3");
+        // フィーバー時のコンボ
+        m_feverCombo = 0;
         this->schedule(schedule_selector(GameScene::startFever), 1.0);
         isStartFever = true;
         CCSprite *feverSprite = CCSprite::create("ui_fever.png");
@@ -1789,6 +1940,7 @@ void GameScene::showAlert() {
 
 // 制限時間経過後
 void GameScene::timeUp() {
+    SimpleAudioEngine::sharedEngine()->playEffect("timeup3.mp3");
     unschedule(schedule_selector(GameScene::showSwapChainPosition));
     unschedule(schedule_selector(GameScene::showAlert));
     //アラートの消去

@@ -1,6 +1,7 @@
 #include "BlockSprite.h"
 #include "GameScene.h"
 #include "PowerUpSprite.h"
+#include "SimpleAudioEngine.h"
 
 GameScene* BlockSprite::gameManager = NULL;
 bool BlockSprite::doubleDelete = false;
@@ -208,6 +209,8 @@ void BlockSprite::changePosition()
     CCCallFunc *func2 = CCCallFunc::create(this, callfunc_selector(BlockSprite::changePositionFinished));
     CCFiniteTimeAction *action1 = CCSequence::create(func1, moveAnimationDelay, func2, NULL);
     
+    CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("pui.mp3");
+    
     // 新しいタグに更新しておく
     setTag(gameManager->getTag(m_postPositionIndex.x, m_postPositionIndex.y));
     
@@ -246,10 +249,17 @@ void BlockSprite::changePositionFinished()
                 }
                 gameManager->addBlocks();
 
+                // 通常コンボ
                 gameManager->m_combo += 2;
                 // 2コンボ以上のときはアニメ演出
                 if (gameManager->m_combo >= 2) {
                     gameManager->showCombo();
+                }
+                
+                // フィーバーコンボ
+                if (gameManager->isStartFever) {
+                    gameManager->m_feverCombo += 2;
+                    gameManager->showFeverCombo();
                 }
                 
                 gameManager->unschedule(schedule_selector(GameScene::resetCombo));
@@ -289,6 +299,13 @@ void BlockSprite::changePositionFinished()
                     gameManager->showCombo();
                 }
                 
+                // フィーバーコンボ
+                if (gameManager->isStartFever) {
+                    gameManager->m_feverCombo++;
+                    if (2 < gameManager->m_feverCombo) {
+                        gameManager->showFeverCombo();
+                    }
+                }
                 gameManager->unschedule(schedule_selector(GameScene::resetCombo));
                 gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
 
@@ -301,6 +318,13 @@ void BlockSprite::changePositionFinished()
                     gameManager->showCombo();
                 }
                 
+                // フィーバーコンボ
+                if (gameManager->isStartFever) {
+                    gameManager->m_feverCombo++;
+                    if (2 < gameManager->m_feverCombo) {
+                        gameManager->showFeverCombo();
+                    }
+                }
                 gameManager->unschedule(schedule_selector(GameScene::resetCombo));
                 gameManager->scheduleOnce(schedule_selector(GameScene::resetCombo), COMBO_TIME);
             }
@@ -386,9 +410,8 @@ CCPoint BlockSprite::getBlockPosition(int indexX, int indexY)
 
 void BlockSprite::removeSelfAnimation()
 {
-    CCLog("tag = %d, level = %d", gameManager->getTag(m_positionIndex.x, m_positionIndex.y), m_blockLevel);
     if (m_blockLevel == 2) {
-        CCLog("level2");
+        CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("SE_refulesh_2.mp3");
         m_blockLevel = 0;
         gameManager->lineDeleteAnimation(m_positionIndex.x, m_positionIndex.y);
         gameManager->linearDelete(m_positionIndex.x, m_positionIndex.y);
@@ -417,7 +440,7 @@ void BlockSprite::removeSelfAnimation()
         }
 */
     } else if (m_blockLevel == 1) {
-        CCLog("b");
+        CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("SE_hyper4.mp3");
         m_blockLevel = 0;
         gameManager->aroundDelete(m_positionIndex.x, m_positionIndex.y);
 /*

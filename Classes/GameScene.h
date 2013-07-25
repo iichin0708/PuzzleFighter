@@ -8,13 +8,15 @@
 
 #define MAX_BLOCK_X 7
 #define MAX_BLOCK_Y 6
-#define SWAPPING_TIME 0.2f
+#define SWAPPING_TIME 0.1f
 #define REMOVING_TIME 0.1f
-#define MOVING_TIME 0.2f
+#define MOVING_TIME 0.1f
 #define HINT_TIME 4.0f
 #define COMBO_TIME 1.5f
 #define FEVER_COUNT 10
 #define DEFAULT_PLAY_TIME 3600
+
+#define BURSET_COMBO_COUNT 20
 
 #define KEY_HIGHSCORE "HighScore"
 
@@ -68,10 +70,7 @@ protected:
     
     // アラートフラグ
     bool isShowedAlert;
-    
-    // フィーバーフラグ
-    bool isStartFever;
-    
+        
     // 画像の大きさ
     float m_blockSize;
     
@@ -238,6 +237,9 @@ public:
     // コンボ数
     int m_combo;
     
+    // フィーバー時のコンボ数
+    int m_feverCombo;
+    
     std::list<PowerUpSprite*> managePowerList;
     
     // コンボ数のリセット
@@ -277,6 +279,12 @@ public:
     // 周囲を削除する.
     void aroundDelete(int indexX, int indexY);
     
+    // フィーバーフラグ
+    bool isStartFever;
+    
+    
+    void showFeverCombo();
+
 };
 
 #endif // __GAMESCENE_H__#endif // __GAMESCENE_H__

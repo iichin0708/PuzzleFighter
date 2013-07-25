@@ -13,3 +13,5 @@ char id=55     x=157   y=0      width=23    height=27    xoffset=0     yoffset=0
 char id=56     x=180   y=0      width=23    height=27    xoffset=0     yoffset=0      xadvance=23    page=0 chnl=0 letter="8"
 char id=57     x=203   y=0      width=24    height=27    xoffset=0     yoffset=0      xadvance=24    page=0 chnl=0 letter="9"
 char id=58     x=230   y=0      width=13    height=27    xoffset=0     yoffset=0      xadvance=13    page=0 chnl=0 letter=":"
+char id=91     x=0   y=0      width=0    height=0    xoffset=0     yoffset=0      xadvance=0    page=0 chnl=0 letter="["
+char id=93     x=0   y=0      width=0    height=0    xoffset=0     yoffset=0      xadvance=0    page=0 chnl=0 letter="]"
